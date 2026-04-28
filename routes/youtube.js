@@ -11,7 +11,7 @@ router.get('/mp3', async (req, res) => {
     if (!result || !result.status || !result.download) return res.status(404).json({ status: false, error: 'No se pudo obtener el audio.' });
     return res.json({
       status: true,
-      creator: 'Api Kazuma',
+      creator: 'Félix Ofc',
       type: 'mp3',
       quality,
       metadata: result.metadata || {},
