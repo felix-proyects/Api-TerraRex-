@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Api Kazuma | Interfaz de Pruebas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-pink: #ff2d55;
+            --neon-blue: #00f3ff;
+            --dark-bg: #0d0d0d;
+            --card-bg: #1a1a2e;
+            --sidebar-bg: #121212;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --code-bg: #252545;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--sidebar-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; }
+        .brand span { color: var(--neon-pink); }
+        .hamburger { font-size: 1.4rem; cursor: pointer; }
+
+        .sidebar {
+            position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%;
+            background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
+            padding: 30px 20px; box-sizing: border-box;
+        }
+        .sidebar.active { right: 0; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 15px; color: var(--text-main);
+            text-decoration: none; padding: 15px; border-radius: 10px; margin-bottom: 5px;
+            background: rgba(255,255,255,0.03); cursor: pointer;
+        }
+
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
+
+        .hero { text-align: center; padding: 30px 10px; }
+        .hero-img { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--neon-pink); margin-bottom: 15px; }
+
+        .api-card {
+            background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .api-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .api-header i { color: var(--neon-blue); font-size: 1.2rem; }
+        
+        .code-box {
+            background: var(--code-bg); padding: 12px; border-radius: 12px; font-family: monospace;
+            font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; color: var(--neon-blue); overflow-x: auto;
+        }
+
+        .input-test {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px; border-radius: 10px; color: white; margin-bottom: 15px; outline: none;
+        }
+        .input-test:focus { border-color: var(--neon-pink); }
+        
+        .btn-test {
+            background: var(--neon-pink); color: white; border: none; padding: 12px 25px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .btn-test:active { transform: scale(0.95); }
+
+        .result-box {
+            background: #080815; color: #00ffcc; padding: 15px; border-radius: 12px;
+            margin-top: 15px; font-size: 0.8rem; font-family: 'Courier New', Courier, monospace;
+            min-height: 50px; border: 1px solid rgba(0, 255, 204, 0.1);
+            white-space: pre-wrap; word-break: break-all;
+        }
+
+        .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">API <span>KAZUMA</span></div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times" style="font-size: 1.5rem;"></i></div>
+        <p style="color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Menú</p>
+        <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-home"></i> Inicio</div>
+        <div class="sidebar-link" onclick="showCategory('descargas')"><i class="fas fa-download"></i> Descargas</div>
+        <div class="sidebar-link" onclick="showCategory('ia')"><i class="fas fa-robot"></i> Inteligencia Artificial</div>
+        <div class="sidebar-link" onclick="showCategory('herramientas')"><i class="fas fa-tools"></i> Herramientas</div>
+    </nav>
+
+    <div class="container" id="content-area"></div>
+
+    <footer class="footer">
+        <p>Copyright © 2026 Api Kazuma. All rights reserved.<br>Desarrollado por Félix Ofc & KurayamiTeam</p>
+    </footer>
+
+    <script>
+        async function testApi(endpoint, inputId, resultId) {
+            const val = document.getElementById(inputId).value;
+            const resBox = document.getElementById(resultId);
+            if (!val) return alert("Ingresa un valor para probar");
+
+            resBox.innerHTML = "Procesando solicitud...";
+            try {
+                const response = await fetch(`${endpoint}${encodeURIComponent(val)}`);
+                const data = await response.json();
+                resBox.innerHTML = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resBox.innerHTML = "Error al conectar con la API";
+            }
+        }
+
+        const categories = {
+            inicio: `
+                <section class="hero">
+                    <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
+                    <h1>SISTEMA <span>KAZUMA</span></h1>
+                    <p style="color: var(--text-muted);">Protocolo de Frialdad | Félix Ofc</p>
+                </section>
+                <div class="api-card">
+                    <h3>Panel de Control</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Bienvenido Félix. Selecciona una categoría del menú lateral para realizar pruebas en vivo de tus Endpoints.</p>
+                </div>
+            `,
+            descargas: `
+                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">Descargas</h2>
+                <div class="api-card">
+                    <div class="api-header"><i class="fab fa-tiktok"></i> TikTok Downloader</div>
+                    <div class="code-box">/api/download/tiktok?url=</div>
+                    <input id="in-tk" class="input-test" placeholder="Pega enlace de TikTok aquí...">
+                    <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
+                    <div id="res-tk" class="result-box">El resultado aparecerá aquí...</div>
+                </div>
+                <div class="api-card">
+                    <div class="api-header"><i class="fab fa-youtube"></i> YouTube MP3</div>
+                    <div class="code-box">/api/download/youtube/mp3?url=</div>
+                    <input id="in-y3" class="input-test" placeholder="Pega enlace de YouTube aquí...">
+                    <button class="btn-test" onclick="testApi('/api/download/youtube/mp3?url=', 'in-y3', 'res-y3')"><i class="fas fa-play"></i> Probar</button>
+                    <div id="res-y3" class="result-box">El resultado aparecerá aquí...</div>
+                </div>
+            `,
+            ia: `
+                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">IA</h2>
+                <div class="api-card">
+                    <div class="api-header"><i class="fas fa-robot"></i> Gemini 2.0 Flash</div>
+                    <div class="code-box">/api/ai/gemini?text=</div>
+                    <input id="in-gm" class="input-test" placeholder="Escríbele algo a la IA...">
+                    <button class="btn-test" onclick="testApi('/api/ai/gemini?text=', 'in-gm', 'res-gm')"><i class="fas fa-paper-plane"></i> Preguntar</button>
+                    <div id="res-gm" class="result-box">El resultado aparecerá aquí...</div>
+                </div>
+            `,
+            herramientas: `
+                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">Herramientas</h2>
+                <div class="api-card">
+                    <div class="api-header"><i class="fas fa-qrcode"></i> Generador QR</div>
+                    <div class="code-box">/api/tools/qr?text=</div>
+                    <input id="in-qr" class="input-test" placeholder="Texto o URL para el QR...">
+                    <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr')"><i class="fas fa-bolt"></i> Generar</button>
+                    <div id="res-qr" class="result-box">Nota: El QR se generará como imagen, aquí verás la respuesta del servidor.</div>
+                </div>
+            `
+        };
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function showCategory(cat) {
+            document.getElementById('content-area').innerHTML = categories[cat];
+            if (window.innerWidth <= 768) toggleMenu();
+            window.scrollTo(0,0);
+        }
+
+        window.onload = () => showCategory('inicio');
+    </script>
+</body>
+</html>
