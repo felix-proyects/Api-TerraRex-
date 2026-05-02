@@ -25,38 +25,16 @@
 
         .profile-container { position: relative; width: 120px; margin: 0 auto; }
         
-        /* Un solo círculo, sin duplicados */
-        #view-img, #view-avatar { 
+        /* Un solo círculo, diseño de avatar limpio y fijo */
+        #view-img { 
             width: 120px; 
             height: 120px; 
             border-radius: 50%; 
             object-fit: cover; 
             border: 2px solid var(--neon-pink); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 2.5rem; 
-            font-weight: 800; 
             background: #1a1a2e; 
-            color: var(--neon-pink);
             box-shadow: 0 0 15px rgba(255, 45, 85, 0.2);
-        }
-
-        .edit-pen { 
-            position: absolute; 
-            bottom: 5px; 
-            right: 5px; 
-            background: var(--neon-pink); 
-            color: white; 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            border: 2px solid var(--dark-bg); 
-            z-index: 5;
+            display: block; /* Asegura que se comporte como un bloque */
         }
 
         .input-dark { 
@@ -85,18 +63,9 @@
 
     <main class="container mx-auto p-4 flex-grow max-w-2xl">
         <div class="glass rounded-3xl p-8 mt-6 text-center">
-            <div class="profile-container mb-4">
-                <img id="view-img" src="" class="hidden">
-                <div id="view-avatar" class="hidden"></div>
-                <label for="img-input" class="edit-pen">
-                    <i class="fas fa-pencil-alt text-xs"></i>
-                </label>
-                <input type="file" id="img-input" class="hidden" accept="image/*" onchange="uploadImage(this)">
+            <div class="profile-container mb-6">
+                <img id="view-img" src="" alt="Foto de perfil">
             </div>
-
-            <button onclick="deletePhoto()" class="text-[10px] text-gray-400 hover:text-red-500 font-bold uppercase mb-4">
-                <i class="fas fa-trash-alt mr-1"></i> Eliminar Foto
-            </button>
 
             <h2 id="view-username" class="text-2xl font-black">...</h2>
             <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
@@ -180,18 +149,15 @@
                     document.getElementById('view-apikey').value = u.apikey;
                     document.getElementById('view-requests').innerText = `${u.requests_today} / ${u.limit}`;
 
+                    // Carga simple y directa de la foto, igual que en el index
                     const imgEl = document.getElementById('view-img');
-                    const avEl = document.getElementById('view-avatar');
-
                     if (u.profile_img) {
                         imgEl.src = u.profile_img;
-                        imgEl.classList.remove('hidden');
-                        avEl.classList.add('hidden');
                     } else {
-                        avEl.innerText = u.username.substring(0, 2).toUpperCase();
-                        avEl.classList.remove('hidden');
-                        imgEl.classList.add('hidden');
+                        // Imagen por defecto si no tiene, para no dejar el círculo vacío
+                        imgEl.src = 'https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg';
                     }
+                    
                     document.getElementById('view-plan').innerText = u.role === 'admin' ? 'VIP ADMIN' : (u.limit > 100 ? 'PREMIUM' : 'FREE');
                 }
             } catch (e) { console.error("Error profile load"); }
@@ -215,30 +181,6 @@
                 }
                 location.reload();
             }
-        }
-
-        async function uploadImage(input) {
-            if (!input.files || !input.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const res = await fetch('/api/auth/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: session.id, type: 'profile_img', value: e.target.result })
-                });
-                if ((await res.json()).status) location.reload();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-
-        async function deletePhoto() {
-            if(!confirm("¿Borrar foto?")) return;
-            const res = await fetch('/api/auth/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: session.id, type: 'profile_img', value: null })
-            });
-            if ((await res.json()).status) location.reload();
         }
 
         function copyKey() {
