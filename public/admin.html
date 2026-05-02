@@ -15,12 +15,16 @@
         }
         body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-neon { border: 1px solid var(--neon-pink); color: var(--neon-pink); transition: 0.3s; }
-        .btn-neon:hover { background: var(--neon-pink); color: white; }
         .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
         .table-container { overflow-x: auto; }
         tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         tr:hover { background: rgba(255,255,255,0.02); }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0d0d; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-pink); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -33,14 +37,28 @@
     </header>
 
     <main class="container mx-auto p-4 flex-grow">
-        <div class="flex flex-col md:flex-row gap-4 mb-8 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-4">
+            <div class="glass p-6 rounded-2xl border-l-4 border-[#ff2d55] flex justify-between items-center">
+                <div>
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Usuarios Registrados</p>
+                    <h3 id="total-users-count" class="text-4xl font-black text-white mt-1">0</h3>
+                </div>
+                <div class="bg-pink-500/10 p-4 rounded-xl">
+                    <i class="fas fa-users text-[#ff2d55] text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
             <div class="flex-grow flex gap-2">
-                <input type="text" id="searchQuery" class="input-dark w-full p-3 rounded-xl outline-none focus:border-[#ff2d55]" placeholder="Buscar por nombre o correo...">
-                <button onclick="searchUser()" class="bg-[#ff2d55] px-6 rounded-xl font-bold"><i class="fas fa-search"></i></button>
+                <input type="text" id="searchQuery" class="input-dark w-full p-4 rounded-2xl outline-none focus:border-[#ff2d55] transition-all" placeholder="Nombre, correo o ID...">
+                <button onclick="searchUser()" class="bg-[#ff2d55] px-7 rounded-2xl font-bold shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="flex gap-2">
-                <button onclick="loadUsers('all')" class="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-4 py-2 rounded-xl text-xs font-bold">TODOS</button>
-                <button onclick="loadUsers('admins')" class="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-4 py-2 rounded-xl text-xs font-bold">ADMINS</button>
+                <button onclick="loadUsers('all')" class="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600/30 transition">Todos</button>
+                <button onclick="loadUsers('admins')" class="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-600/30 transition">Admins</button>
             </div>
         </div>
 
@@ -49,10 +67,10 @@
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-400">
                         <tr>
-                            <th class="p-5">Usuario</th>
-                            <th class="p-5">Plan / Status</th>
-                            <th class="p-5">Uso Diario</th>
-                            <th class="p-5 text-center">Acción</th>
+                            <th class="p-5 font-black">Usuario / Email</th>
+                            <th class="p-5 font-black">Rango</th>
+                            <th class="p-5 font-black">Consumo Diario</th>
+                            <th class="p-5 text-center font-black">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="user-table-body" class="text-sm">
@@ -62,30 +80,30 @@
         </div>
     </main>
 
-    <div id="editModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[9999] p-4 backdrop-blur-sm">
-        <div class="glass p-8 rounded-3xl max-w-md w-full relative">
+    <div id="editModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[9999] p-4 backdrop-blur-md">
+        <div class="glass p-8 rounded-[2.5rem] max-w-md w-full relative border border-white/10">
             <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition">
                 <i class="fas fa-times text-xl"></i>
             </button>
-            <h2 class="text-xl font-bold mb-6 text-[#ff2d55]">Modificar Usuario</h2>
-            
-            <form id="editForm" class="space-y-4">
+            <h2 class="text-2xl font-black mb-6 text-[#ff2d55] tracking-tighter">EDITAR PERFIL</h2>
+
+            <form id="editForm" class="space-y-5">
                 <input type="hidden" id="edit-id">
                 <div>
-                    <label class="text-xs text-gray-500 uppercase font-bold block mb-1">Nombre</label>
-                    <input type="text" id="edit-username" class="input-dark w-full p-3 rounded-xl outline-none">
+                    <label class="text-[10px] text-gray-500 uppercase font-black block mb-2 tracking-widest">Nombre de Usuario</label>
+                    <input type="text" id="edit-username" class="input-dark w-full p-4 rounded-2xl outline-none focus:border-[#ff2d55]">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs text-gray-400 block mb-1">Rango</label>
-                        <select id="edit-role" class="input-dark w-full p-3 rounded-xl outline-none">
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-2 tracking-widest">Rango</label>
+                        <select id="edit-role" class="input-dark w-full p-4 rounded-2xl outline-none appearance-none">
                             <option value="user">USER</option>
                             <option value="admin">ADMIN</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-xs text-gray-400 block mb-1">Plan</label>
-                        <select id="edit-plan" class="input-dark w-full p-3 rounded-xl outline-none" onchange="toggleLimitInput()">
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-2 tracking-widest">Plan de Uso</label>
+                        <select id="edit-plan" class="input-dark w-full p-4 rounded-2xl outline-none appearance-none" onchange="toggleLimitInput()">
                             <option value="100">FREE (100)</option>
                             <option value="1000">PLAN 1 (1k)</option>
                             <option value="4000">PLAN 2 (4k)</option>
@@ -94,10 +112,12 @@
                     </div>
                 </div>
                 <div id="custom-limit-div" class="hidden">
-                    <label class="text-xs text-yellow-500 block mb-1">Límite Personalizado</label>
-                    <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none">
+                    <label class="text-[10px] text-yellow-500 uppercase font-black block mb-2 tracking-widest">Límite Manual</label>
+                    <input type="number" id="edit-limit" class="input-dark w-full p-4 rounded-2xl outline-none border-yellow-500/30">
                 </div>
-                <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-bold mt-4 shadow-lg shadow-pink-500/20">GUARDAR CAMBIOS</button>
+                <button type="submit" class="w-full bg-[#ff2d55] p-5 rounded-2xl font-black mt-4 shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest">
+                    Actualizar DB
+                </button>
             </form>
         </div>
     </div>
@@ -108,14 +128,18 @@
 
         async function loadUsers(filter = 'all') {
             const body = document.getElementById('user-table-body');
-            body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-500 animate-pulse font-bold">SINCRONIZANDO DATABASE...</td></tr>';
-            
+            const counter = document.getElementById('total-users-count');
+            body.innerHTML = '<tr><td colspan="4" class="p-16 text-center text-gray-500 animate-pulse font-black tracking-widest">ACCEDIENDO A LA BASE DE DATOS...</td></tr>';
+
             try {
                 const res = await fetch(`/api/admin/users?filter=${filter}`);
                 const data = await res.json();
-                renderTable(data.users || []);
+                
+                const users = data.users || [];
+                counter.innerText = data.total || users.length;
+                renderTable(users);
             } catch (e) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500">ERROR DE CONEXIÓN</td></tr>';
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500 font-bold uppercase">Error: No se pudo leer la base de datos</td></tr>';
             }
         }
 
@@ -131,45 +155,61 @@
 
         function renderTable(users) {
             const body = document.getElementById('user-table-body');
-            if (users.length === 0) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600">No hay registros</td></tr>';
+            if (!users || users.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold">SIN REGISTROS COINCIDENTES</td></tr>';
                 return;
             }
-            body.innerHTML = users.map(u => `
-                <tr>
+            body.innerHTML = users.map(u => {
+                const progress = Math.min(((u.requests_today || 0) / (u.limit || 1)) * 100, 100);
+                return `
+                <tr class="hover:bg-white/[0.03] transition-all">
                     <td class="p-5">
-                        <div class="font-bold text-white">${u.username}</div>
-                        <div class="text-[10px] text-gray-500 font-mono">${u.email}</div>
+                        <div class="font-black text-white text-base">${u.username || 'Desconocido'}</div>
+                        <div class="text-[10px] text-gray-500 font-mono tracking-tighter uppercase">${u.email || u.id || 'Sin Identificador'}</div>
                     </td>
                     <td class="p-5">
-                        <span class="text-[10px] font-bold px-2 py-1 rounded bg-white/5 ${u.role === 'admin' ? 'text-yellow-500' : 'text-blue-400'}">${u.role.toUpperCase()}</span>
+                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.role === 'admin' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                            ${(u.role || 'USER').toUpperCase()}
+                        </span>
                     </td>
                     <td class="p-5">
-                        <div class="text-xs font-bold text-pink-500">${u.requests_today} / ${u.limit}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-xs font-black text-pink-500 whitespace-nowrap">${u.requests_today || 0} / ${u.limit || 0}</div>
+                            <div class="hidden md:block w-full max-w-[80px] h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-pink-500" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
                     </td>
                     <td class="p-5 text-center">
-                        <button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-white/10 w-10 h-10 rounded-xl transition"><i class="fas fa-edit text-xs"></i></button>
+                        <button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-white/10 hover:text-[#ff2d55] w-11 h-11 rounded-2xl transition-all border border-white/5">
+                            <i class="fas fa-user-cog text-xs"></i>
+                        </button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         async function openEdit(id) {
-            const res = await fetch(`/api/auth/user/${id}`);
-            const data = await res.json();
-            const u = data.user;
+            try {
+                const res = await fetch(`/api/auth/user/${id}`);
+                const data = await res.json();
+                const u = data.user;
 
-            document.getElementById('edit-id').value = u.id;
-            document.getElementById('edit-username').value = u.username;
-            document.getElementById('edit-role').value = u.role;
-            
-            const limit = u.limit;
-            const select = document.getElementById('edit-plan');
-            if([100, 1000, 4000].includes(limit)) select.value = limit;
-            else { select.value = 'custom'; document.getElementById('edit-limit').value = limit; }
-            
-            toggleLimitInput();
-            document.getElementById('editModal').classList.replace('hidden', 'flex');
+                document.getElementById('edit-id').value = u.id;
+                document.getElementById('edit-username').value = u.username;
+                document.getElementById('edit-role').value = u.role;
+
+                const select = document.getElementById('edit-plan');
+                if([100, 1000, 4000].includes(u.limit)) {
+                    select.value = u.limit;
+                } else {
+                    select.value = 'custom';
+                    document.getElementById('edit-limit').value = u.limit;
+                }
+
+                toggleLimitInput();
+                document.getElementById('editModal').classList.replace('hidden', 'flex');
+            } catch (e) { alert("Error al obtener datos del usuario"); }
         }
 
         function toggleLimitInput() {
@@ -182,24 +222,31 @@
             const planVal = document.getElementById('edit-plan').value;
             const limit = planVal === 'custom' ? parseInt(document.getElementById('edit-limit').value) : parseInt(planVal);
 
-            const res = await fetch('/api/admin/update-user', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    adminId: session.id,
-                    targetId: document.getElementById('edit-id').value,
-                    username: document.getElementById('edit-username').value,
-                    role: document.getElementById('edit-role').value,
-                    limit: limit
-                })
-            });
-            const data = await res.json();
-            if(data.status) { closeModal(); loadUsers(); } else { alert(data.message); }
+            try {
+                const res = await fetch('/api/admin/update-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        adminId: session.id,
+                        targetId: document.getElementById('edit-id').value,
+                        username: document.getElementById('edit-username').value,
+                        role: document.getElementById('edit-role').value,
+                        limit: limit
+                    })
+                });
+                const data = await res.json();
+                if(data.status || data.success) { 
+                    closeModal(); 
+                    loadUsers(); 
+                } else { 
+                    alert(data.message || "Error al actualizar"); 
+                }
+            } catch (e) { alert("Error de red al intentar actualizar"); }
         };
 
         function closeModal() { document.getElementById('editModal').classList.replace('flex', 'hidden'); }
 
-        window.onload = () => loadUsers();
+        window.onload = loadUsers;
     </script>
 </body>
 </html>
