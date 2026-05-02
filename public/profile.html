@@ -11,98 +11,173 @@
             --neon-pink: #ff2d55;
             --neon-blue: #00f3ff;
             --dark-bg: #0d0d0d;
+            --card-bg: #161625;
         }
-        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        body { 
+            background-color: var(--dark-bg); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at top right, #1a1a2e 0%, #0d0d0d 100%);
+        }
         
-        .profile-container { position: relative; width: 110px; margin: 0 auto; }
-        #view-img, #view-avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-pink); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; background: #1a1a2e; color: var(--neon-pink); }
-        .edit-pen { position: absolute; bottom: 5px; right: 5px; background: var(--neon-pink); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; border: 2px solid var(--dark-bg); transition: 0.3s; }
-        .edit-pen:hover { transform: scale(1.1); background: white; color: var(--neon-pink); }
+        .glass { 
+            background: rgba(22, 22, 37, 0.7); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .profile-card {
+            border-top: 1px solid rgba(255, 45, 85, 0.3);
+            background: linear-gradient(180deg, rgba(255, 45, 85, 0.05) 0%, rgba(22, 22, 37, 0.8) 100%);
+        }
+
+        .profile-container { position: relative; width: 120px; margin: 0 auto; }
+        
+        #view-img, #view-avatar { 
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 3px solid var(--neon-pink); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 3rem; 
+            font-weight: 900; 
+            background: #1a1a2e; 
+            color: var(--neon-pink);
+            box-shadow: 0 0 25px rgba(255, 45, 85, 0.3);
+        }
+
+        .edit-pen { 
+            position: absolute; 
+            bottom: 5px; 
+            right: 5px; 
+            background: var(--neon-pink); 
+            color: white; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            border: 3px solid var(--dark-bg); 
+            transition: 0.3s; 
+            z-index: 10;
+        }
+        .edit-pen:hover { transform: scale(1.1) rotate(15deg); filter: brightness(1.2); }
+
+        .input-dark { 
+            background: rgba(0,0,0,0.5); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: white; 
+            transition: 0.3s;
+        }
+        .input-dark:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.1); }
+
+        .btn-action {
+            background: linear-gradient(90deg, var(--neon-pink) 0%, #ff5e7e 100%);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        .btn-action:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 5px 15px rgba(255, 45, 85, 0.3); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
-        <div class="font-bold text-xl uppercase">KAZUMA <span>PROFILER</span></div>
-        <button onclick="location.href='/index.html'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
-            <i class="fas fa-arrow-left mr-2"></i> Volver al Inicio
+    <header class="p-5 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d]/80 backdrop-blur-md z-50">
+        <div class="font-black text-xl tracking-tighter italic">KAZUMA <span class="text-[#ff2d55]">PROFILER</span></div>
+        <button onclick="location.href='/index.html'" class="text-xs bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:bg-white/10 transition font-bold uppercase tracking-widest">
+            <i class="fas fa-chevron-left mr-2"></i> Inicio
         </button>
     </header>
 
-    <main class="container mx-auto p-4 flex-grow max-w-2xl">
-        <div class="glass rounded-3xl p-8 mt-6 text-center">
-            <div class="profile-container mb-4">
+    <main class="container mx-auto p-4 flex-grow max-w-2xl pb-20">
+        <div class="glass profile-card rounded-[2.5rem] p-10 mt-6 text-center">
+            <div class="profile-container mb-6">
                 <img id="view-img" src="" class="hidden">
-                <div id="view-avatar" class="hidden"></div>
-                <label for="img-input" class="edit-pen">
-                    <i class="fas fa-pencil-alt"></i>
+                <div id="view-avatar" class="hidden shadow-inner"></div>
+                <label for="img-input" class="edit-pen shadow-lg">
+                    <i class="fas fa-pencil-alt text-sm"></i>
                 </label>
                 <input type="file" id="img-input" class="hidden" accept="image/*" onchange="uploadImage(this)">
             </div>
-            
-            <button onclick="deletePhoto()" class="text-[10px] text-gray-500 hover:text-red-500 uppercase font-black mb-4 tracking-tighter">
+
+            <button onclick="deletePhoto()" class="text-[10px] text-gray-500 hover:text-red-500 uppercase font-black mb-6 tracking-[0.2em] transition">
                 <i class="fas fa-trash-alt mr-1"></i> Eliminar Foto
             </button>
 
-            <h2 id="view-username" class="text-2xl font-bold">Cargando...</h2>
-            <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
+            <h2 id="view-username" class="text-3xl font-black tracking-tighter mb-1">...</h2>
+            <p id="view-id" class="text-blue-400 font-mono text-xs opacity-70 tracking-widest">ID: 00000000</p>
         </div>
 
-        <div class="glass p-5 rounded-2xl mt-6 border-l-4 border-[#00f3ff]">
-            <p class="text-xs text-gray-400 uppercase font-bold mb-2">Tu API Key Personal</p>
-            <div class="flex gap-2">
-                <input type="text" id="view-apikey" class="input-dark w-full p-3 rounded-xl outline-none font-mono text-sm" readonly>
-                <button onclick="copyKey()" class="bg-[#00f3ff] text-black px-4 rounded-xl font-bold hover:bg-white transition"><i class="fas fa-copy"></i></button>
+        <div class="glass p-6 rounded-3xl mt-8 border-l-4 border-[#00f3ff] relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-8 opacity-5">
+                <i class="fas fa-key text-6xl text-[#00f3ff]"></i>
+            </div>
+            <p class="text-[10px] text-gray-400 uppercase font-black mb-3 tracking-widest ml-1">Tu Llave Maestra</p>
+            <div class="flex gap-3">
+                <input type="text" id="view-apikey" class="input-dark w-full p-4 rounded-2xl outline-none font-mono text-sm shadow-inner" readonly>
+                <button onclick="copyKey()" class="bg-[#00f3ff] text-black px-6 rounded-2xl font-black hover:brightness-110 transition active:scale-95 shadow-lg shadow-cyan-900/20">
+                    <i class="fas fa-copy"></i>
+                </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Plan Actual</p>
-                <p id="view-plan" class="text-lg font-bold text-yellow-400">...</p>
+        <div class="grid grid-cols-2 gap-4 mt-6">
+            <div class="glass p-6 rounded-[2rem]">
+                <p class="text-[9px] text-gray-500 uppercase font-black mb-2 tracking-widest">Nivel de Acceso</p>
+                <p id="view-plan" class="text-lg font-black text-yellow-400 italic italic">...</p>
             </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Uso de Hoy</p>
-                <p id="view-requests" class="text-lg font-bold text-pink-500">0 / 0</p>
+            <div class="glass p-6 rounded-[2rem]">
+                <p class="text-[9px] text-gray-500 uppercase font-black mb-2 tracking-widest">Consumo Hoy</p>
+                <p id="view-requests" class="text-lg font-black text-pink-500 italic">0 / 0</p>
             </div>
         </div>
 
-        <div class="glass rounded-3xl p-6 mt-8">
-            <h3 class="text-xl font-bold mb-6 flex items-center"><i class="fas fa-user-cog mr-3 text-pink-500"></i> Ajustes de Cuenta</h3>
+        <div class="glass rounded-[2.5rem] p-8 mt-10">
+            <h3 class="text-lg font-black mb-8 flex items-center uppercase tracking-tighter">
+                <span class="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-sliders-h text-pink-500 text-sm"></i>
+                </span> 
+                Configuración
+            </h3>
 
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-sm text-gray-400 mb-2">Nombre de Usuario (Mín. 4 caracteres)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-username" class="input-dark w-full p-3 rounded-xl outline-none focus:border-pink-500" placeholder="Nuevo nombre...">
-                        <button onclick="updateData('username')" class="bg-pink-600 px-4 rounded-xl font-bold">Cambiar</button>
+            <div class="space-y-8">
+                <div class="group">
+                    <label class="block text-[10px] text-gray-500 uppercase font-black mb-3 ml-1 tracking-widest">Nombre de Identidad</label>
+                    <div class="flex gap-3">
+                        <input type="text" id="new-username" class="input-dark w-full p-4 rounded-2xl outline-none" placeholder="Mínimo 4 caracteres">
+                        <button onclick="updateData('username')" class="btn-action px-6 rounded-2xl text-xs">Guardar</button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm text-gray-400 mb-2">Nuevo Correo</label>
-                    <div class="flex gap-2">
-                        <input type="email" id="new-email" class="input-dark w-full p-3 rounded-xl outline-none focus:border-pink-500" placeholder="ejemplo@correo.com">
-                        <button onclick="updateData('email')" class="bg-blue-600 px-4 rounded-xl font-bold">Cambiar</button>
+                <div class="group">
+                    <label class="block text-[10px] text-gray-500 uppercase font-black mb-3 ml-1 tracking-widest">Correo Electrónico</label>
+                    <div class="flex gap-3">
+                        <input type="email" id="new-email" class="input-dark w-full p-4 rounded-2xl outline-none" placeholder="nueva@identidad.com">
+                        <button onclick="updateData('email')" class="bg-white/10 hover:bg-white/20 px-6 rounded-2xl text-xs font-black uppercase transition">Cambiar</button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm text-gray-400 mb-2">Nueva Contraseña</label>
-                    <div class="flex gap-2">
-                        <input type="password" id="new-pass" class="input-dark w-full p-3 rounded-xl outline-none focus:border-pink-500" placeholder="••••••••">
-                        <button onclick="updateData('password')" class="bg-blue-600 px-4 rounded-xl font-bold">Cambiar</button>
+                <div class="group">
+                    <label class="block text-[10px] text-gray-500 uppercase font-black mb-3 ml-1 tracking-widest">Protocolo de Seguridad</label>
+                    <div class="flex gap-3">
+                        <input type="password" id="new-pass" class="input-dark w-full p-4 rounded-2xl outline-none" placeholder="Nueva contraseña">
+                        <button onclick="updateData('password')" class="bg-white/10 hover:bg-white/20 px-6 rounded-2xl text-xs font-black uppercase transition">Update</button>
                     </div>
                 </div>
 
-                <div class="pt-6 border-t border-white/5 space-y-4">
-                    <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition">
-                        <i class="fas fa-sign-out-alt mr-2 text-yellow-500"></i> Cerrar Sesión
+                <div class="pt-10 border-t border-white/5 space-y-4">
+                    <button onclick="logout()" class="w-full bg-white/5 hover:bg-red-500/10 border border-white/5 p-5 rounded-[1.5rem] font-black uppercase text-[11px] tracking-[0.3em] transition group">
+                        <i class="fas fa-power-off mr-3 text-yellow-500 group-hover:text-red-500"></i> Desconectar Sesión
                     </button>
-                    <button onclick="deleteAccount()" class="w-full bg-red-900/20 hover:bg-red-600 text-red-500 hover:text-white p-4 rounded-2xl font-bold transition border border-red-500/20 text-xs">
-                        Eliminar Cuenta Permanentemente
+                    <button onclick="deleteAccount()" class="w-full text-red-500/40 hover:text-red-500 p-4 font-black uppercase text-[9px] tracking-[0.4em] transition">
+                        Borrar Datos del Servidor
                     </button>
                 </div>
             </div>
@@ -138,18 +213,22 @@
                         imgEl.classList.add('hidden');
                     }
 
-                    let planName = u.role === 'admin' ? 'VIP Admin' : (u.limit > 100 ? 'Premium' : 'Free');
+                    let planName = 'PLAN FREE';
+                    if (u.role === 'admin') planName = 'VIP ADMIN';
+                    else if (u.limit === 1000) planName = 'PREMIUM 1';
+                    else if (u.limit === 4000) planName = 'PREMIUM 2';
+
                     document.getElementById('view-plan').innerText = planName;
                 }
-            } catch (e) { console.error("Error profile"); }
+            } catch (e) { console.error("Error profile load"); }
         }
 
         async function updateData(type) {
             const inputId = type === 'username' ? 'new-username' : (type === 'email' ? 'new-email' : 'new-pass');
             const val = document.getElementById(inputId).value;
 
-            if (!val) return alert("Ingresa un valor");
-            if (type === 'username' && val.length < 4) return alert("El nombre debe tener al menos 4 dígitos");
+            if (!val) return alert("Completa el campo");
+            if (type === 'username' && val.length < 4) return alert("Mínimo 4 caracteres");
 
             const res = await fetch(`/api/auth/update`, {
                 method: 'POST',
@@ -183,6 +262,7 @@
         }
 
         async function deletePhoto() {
+            if(!confirm("¿Quitar foto de perfil?")) return;
             const res = await fetch('/api/auth/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -195,10 +275,24 @@
             const keyInput = document.getElementById('view-apikey');
             keyInput.select();
             document.execCommand('copy');
-            alert("API Key copiada");
+            alert("API KEY COPIADA AL PORTAPAPELES");
         }
 
         function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+        async function deleteAccount() {
+            if (!confirm("ESTA ACCIÓN ES IRREVERSIBLE. ¿ELIMINAR CUENTA?")) return;
+            const res = await fetch(`/api/auth/delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: session.id })
+            });
+            const data = await res.json();
+            if (data.status) {
+                localStorage.clear();
+                window.location.href = '/register.html';
+            }
+        }
 
         window.onload = loadProfile;
     </script>
