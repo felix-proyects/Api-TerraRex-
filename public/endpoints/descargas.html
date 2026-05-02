@@ -126,7 +126,7 @@
         
         <div class="api-card">
             <p><i class="fab fa-tiktok" style="color:#ff0050"></i> TIKTOK VIDEO</p>
-            <div id="tk-box" class="code-box">Cargando endpoint...</div>
+            <div id="tk-box" class="code-box">Cargando...</div>
             <input id="in-tk" class="input-test" placeholder="Pega el link aquí...">
             <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')">Ejecutar</button>
             <div id="res-tk" class="result-box">...</div>
@@ -134,7 +134,7 @@
 
         <div class="api-card">
             <p><i class="fab fa-instagram" style="color:#e1306c"></i> INSTAGRAM REELS</p>
-            <div id="ig-box" class="code-box">Cargando endpoint...</div>
+            <div id="ig-box" class="code-box">Cargando...</div>
             <input id="in-ig" class="input-test" placeholder="Pega el link aquí...">
             <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')">Ejecutar</button>
             <div id="res-ig" class="result-box">...</div>
@@ -142,10 +142,18 @@
 
         <div class="api-card">
             <p><i class="fab fa-facebook" style="color:#1877f2"></i> FACEBOOK VIDEO</p>
-            <div id="fb-box" class="code-box">Cargando endpoint...</div>
+            <div id="fb-box" class="code-box">Cargando...</div>
             <input id="in-fb" class="input-test" placeholder="Pega el link aquí...">
             <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')">Ejecutar</button>
             <div id="res-fb" class="result-box">...</div>
+        </div>
+
+        <div class="api-card">
+            <p><i class="fab fa-twitter" style="color:#1da1f2"></i> TWITTER (X) VIDEO</p>
+            <div id="tw-box" class="code-box">Cargando...</div>
+            <input id="in-tw" class="input-test" placeholder="Pega el link aquí...">
+            <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Ejecutar</button>
+            <div id="res-tw" class="result-box">...</div>
         </div>
     </div>
 
@@ -185,6 +193,7 @@
             document.getElementById('tk-box').innerText = `GET /api/download/tiktok?url=&apikey=${user.apikey}`;
             document.getElementById('ig-box').innerText = `GET /api/download/instagram?url=&apikey=${user.apikey}`;
             document.getElementById('fb-box').innerText = `GET /api/download/facebook?url=&apikey=${user.apikey}`;
+            document.getElementById('tw-box').innerText = `GET /api/download/twitter?url=&apikey=${user.apikey}`;
         };
     </script>
 </body>
