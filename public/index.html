@@ -46,24 +46,35 @@
         .sidebar {
             position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%;
             background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
-            padding: 30px 20px; box-sizing: border-box;
+            padding: 30px 20px; box-sizing: border-box; overflow-y: auto;
         }
         .sidebar.active { right: 0; }
         .sidebar-link {
             display: flex; align-items: center; gap: 15px; color: var(--text-main);
-            text-decoration: none; padding: 15px; border-radius: 10px; margin-bottom: 5px;
-            background: rgba(255,255,255,0.03); cursor: pointer;
+            text-decoration: none; padding: 12px; border-radius: 10px; margin-bottom: 5px;
+            background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem;
         }
+        .sidebar-link:hover { background: rgba(255,255,255,0.08); }
+        .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 1px; }
 
         .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
 
         .hero { text-align: center; padding: 30px 10px; }
-        .hero-img { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--neon-pink); margin-bottom: 15px; }
+        .hero-img { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--neon-pink); margin-bottom: 15px; object-fit: cover; }
 
         .api-card {
             background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 25px;
             border: 1px solid rgba(255,255,255,0.1);
         }
+        
+        .stats-grid { display: grid; grid-cols: 1; gap: 15px; margin-top: 15px; }
+        .stat-item { background: var(--code-bg); padding: 15px; border-radius: 12px; border-left: 3px solid var(--neon-blue); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--neon-blue); font-family: monospace; }
+
+        .top-user-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .top-user-item:last-child { border-bottom: none; }
+
         .api-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .api-header i { color: var(--neon-blue); font-size: 1.2rem; }
 
@@ -75,7 +86,7 @@
 
         .input-test {
             width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px; border-radius: 10px; color: white; margin-bottom: 15px; outline: none;
+            padding: 12px; border-radius: 10px; color: white; margin-bottom: 15px; outline: none; box-sizing: border-box;
         }
         .input-test:focus { border-color: var(--neon-pink); }
 
@@ -92,19 +103,12 @@
             min-height: 50px; border: 1px solid rgba(0, 255, 204, 0.1);
             white-space: pre-wrap; word-break: break-all;
         }
-        
-        .qr-result-img {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: none;
-            margin-left: auto;
-            margin-right: auto;
-        }
 
         .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
         .overlay.active { display: block; }
+        
+        #admin-btn { display: none; background: #fbbf24; color: black; }
     </style>
 </head>
 <body>
@@ -118,10 +122,21 @@
 
     <nav class="sidebar" id="sidebar">
         <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times" style="font-size: 1.5rem;"></i></div>
-        <p style="color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Menú</p>
+        
+        <div id="admin-section">
+            <p class="nav-category">Administración</p>
+            <div id="admin-btn" class="sidebar-link" onclick="location.href='/admin'"><i class="fas fa-user-shield"></i> Panel Admin</div>
+        </div>
+
+        <p class="nav-category">Navegación</p>
         <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-home"></i> Inicio</div>
+        <div class="sidebar-link" onclick="location.href='/profile.html'"><i class="fas fa-user"></i> Perfil</div>
+
+        <p class="nav-category">Endpoints</p>
         <div class="sidebar-link" onclick="showCategory('descargas')"><i class="fas fa-download"></i> Descargas</div>
         <div class="sidebar-link" onclick="showCategory('herramientas')"><i class="fas fa-tools"></i> Herramientas</div>
+        
+        <div class="sidebar-link" style="margin-top: 20px; color: #ff4444;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</div>
     </nav>
 
     <div class="container" id="content-area"></div>
@@ -131,57 +146,75 @@
     </footer>
 
     <script>
-        const baseUrl = "https://api.kazuma.giize.com";
+        // --- SEGURIDAD Y SESIÓN ---
+        const user = JSON.parse(localStorage.getItem('userSession'));
+        if (!user) {
+            window.location.href = '/login.html';
+        }
 
-        async function testApi(endpoint, inputId, resultId, isQr = false) {
-            let val = document.getElementById(inputId).value;
-            const resBox = document.getElementById(resultId);
-            if (!val) return alert("Ingresa un valor para probar");
+        const baseUrl = window.location.origin;
 
-            let fullUrl;
-            if (isQr) {
-                // Formato QR con texto separado por + (ej: hola+soy+felix)
-                let formattedText = val.trim().replace(/\s+/g, '+');
-                fullUrl = `${baseUrl}${endpoint}${formattedText}`;
-                resBox.innerHTML = `<img src="${fullUrl}" class="qr-result-img" style="display:block;" alt="Código QR">`;
-                return;
-            } else {
-                // Solicitud tal cual sin codificar caracteres especiales (%20, %3A, etc)
-                fullUrl = `${baseUrl}${endpoint}${val}`;
-            }
+        function logout() {
+            localStorage.removeItem('userSession');
+            window.location.href = '/login.html';
+        }
 
-            resBox.innerHTML = "Procesando solicitud...";
-            
+        // --- LÓGICA DE INTERFAZ ---
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        async function fetchStats() {
             try {
-                const response = await fetch(fullUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                resBox.innerHTML = JSON.stringify(data, null, 2);
-            } catch (err) {
-                resBox.innerHTML = `Error al conectar con la API.\nURL: ${fullUrl}`;
-                console.error("Error:", err);
+                const res = await fetch('/api/stats/global');
+                return await res.json();
+            } catch {
+                return { totalRequests: 0, totalEndpoints: 0, topUsers: [] };
             }
         }
 
         const categories = {
-            inicio: `
+            inicio: async () => {
+                const stats = await fetchStats();
+                let topUsersHtml = stats.topUsers.map(u => `
+                    <div class="top-user-item">
+                        <span>${u.username}</span>
+                        <span class="text-blue-400 font-mono">${u.requests} reqs</span>
+                    </div>
+                `).join('') || '<p class="text-muted">Sin datos aún.</p>';
+
+                return `
                 <section class="hero">
                     <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
-                    <h1>SISTEMA <span>KAZUMA</span></h1>
-                    <p style="color: var(--text-muted);">Protocolo de Frialdad | Félix Ofc</p>
+                    <h1>BIENVENIDO <span>${user.username.toUpperCase()}</span></h1>
+                    <p style="color: var(--text-muted);">Protocolo de Frialdad | ID: ${user.id}</p>
                 </section>
+
                 <div class="api-card">
-                    <h3>Panel de Control</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Bienvenido Félix. Selecciona una categoría del menú lateral para realizar pruebas en vivo de tus Endpoints.</p>
+                    <div class="api-header"><i class="fas fa-chart-line"></i> Status Global</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Solicitudes Totales</div>
+                            <div class="stat-value">${stats.totalRequests}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Endpoints Totales</div>
+                            <div class="stat-value">${stats.totalEndpoints}</div>
+                        </div>
+                    </div>
                 </div>
-            `,
+
+                <div class="api-card">
+                    <div class="api-header"><i class="fas fa-trophy"></i> Top 5 Usuarios</div>
+                    <div style="margin-top:10px;">
+                        ${topUsersHtml}
+                    </div>
+                </div>
+                `;
+            },
             descargas: `
-                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">Descargas</h2>
-                
+                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px; margin-bottom:20px;">Descargas</h2>
                 <div class="api-card">
                     <div class="api-header"><i class="fab fa-tiktok"></i> TikTok Downloader</div>
                     <div class="code-box">/api/download/tiktok?url=</div>
@@ -189,49 +222,60 @@
                     <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
                     <div id="res-tk" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
-
-                <div class="api-card">
-                    <div class="api-header"><i class="fab fa-instagram"></i> Instagram Downloader</div>
-                    <div class="code-box">/api/download/instagram?url=</div>
-                    <input id="in-ig" class="input-test" placeholder="Pega enlace de Instagram aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')"><i class="fas fa-play"></i> Probar</button>
-                    <div id="res-ig" class="result-box">El resultado aparecerá aquí...</div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header"><i class="fab fa-facebook"></i> Facebook Downloader</div>
-                    <div class="code-box">/api/download/facebook?url=</div>
-                    <input id="in-fb" class="input-test" placeholder="Pega enlace de Facebook aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')"><i class="fas fa-play"></i> Probar</button>
-                    <div id="res-fb" class="result-box">El resultado aparecerá aquí...</div>
-                </div>
-            `,
+                `,
             herramientas: `
-                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">Herramientas</h2>
+                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px; margin-bottom:20px;">Herramientas</h2>
                 <div class="api-card">
                     <div class="api-header"><i class="fas fa-qrcode"></i> Generador QR</div>
                     <div class="code-box">/api/tools/qr?text=</div>
-                    <input id="in-qr" class="input-test" placeholder="Texto para el QR (ej: hola soy felix)">
+                    <input id="in-qr" class="input-test" placeholder="Texto para el QR">
                     <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)"><i class="fas fa-bolt"></i> Generar</button>
                     <div id="res-qr" class="result-box">La imagen se mostrará aquí...</div>
                 </div>
             `
         };
 
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        function showCategory(cat) {
-            document.getElementById('content-area').innerHTML = categories[cat];
-            if (document.getElementById('sidebar').classList.contains('active')) {
-                toggleMenu();
+        async function showCategory(cat) {
+            const area = document.getElementById('content-area');
+            if (typeof categories[cat] === 'function') {
+                area.innerHTML = '<p class="hero">Cargando estadísticas...</p>';
+                area.innerHTML = await categories[cat]();
+            } else {
+                area.innerHTML = categories[cat];
             }
+            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
             window.scrollTo(0,0);
         }
 
+        async function testApi(endpoint, inputId, resultId, isQr = false) {
+            let val = document.getElementById(inputId).value;
+            const resBox = document.getElementById(resultId);
+            if (!val) return alert("Ingresa un valor");
+
+            // Aquí se envía el ID del usuario en el header para que el server cuente la request
+            const fullUrl = `${baseUrl}${endpoint}${val}`;
+            resBox.innerHTML = "Procesando...";
+
+            try {
+                const response = await fetch(fullUrl, {
+                    headers: { 'user-id': user.id }
+                });
+                if (isQr) {
+                    resBox.innerHTML = `<img src="${fullUrl}" class="qr-result-img" style="display:block; margin:auto;" alt="QR">`;
+                } else {
+                    const data = await response.json();
+                    resBox.innerHTML = JSON.stringify(data, null, 2);
+                }
+            } catch (err) {
+                resBox.innerHTML = "Error en la solicitud.";
+            }
+        }
+
         window.onload = () => {
+            // Mostrar botón admin si corresponde
+            if (user.role === 'admin') {
+                document.getElementById('admin-btn').style.display = 'flex';
+            }
             showCategory('inicio');
         };
     </script>
