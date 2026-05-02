@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kazuma | Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; font-family: sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="glass p-8 rounded-2xl w-full max-w-md">
+        <h2 class="text-3xl font-bold mb-2 text-center text-blue-500">Registro</h2>
+        <p class="text-slate-400 text-center mb-6 text-sm">Únete al Sistema Kazuma</p>
+        
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label class="block text-sm text-slate-400 mb-1">Nombre de Usuario</label>
+                <input type="text" id="username" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" required>
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-1">Correo Electrónico</label>
+                <input type="email" id="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" required>
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-1">Contraseña</label>
+                <input type="password" id="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" required>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 font-bold py-3 rounded-lg transition shadow-lg shadow-blue-900/20">Crear Cuenta</button>
+        </form>
+        <p class="mt-4 text-center text-slate-400 text-sm">¿Ya tienes cuenta? <a href="/login.html" class="text-blue-500 font-medium">Inicia sesión</a></p>
+    </div>
+
+    <script>
+        // Bloqueo de cuenta múltiple
+        if (localStorage.getItem('hasAccount') === 'true') {
+            alert('Ya tienes una cuenta registrada en este dispositivo.');
+            window.location.href = '/login.html';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+
+                if (data.status) {
+                    // Marcar que este navegador ya creó una cuenta
+                    localStorage.setItem('hasAccount', 'true');
+                    alert('Registro exitoso. Ahora inicia sesión.');
+                    window.location.href = '/login.html';
+                } else {
+                    alert(data.message || 'Error al registrar.');
+                }
+            } catch (error) {
+                alert('Error de conexión con el servidor.');
+            }
+        });
+    </script>
+</body>
+</html>
