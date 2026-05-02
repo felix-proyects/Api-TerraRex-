@@ -92,6 +92,13 @@
             min-height: 50px; border: 1px solid rgba(0, 255, 204, 0.1);
             white-space: pre-wrap; word-break: break-all;
         }
+        
+        .qr-result-img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
 
         .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
@@ -131,17 +138,21 @@
 
             let fullUrl;
             if (isQr) {
-                // Formato específico para QR: hola+soy+Félix
+                // Formato QR con reemplazo de espacios por + sin codificar el +
                 let formattedText = val.trim().replace(/\s+/g, '+');
                 fullUrl = `${baseUrl}${endpoint}${formattedText}`;
+                
+                // Para QR mostramos la imagen directamente
+                resBox.innerHTML = `<img src="${fullUrl}" class="qr-result-img" style="display:block;" alt="Código QR">`;
+                return;
             } else {
-                fullUrl = `${baseUrl}${endpoint}${encodeURIComponent(val)}`;
+                // Para descargas enviamos el texto crudo sin encodeURIComponent para evitar los %
+                fullUrl = `${baseUrl}${endpoint}${val}`;
             }
 
             resBox.innerHTML = "Procesando solicitud...";
             
             try {
-                // Se agrega modo no-cors o se asume que el servidor acepta peticiones del dominio
                 const response = await fetch(fullUrl);
                 
                 if (!response.ok) {
@@ -151,7 +162,7 @@
                 const data = await response.json();
                 resBox.innerHTML = JSON.stringify(data, null, 2);
             } catch (err) {
-                resBox.innerHTML = `Error al conectar con la API.\nDetalles: ${err.message}\nURL intentada: ${fullUrl}`;
+                resBox.innerHTML = `Error al conectar con la API.\nURL intentada: ${fullUrl}`;
                 console.error("Error en fetch:", err);
             }
         }
@@ -200,9 +211,9 @@
                 <div class="api-card">
                     <div class="api-header"><i class="fas fa-qrcode"></i> Generador QR</div>
                     <div class="code-box">/api/tools/qr?text=</div>
-                    <input id="in-qr" class="input-test" placeholder="Texto para el QR...">
+                    <input id="in-qr" class="input-test" placeholder="Texto para el QR (ej: hola soy felix)">
                     <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)"><i class="fas fa-bolt"></i> Generar</button>
-                    <div id="res-qr" class="result-box">El resultado aparecerá aquí...</div>
+                    <div id="res-qr" class="result-box">La imagen se mostrará aquí...</div>
                 </div>
             `
         };
