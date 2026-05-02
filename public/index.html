@@ -66,7 +66,7 @@
         }
         .api-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .api-header i { color: var(--neon-blue); font-size: 1.2rem; }
-        
+
         .code-box {
             background: var(--code-bg); padding: 12px; border-radius: 12px; font-family: monospace;
             font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;
@@ -78,7 +78,7 @@
             padding: 12px; border-radius: 10px; color: white; margin-bottom: 15px; outline: none;
         }
         .input-test:focus { border-color: var(--neon-pink); }
-        
+
         .btn-test {
             background: var(--neon-pink); color: white; border: none; padding: 12px 25px;
             border-radius: 12px; font-weight: bold; cursor: pointer; display: inline-flex;
@@ -112,7 +112,6 @@
         <p style="color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Menú</p>
         <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-home"></i> Inicio</div>
         <div class="sidebar-link" onclick="showCategory('descargas')"><i class="fas fa-download"></i> Descargas</div>
-        <div class="sidebar-link" onclick="showCategory('ia')"><i class="fas fa-robot"></i> Inteligencia Artificial</div>
         <div class="sidebar-link" onclick="showCategory('herramientas')"><i class="fas fa-tools"></i> Herramientas</div>
     </nav>
 
@@ -123,14 +122,21 @@
     </footer>
 
     <script>
-        async function testApi(endpoint, inputId, resultId) {
-            const val = document.getElementById(inputId).value;
+        async function testApi(endpoint, inputId, resultId, isQr = false) {
+            let val = document.getElementById(inputId).value;
             const resBox = document.getElementById(resultId);
             if (!val) return alert("Ingresa un valor para probar");
 
+            if (isQr) {
+                // Reemplaza espacios por + para el QR
+                val = val.trim().replace(/\s+/g, '+');
+            } else {
+                val = encodeURIComponent(val);
+            }
+
             resBox.innerHTML = "Procesando solicitud...";
             try {
-                const response = await fetch(`${endpoint}${encodeURIComponent(val)}`);
+                const response = await fetch(`${endpoint}${val}`);
                 const data = await response.json();
                 resBox.innerHTML = JSON.stringify(data, null, 2);
             } catch (err) {
@@ -154,27 +160,24 @@
                 <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">Descargas</h2>
                 <div class="api-card">
                     <div class="api-header"><i class="fab fa-tiktok"></i> TikTok Downloader</div>
-                    <div class="code-box">/api/download/tiktok?url=</div>
+                    <div class="code-box">/api/TikTok?url=</div>
                     <input id="in-tk" class="input-test" placeholder="Pega enlace de TikTok aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
+                    <button class="btn-test" onclick="testApi('https://api.kazuma.giize.com/api/TikTok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
                     <div id="res-tk" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
                 <div class="api-card">
-                    <div class="api-header"><i class="fab fa-youtube"></i> YouTube MP3</div>
-                    <div class="code-box">/api/download/youtube/mp3?url=</div>
-                    <input id="in-y3" class="input-test" placeholder="Pega enlace de YouTube aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/youtube/mp3?url=', 'in-y3', 'res-y3')"><i class="fas fa-play"></i> Probar</button>
-                    <div id="res-y3" class="result-box">El resultado aparecerá aquí...</div>
+                    <div class="api-header"><i class="fab fa-instagram"></i> Instagram Downloader</div>
+                    <div class="code-box">/api/Instagram?url=</div>
+                    <input id="in-ig" class="input-test" placeholder="Pega enlace de Instagram aquí...">
+                    <button class="btn-test" onclick="testApi('https://api.kazuma.giize.com/api/Instagram?url=', 'in-ig', 'res-ig')"><i class="fas fa-play"></i> Probar</button>
+                    <div id="res-ig" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
-            `,
-            ia: `
-                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px;">IA</h2>
                 <div class="api-card">
-                    <div class="api-header"><i class="fas fa-robot"></i> Gemini 2.0 Flash</div>
-                    <div class="code-box">/api/ai/gemini?text=</div>
-                    <input id="in-gm" class="input-test" placeholder="Escríbele algo a la IA...">
-                    <button class="btn-test" onclick="testApi('/api/ai/gemini?text=', 'in-gm', 'res-gm')"><i class="fas fa-paper-plane"></i> Preguntar</button>
-                    <div id="res-gm" class="result-box">El resultado aparecerá aquí...</div>
+                    <div class="api-header"><i class="fab fa-facebook"></i> Facebook Downloader</div>
+                    <div class="code-box">/api/Facebook?url=</div>
+                    <input id="in-fb" class="input-test" placeholder="Pega enlace de Facebook aquí...">
+                    <button class="btn-test" onclick="testApi('https://api.kazuma.giize.com/api/Facebook?url=', 'in-fb', 'res-fb')"><i class="fas fa-play"></i> Probar</button>
+                    <div id="res-fb" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
             `,
             herramientas: `
@@ -183,8 +186,8 @@
                     <div class="api-header"><i class="fas fa-qrcode"></i> Generador QR</div>
                     <div class="code-box">/api/tools/qr?text=</div>
                     <input id="in-qr" class="input-test" placeholder="Texto o URL para el QR...">
-                    <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr')"><i class="fas fa-bolt"></i> Generar</button>
-                    <div id="res-qr" class="result-box">Nota: El QR se generará como imagen, aquí verás la respuesta del servidor.</div>
+                    <button class="btn-test" onclick="testApi('https://api.kazuma.giize.com/api/tools/qr?text=', 'in-qr', 'res-qr', true)"><i class="fas fa-bolt"></i> Generar</button>
+                    <div id="res-qr" class="result-box">Nota: El QR se genera mediante texto separado por +.</div>
                 </div>
             `
         };
@@ -196,11 +199,17 @@
 
         function showCategory(cat) {
             document.getElementById('content-area').innerHTML = categories[cat];
-            if (window.innerWidth <= 768) toggleMenu();
+            // Solo cierra el menú si está abierto al cambiar de categoría
+            if (document.getElementById('sidebar').classList.contains('active')) {
+                toggleMenu();
+            }
             window.scrollTo(0,0);
         }
 
-        window.onload = () => showCategory('inicio');
+        // Al cargar solo muestra el inicio sin abrir el menú
+        window.onload = () => {
+            document.getElementById('content-area').innerHTML = categories['inicio'];
+        };
     </script>
 </body>
 </html>
