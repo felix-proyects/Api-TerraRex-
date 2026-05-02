@@ -11,10 +11,13 @@ const youtubeRoutes = require('./routes/youtube');
 const twitterRoutes = require('./routes/twitter');
 const qrcodeRoutes = require('./routes/qrcode');
 const geminisRoutes = require('./routes/geminis');
+const sswebRoutes = require('./routes/ssweb');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/download', express.static(path.join(__dirname, 'public/download')));
 
 app.use('/api/download/tiktok', tiktokRoutes);
 app.use('/api/download/instagram', instagramRoutes);
@@ -23,6 +26,7 @@ app.use('/api/download/youtube', youtubeRoutes);
 app.use('/api/download/twitter', twitterRoutes);
 app.use('/api/tools/qr', qrcodeRoutes);
 app.use('/api/ai/gemini', geminisRoutes);
+app.use('/api/tools/ssweb', sswebRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -37,7 +41,8 @@ app.get('/api', (req, res) => {
             youtube_mp3: '/api/download/youtube/mp3?url=URL',
             youtube_mp4: '/api/download/youtube/mp4?url=URL',
             qrcode: '/api/tools/qr?text=TEXTO',
-            gemini: '/api/ai/gemini?text=HOLA'
+            gemini: '/api/ai/gemini?text=HOLA',
+            ssweb: '/api/tools/ssweb?url=URL'
         }
     });
 });
