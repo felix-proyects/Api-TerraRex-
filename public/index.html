@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Api Kazuma | Interfaz de Pruebas</title>
+    <title>Api Kazuma | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -34,9 +34,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
         }
 
         .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; }
@@ -44,7 +42,7 @@
         .hamburger { font-size: 1.4rem; cursor: pointer; }
 
         .sidebar {
-            position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%;
+            position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
             background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
             padding: 30px 20px; box-sizing: border-box; overflow-y: auto;
         }
@@ -54,8 +52,7 @@
             text-decoration: none; padding: 12px; border-radius: 10px; margin-bottom: 5px;
             background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem;
         }
-        .sidebar-link:hover { background: rgba(255,255,255,0.08); }
-        .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 1px; }
+        .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 5px; }
 
         .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
 
@@ -63,52 +60,40 @@
         .hero-img { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--neon-pink); margin-bottom: 15px; object-fit: cover; }
 
         .api-card {
-            background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 25px;
+            background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.1);
         }
         
-        .stats-grid { display: grid; grid-cols: 1; gap: 15px; margin-top: 15px; }
-        .stat-item { background: var(--code-bg); padding: 15px; border-radius: 12px; border-left: 3px solid var(--neon-blue); }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-        .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--neon-blue); font-family: monospace; }
+        .stat-item { background: var(--code-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 3px solid var(--neon-blue); }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--neon-blue); }
 
         .top-user-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .top-user-item:last-child { border-bottom: none; }
-
-        .api-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .api-header i { color: var(--neon-blue); font-size: 1.2rem; }
 
         .code-box {
-            background: var(--code-bg); padding: 12px; border-radius: 12px; font-family: monospace;
-            font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; color: var(--neon-blue); overflow-x: auto;
+            background: var(--code-bg); padding: 10px; border-radius: 10px; font-family: monospace;
+            font-size: 0.8rem; color: var(--neon-blue); margin-bottom: 10px; overflow-x: auto;
         }
 
         .input-test {
             width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px; border-radius: 10px; color: white; margin-bottom: 15px; outline: none; box-sizing: border-box;
+            padding: 12px; border-radius: 10px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
         }
-        .input-test:focus { border-color: var(--neon-pink); }
-
         .btn-test {
-            background: var(--neon-pink); color: white; border: none; padding: 12px 25px;
-            border-radius: 12px; font-weight: bold; cursor: pointer; display: inline-flex;
-            align-items: center; gap: 8px; transition: 0.3s;
+            background: var(--neon-pink); color: white; border: none; padding: 12px 20px;
+            border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-        .btn-test:active { transform: scale(0.95); }
 
         .result-box {
-            background: #080815; color: #00ffcc; padding: 15px; border-radius: 12px;
-            margin-top: 15px; font-size: 0.8rem; font-family: 'Courier New', Courier, monospace;
-            min-height: 50px; border: 1px solid rgba(0, 255, 204, 0.1);
+            background: #080815; color: #00ffcc; padding: 15px; border-radius: 10px;
+            margin-top: 15px; font-size: 0.75rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
             white-space: pre-wrap; word-break: break-all;
         }
 
         .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
         .overlay.active { display: block; }
-        
-        #admin-btn { display: none; background: #fbbf24; color: black; }
+        #admin-btn { display: none; border-left: 3px solid #fbbf24; }
     </style>
 </head>
 <body>
@@ -121,9 +106,9 @@
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times" style="font-size: 1.5rem;"></i></div>
+        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
         
-        <div id="admin-section">
+        <div id="admin-nav">
             <p class="nav-category">Administración</p>
             <div id="admin-btn" class="sidebar-link" onclick="location.href='/admin'"><i class="fas fa-user-shield"></i> Panel Admin</div>
         </div>
@@ -136,146 +121,121 @@
         <div class="sidebar-link" onclick="showCategory('descargas')"><i class="fas fa-download"></i> Descargas</div>
         <div class="sidebar-link" onclick="showCategory('herramientas')"><i class="fas fa-tools"></i> Herramientas</div>
         
-        <div class="sidebar-link" style="margin-top: 20px; color: #ff4444;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</div>
+        <div class="sidebar-link" style="margin-top:20px; color:var(--neon-pink);" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Salir</div>
     </nav>
 
     <div class="container" id="content-area"></div>
 
     <footer class="footer">
-        <p>Copyright © 2026 Api Kazuma. All rights reserved.<br>Desarrollado por Félix Ofc & KurayamiTeam</p>
+        <p>Copyright © 2026 Api Kazuma. All rights reserved.<br>Félix Ofc & KurayamiTeam</p>
     </footer>
 
     <script>
-        // --- SEGURIDAD Y SESIÓN ---
         const user = JSON.parse(localStorage.getItem('userSession'));
-        if (!user) {
-            window.location.href = '/login.html';
-        }
+        if (!user) window.location.href = '/login.html';
 
-        const baseUrl = window.location.origin;
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
 
         function logout() {
             localStorage.removeItem('userSession');
             window.location.href = '/login.html';
         }
 
-        // --- LÓGICA DE INTERFAZ ---
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        async function fetchStats() {
-            try {
-                const res = await fetch('/api/stats/global');
-                return await res.json();
-            } catch {
-                return { totalRequests: 0, totalEndpoints: 0, topUsers: [] };
-            }
-        }
-
-        const categories = {
-            inicio: async () => {
-                const stats = await fetchStats();
-                let topUsersHtml = stats.topUsers.map(u => `
-                    <div class="top-user-item">
-                        <span>${u.username}</span>
-                        <span class="text-blue-400 font-mono">${u.requests} reqs</span>
-                    </div>
-                `).join('') || '<p class="text-muted">Sin datos aún.</p>';
-
-                return `
-                <section class="hero">
-                    <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
-                    <h1>BIENVENIDO <span>${user.username.toUpperCase()}</span></h1>
-                    <p style="color: var(--text-muted);">Protocolo de Frialdad | ID: ${user.id}</p>
-                </section>
-
-                <div class="api-card">
-                    <div class="api-header"><i class="fas fa-chart-line"></i> Status Global</div>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-label">Solicitudes Totales</div>
-                            <div class="stat-value">${stats.totalRequests}</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Endpoints Totales</div>
-                            <div class="stat-value">${stats.totalEndpoints}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header"><i class="fas fa-trophy"></i> Top 5 Usuarios</div>
-                    <div style="margin-top:10px;">
-                        ${topUsersHtml}
-                    </div>
-                </div>
-                `;
-            },
-            descargas: `
-                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px; margin-bottom:20px;">Descargas</h2>
-                <div class="api-card">
-                    <div class="api-header"><i class="fab fa-tiktok"></i> TikTok Downloader</div>
-                    <div class="code-box">/api/download/tiktok?url=</div>
-                    <input id="in-tk" class="input-test" placeholder="Pega enlace de TikTok aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
-                    <div id="res-tk" class="result-box">El resultado aparecerá aquí...</div>
-                </div>
-                `,
-            herramientas: `
-                <h2 style="border-left: 4px solid var(--neon-pink); padding-left: 10px; margin-bottom:20px;">Herramientas</h2>
-                <div class="api-card">
-                    <div class="api-header"><i class="fas fa-qrcode"></i> Generador QR</div>
-                    <div class="code-box">/api/tools/qr?text=</div>
-                    <input id="in-qr" class="input-test" placeholder="Texto para el QR">
-                    <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)"><i class="fas fa-bolt"></i> Generar</button>
-                    <div id="res-qr" class="result-box">La imagen se mostrará aquí...</div>
-                </div>
-            `
-        };
-
-        async function showCategory(cat) {
-            const area = document.getElementById('content-area');
-            if (typeof categories[cat] === 'function') {
-                area.innerHTML = '<p class="hero">Cargando estadísticas...</p>';
-                area.innerHTML = await categories[cat]();
-            } else {
-                area.innerHTML = categories[cat];
-            }
-            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
-            window.scrollTo(0,0);
-        }
-
         async function testApi(endpoint, inputId, resultId, isQr = false) {
             let val = document.getElementById(inputId).value;
             const resBox = document.getElementById(resultId);
             if (!val) return alert("Ingresa un valor");
-
-            // Aquí se envía el ID del usuario en el header para que el server cuente la request
-            const fullUrl = `${baseUrl}${endpoint}${val}`;
             resBox.innerHTML = "Procesando...";
-
             try {
-                const response = await fetch(fullUrl, {
-                    headers: { 'user-id': user.id }
-                });
+                const response = await fetch(`${endpoint}${val}`, { headers: { 'user-id': user.id } });
                 if (isQr) {
-                    resBox.innerHTML = `<img src="${fullUrl}" class="qr-result-img" style="display:block; margin:auto;" alt="QR">`;
+                    resBox.innerHTML = `<img src="${endpoint}${val.replace(/\s+/g, '+')}" style="width:200px;margin:auto;display:block;">`;
                 } else {
                     const data = await response.json();
                     resBox.innerHTML = JSON.stringify(data, null, 2);
                 }
-            } catch (err) {
-                resBox.innerHTML = "Error en la solicitud.";
-            }
+            } catch (err) { resBox.innerHTML = "Error de conexión."; }
+        }
+
+        const categories = {
+            inicio: async () => {
+                const res = await fetch('/api/stats/global');
+                const stats = await res.json();
+                return `
+                <section class="hero">
+                    <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
+                    <h1>BIENVENIDO <span>${user.username.toUpperCase()}</span></h1>
+                    <p style="color:var(--text-muted);">ID: ${user.id} | Protocolo Activo</p>
+                </section>
+                <div class="api-card">
+                    <p class="nav-category" style="margin-top:0">Estadísticas Globales</p>
+                    <div class="stat-item"><div class="stat-label">Solicitudes Totales</div><div class="stat-value">${stats.totalRequests}</div></div>
+                    <div class="stat-item"><div class="stat-label">Endpoints Activos</div><div class="stat-value">${stats.totalEndpoints}</div></div>
+                </div>
+                <div class="api-card">
+                    <p class="nav-category" style="margin-top:0">Top 5 Usuarios</p>
+                    ${stats.topUsers.map(u => `<div class="top-user-item"><span>${u.username}</span><span style="color:var(--neon-blue)">${u.requests} reqs</span></div>`).join('')}
+                </div>`;
+            },
+            descargas: `
+                <h2 style="border-left:4px solid var(--neon-pink);padding-left:10px">Descargas</h2>
+                <div class="api-card">
+                    <p><i class="fab fa-tiktok"></i> TikTok</p>
+                    <div class="code-box">/api/download/tiktok?url=</div>
+                    <input id="in-tk" class="input-test" placeholder="URL de TikTok">
+                    <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')">Probar</button>
+                    <div id="res-tk" class="result-box">...</div>
+                </div>
+                <div class="api-card">
+                    <p><i class="fab fa-instagram"></i> Instagram</p>
+                    <div class="code-box">/api/download/instagram?url=</div>
+                    <input id="in-ig" class="input-test" placeholder="URL de Instagram">
+                    <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')">Probar</button>
+                    <div id="res-ig" class="result-box">...</div>
+                </div>
+                <div class="api-card">
+                    <p><i class="fab fa-facebook"></i> Facebook</p>
+                    <div class="code-box">/api/download/facebook?url=</div>
+                    <input id="in-fb" class="input-test" placeholder="URL de Facebook">
+                    <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')">Probar</button>
+                    <div id="res-fb" class="result-box">...</div>
+                </div>
+                <div class="api-card">
+                    <p><i class="fab fa-youtube"></i> YouTube MP4</p>
+                    <div class="code-box">/api/download/youtube/mp4?url=</div>
+                    <input id="in-y4" class="input-test" placeholder="URL de YouTube">
+                    <button class="btn-test" onclick="testApi('/api/download/youtube/mp4?url=', 'in-y4', 'res-y4')">Probar</button>
+                    <div id="res-y4" class="result-box">...</div>
+                </div>
+                <div class="api-card">
+                    <p><i class="fab fa-twitter"></i> Twitter</p>
+                    <div class="code-box">/api/download/twitter?url=</div>
+                    <input id="in-tw" class="input-test" placeholder="URL de Twitter">
+                    <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Probar</button>
+                    <div id="res-tw" class="result-box">...</div>
+                </div>`,
+            herramientas: `
+                <h2 style="border-left:4px solid var(--neon-pink);padding-left:10px">Herramientas</h2>
+                <div class="api-card">
+                    <p><i class="fas fa-qrcode"></i> QR Generator</p>
+                    <div class="code-box">/api/tools/qr?text=</div>
+                    <input id="in-qr" class="input-test" placeholder="Texto para el QR">
+                    <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar</button>
+                    <div id="res-qr" class="result-box">...</div>
+                </div>`
+        };
+
+        async function showCategory(cat) {
+            const area = document.getElementById('content-area');
+            area.innerHTML = typeof categories[cat] === 'function' ? await categories[cat]() : categories[cat];
+            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
         }
 
         window.onload = () => {
-            // Mostrar botón admin si corresponde
-            if (user.role === 'admin') {
-                document.getElementById('admin-btn').style.display = 'flex';
-            }
+            if (user.role === 'admin') document.getElementById('admin-btn').style.display = 'flex';
             showCategory('inicio');
         };
     </script>
