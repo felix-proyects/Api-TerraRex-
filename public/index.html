@@ -165,6 +165,9 @@
             inicio: async () => {
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
+                
+                const activeUsers = stats.topUsers.filter(u => u.requests > 0);
+
                 return `
                 <section class="hero">
                     <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
@@ -177,8 +180,11 @@
                     <div class="stat-item"><div class="stat-label">Endpoints Activos</div><div class="stat-value">${stats.totalEndpoints}</div></div>
                 </div>
                 <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Top 5 Usuarios</p>
-                    ${stats.topUsers.map(u => `<div class="top-user-item"><span>${u.username}</span><span style="color:var(--neon-blue)">${u.requests} reqs</span></div>`).join('')}
+                    <p class="nav-category" style="margin-top:0">Top Usuarios Activos</p>
+                    ${activeUsers.length > 0 
+                        ? activeUsers.map(u => `<div class="top-user-item"><span>${u.username}</span><span style="color:var(--neon-blue)">${u.requests} reqs</span></div>`).join('')
+                        : `<p style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No hay actividad reciente</p>`
+                    }
                 </div>`;
             },
             descargas: `
