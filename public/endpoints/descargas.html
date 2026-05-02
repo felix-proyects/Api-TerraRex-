@@ -123,7 +123,7 @@
 
     <div class="container">
         <h2 style="border-left:5px solid var(--neon-pink); padding-left:15px; font-weight:900;">DESCARGAS</h2>
-        
+
         <div class="api-card">
             <p><i class="fab fa-tiktok" style="color:#ff0050"></i> TIKTOK VIDEO</p>
             <div id="tk-box" class="code-box">Cargando...</div>
@@ -154,6 +154,14 @@
             <input id="in-tw" class="input-test" placeholder="Pega el link aquí...">
             <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Ejecutar</button>
             <div id="res-tw" class="result-box">...</div>
+        </div>
+
+        <div class="api-card">
+            <p><i class="fab fa-pinterest" style="color:#bd081c"></i> PINTEREST DL</p>
+            <div id="pin-box" class="code-box">Cargando...</div>
+            <input id="in-pin" class="input-test" placeholder="Pega el link aquí...">
+            <button class="btn-test" onclick="testApi('/api/download/pinterest?url=', 'in-pin', 'res-pin')">Ejecutar</button>
+            <div id="res-pin" class="result-box">...</div>
         </div>
     </div>
 
@@ -194,6 +202,7 @@
             document.getElementById('ig-box').innerText = `GET /api/download/instagram?url=&apikey=${user.apikey}`;
             document.getElementById('fb-box').innerText = `GET /api/download/facebook?url=&apikey=${user.apikey}`;
             document.getElementById('tw-box').innerText = `GET /api/download/twitter?url=&apikey=${user.apikey}`;
+            document.getElementById('pin-box').innerText = `GET /api/download/pinterest?url=&apikey=${user.apikey}`;
         };
     </script>
 </body>
