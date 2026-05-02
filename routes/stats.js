@@ -13,9 +13,7 @@ router.get('/global', async (req, res) => {
         const files = await fs.readdir(routesPath);
         const endpointFiles = files.filter(file => 
             file.endsWith('.js') && 
-            file !== 'auth.js' && 
-            file !== 'admin.js' &&
-            file !== 'stats.js'
+            !['auth.js', 'admin.js', 'stats.js'].includes(file)
         );
 
         const totalRequests = db.users.reduce((acc, user) => acc + (user.total_requests || 0), 0);
@@ -34,11 +32,11 @@ router.get('/global', async (req, res) => {
             totalRequests: totalRequests,
             totalEndpoints: endpointFiles.length,
             topUsers: topUsers,
-            serverStart: global.serverStart || Date.now()
+            serverStart: global.serverStart // Aquí enviamos la hora real de inicio
         });
 
     } catch (err) {
-        res.status(500).json({ status: false, message: "Error en estadísticas" });
+        res.status(500).json({ status: false, message: "Error" });
     }
 });
 
