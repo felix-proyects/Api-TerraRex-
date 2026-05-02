@@ -3,244 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma | Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Kazuma | Staff Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        const session = JSON.parse(localStorage.getItem('userSession'));
-        if (!session || session.role !== 'admin') {
-            window.location.href = '/login';
-        }
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { background: #080815; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(26, 26, 46, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
+        :root {
+            --neon-pink: #ff2d55;
+            --neon-blue: #00f3ff;
+            --dark-bg: #0d0d0d;
+            --card-bg: #1a1a2e;
+        }
+        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-neon { border: 1px solid var(--neon-pink); color: var(--neon-pink); transition: 0.3s; }
+        .btn-neon:hover { background: var(--neon-pink); color: white; }
+        .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
         .table-container { overflow-x: auto; }
-        input, select { background: #121225; border: 1px solid #2d2d4a; color: white; border-radius: 12px; padding: 10px; outline: none; transition: 0.3s; }
-        input:focus { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.1); }
-        .btn-filter { transition: 0.3s; opacity: 0.5; }
-        .btn-filter.active { opacity: 1; transform: scale(1.05); border: 1px solid rgba(255,255,255,0.2); }
+        tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        tr:hover { background: rgba(255,255,255,0.02); }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-    <header class="p-6 border-b border-white/5 flex justify-between items-center glass sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div class="bg-yellow-500 p-2 rounded-lg text-black shadow-lg shadow-yellow-500/20">
-                <i class="fas fa-user-shield"></i>
-            </div>
-            <div>
-                <h1 class="font-extrabold text-lg tracking-tighter">KAZUMA <span class="text-yellow-500">STAFF</span></h1>
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Panel de Control</p>
-            </div>
-        </div>
-        <button onclick="location.href='/'" class="bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-red-500/20 hover:border-red-500/50 transition text-xs font-bold">
-            <i class="fas fa-sign-out-alt mr-2"></i> Salir
+    <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
+        <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span class="text-[#ff2d55]">STAFF</span></div>
+        <button onclick="location.href='/index.html'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
+            <i class="fas fa-arrow-left mr-2"></i> Dashboard
         </button>
     </header>
 
-    <main class="container mx-auto p-4 md:p-8">
-        <div class="glass p-6 rounded-[2rem] mb-8 flex flex-col md:flex-row gap-6 items-center justify-between shadow-2xl">
-            <div class="flex flex-wrap gap-3" id="filter-buttons">
-                <button onclick="loadUsers('all', this)" class="btn-filter active bg-blue-600 px-6 py-2.5 rounded-xl text-xs font-black uppercase">Todos</button>
-                <button onclick="loadUsers('admins', this)" class="btn-filter bg-yellow-600 px-6 py-2.5 rounded-xl text-xs font-black uppercase">Admins</button>
-                <button onclick="loadUsers('users', this)" class="btn-filter bg-slate-700 px-6 py-2.5 rounded-xl text-xs font-black uppercase">Usuarios</button>
+    <main class="container mx-auto p-4 flex-grow">
+        <div class="flex flex-col md:flex-row gap-4 mb-8 mt-4">
+            <div class="flex-grow flex gap-2">
+                <input type="text" id="searchQuery" class="input-dark w-full p-3 rounded-xl outline-none focus:border-[#ff2d55]" placeholder="Buscar por nombre o correo...">
+                <button onclick="searchUser()" class="bg-[#ff2d55] px-6 rounded-xl font-bold"><i class="fas fa-search"></i></button>
             </div>
-            <div class="relative w-full md:w-80">
-                <input type="text" id="searchQuery" class="w-full pl-10" placeholder="Nombre o correo..." onkeyup="if(event.key==='Enter') searchUser()">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
-                <button onclick="searchUser()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-black p-1.5 rounded-lg hover:bg-yellow-400 transition">
-                    <i class="fas fa-arrow-right text-xs"></i>
-                </button>
+            <div class="flex gap-2">
+                <button onclick="loadUsers('all')" class="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-4 py-2 rounded-xl text-xs font-bold">TODOS</button>
+                <button onclick="loadUsers('admins')" class="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-4 py-2 rounded-xl text-xs font-bold">ADMINS</button>
             </div>
         </div>
 
-        <div class="glass rounded-[2rem] overflow-hidden shadow-2xl border border-white/5">
+        <div class="glass rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
             <div class="table-container">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-white/[0.02] text-gray-400 text-[10px] uppercase tracking-[0.2em]">
-                            <th class="p-6">Identidad</th>
-                            <th class="p-6">Contacto</th>
-                            <th class="p-6">Plan / Status</th>
-                            <th class="p-6 text-center">Gestión</th>
+                    <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-400">
+                        <tr>
+                            <th class="p-5">Usuario</th>
+                            <th class="p-5">Plan / Status</th>
+                            <th class="p-5">Uso Diario</th>
+                            <th class="p-5 text-center">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body" class="divide-y divide-white/5"></tbody>
+                    <tbody id="user-table-body" class="text-sm">
+                        </tbody>
                 </table>
             </div>
         </div>
     </main>
 
     <div id="editModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[9999] p-4 backdrop-blur-sm">
-        <div class="glass p-8 rounded-[2.5rem] max-w-md w-full relative border border-white/10 shadow-3xl">
+        <div class="glass p-8 rounded-3xl max-w-md w-full relative">
             <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition">
-                <i class="fas fa-times-circle text-2xl"></i>
+                <i class="fas fa-times text-xl"></i>
             </button>
+            <h2 class="text-xl font-bold mb-6 text-[#ff2d55]">Modificar Usuario</h2>
             
-            <div class="mb-8">
-                <h2 class="text-2xl font-black text-yellow-500">Gestionar Perfil</h2>
-                <p class="text-gray-500 text-xs mt-1">Modifica los privilegios del usuario seleccionado</p>
-            </div>
-
-            <form id="editForm" class="space-y-5">
+            <form id="editForm" class="space-y-4">
                 <input type="hidden" id="edit-id">
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1">Nombre Público</label>
-                    <input type="text" id="edit-username" class="w-full font-bold">
+                    <label class="text-xs text-gray-500 uppercase font-bold block mb-1">Nombre</label>
+                    <input type="text" id="edit-username" class="input-dark w-full p-3 rounded-xl outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1">Rango</label>
-                        <select id="edit-role" class="w-full font-bold">
+                        <label class="text-xs text-gray-400 block mb-1">Rango</label>
+                        <select id="edit-role" class="input-dark w-full p-3 rounded-xl outline-none">
                             <option value="user">USER</option>
                             <option value="admin">ADMIN</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1">Suscripción</label>
-                        <select id="edit-plan" class="w-full font-bold" onchange="toggleCustomLimit()">
-                            <option value="free">FREE</option>
-                            <option value="plan1">PLAN 1</option>
-                            <option value="plan2">PLAN 2</option>
-                            <option value="custom">EDIT</option>
+                        <label class="text-xs text-gray-400 block mb-1">Plan</label>
+                        <select id="edit-plan" class="input-dark w-full p-3 rounded-xl outline-none" onchange="toggleLimitInput()">
+                            <option value="100">FREE (100)</option>
+                            <option value="1000">PLAN 1 (1k)</option>
+                            <option value="4000">PLAN 2 (4k)</option>
+                            <option value="custom">CUSTOM</option>
                         </select>
                     </div>
                 </div>
                 <div id="custom-limit-div" class="hidden">
-                    <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1 text-yellow-500">Créditos Personalizados</label>
-                    <input type="number" id="edit-limit" class="w-full font-mono border-yellow-500/30">
+                    <label class="text-xs text-yellow-500 block mb-1">Límite Personalizado</label>
+                    <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none">
                 </div>
-                <div class="pt-6">
-                    <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 shadow-xl shadow-yellow-500/20 transition uppercase tracking-widest">
-                        Actualizar Datos
-                    </button>
-                </div>
+                <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-bold mt-4 shadow-lg shadow-pink-500/20">GUARDAR CAMBIOS</button>
             </form>
         </div>
     </div>
 
     <script>
-        const MAIN_ADMIN_EMAIL = "frasesbebor@gmail.com";
+        const session = JSON.parse(localStorage.getItem('userSession'));
+        if (!session || session.role !== 'admin') window.location.href = '/index.html';
 
-        async function loadUsers(filter = 'all', btn = null) {
-            if(btn) {
-                document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
+        async function loadUsers(filter = 'all') {
+            const body = document.getElementById('user-table-body');
+            body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-500 animate-pulse font-bold">SINCRONIZANDO DATABASE...</td></tr>';
+            
             try {
                 const res = await fetch(`/api/admin/users?filter=${filter}`);
                 const data = await res.json();
                 renderTable(data.users || []);
             } catch (e) {
-                renderTable([]);
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500">ERROR DE CONEXIÓN</td></tr>';
             }
         }
 
         async function searchUser() {
             const q = document.getElementById('searchQuery').value;
-            if(!q) return loadUsers('all');
+            if(!q) return loadUsers();
             try {
                 const res = await fetch(`/api/admin/search?q=${q}`);
                 const data = await res.json();
                 renderTable(data.users || []);
-            } catch (e) { renderTable([]); }
+            } catch (e) { console.error(e); }
         }
 
         function renderTable(users) {
             const body = document.getElementById('user-table-body');
             if (users.length === 0) {
-                body.innerHTML = `<tr><td colspan="4" class="p-12 text-center text-gray-600 font-bold italic">No se encontraron registros en la base de datos</td></tr>`;
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600">No hay registros</td></tr>';
                 return;
             }
-            body.innerHTML = users.map(u => {
-                const isMainAdmin = u.email === MAIN_ADMIN_EMAIL;
-                const canEdit = session.email === MAIN_ADMIN_EMAIL || !isMainAdmin;
-                return `
-                <tr class="hover:bg-white/[0.03] transition group">
-                    <td class="p-6">
-                        <div class="font-black text-white group-hover:text-yellow-500 transition">${u.username}</div>
-                        <div class="text-[9px] text-blue-500 font-mono tracking-tighter opacity-50">UID: ${u.id}</div>
+            body.innerHTML = users.map(u => `
+                <tr>
+                    <td class="p-5">
+                        <div class="font-bold text-white">${u.username}</div>
+                        <div class="text-[10px] text-gray-500 font-mono">${u.email}</div>
                     </td>
-                    <td class="p-6">
-                        <div class="text-xs text-gray-400 font-medium">${u.email}</div>
+                    <td class="p-5">
+                        <span class="text-[10px] font-bold px-2 py-1 rounded bg-white/5 ${u.role === 'admin' ? 'text-yellow-500' : 'text-blue-400'}">${u.role.toUpperCase()}</span>
                     </td>
-                    <td class="p-6">
-                        <span class="text-[9px] px-2 py-0.5 rounded-md font-black uppercase ${u.role === 'admin' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                            ${u.role}
-                        </span>
-                        <div class="text-[10px] text-gray-500 mt-2 font-bold italic">Límite: <span class="text-white">${u.limit} reqs</span></div>
+                    <td class="p-5">
+                        <div class="text-xs font-bold text-pink-500">${u.requests_today} / ${u.limit}</div>
                     </td>
-                    <td class="p-6 text-center">
-                        ${canEdit ? 
-                            `<button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-yellow-500 hover:text-black w-10 h-10 rounded-xl transition-all duration-300">
-                                <i class="fas fa-user-edit text-xs"></i>
-                            </button>` 
-                            : `<div class="w-10 h-10 flex items-center justify-center mx-auto text-yellow-500 bg-yellow-500/10 rounded-full"><i class="fas fa-crown"></i></div>`}
+                    <td class="p-5 text-center">
+                        <button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-white/10 w-10 h-10 rounded-xl transition"><i class="fas fa-edit text-xs"></i></button>
                     </td>
-                </tr>`;
-            }).join('');
+                </tr>
+            `).join('');
         }
 
         async function openEdit(id) {
             const res = await fetch(`/api/auth/user/${id}`);
             const data = await res.json();
             const u = data.user;
+
             document.getElementById('edit-id').value = u.id;
             document.getElementById('edit-username').value = u.username;
             document.getElementById('edit-role').value = u.role;
+            
             const limit = u.limit;
             const select = document.getElementById('edit-plan');
-            if(limit == 100) select.value = "free";
-            else if(limit == 1000) select.value = "plan1";
-            else if(limit == 4000) select.value = "plan2";
-            else select.value = "custom";
-            document.getElementById('edit-limit').value = limit;
-            toggleCustomLimit();
-            document.getElementById('editModal').classList.remove('hidden');
-            document.getElementById('editModal').classList.add('flex');
+            if([100, 1000, 4000].includes(limit)) select.value = limit;
+            else { select.value = 'custom'; document.getElementById('edit-limit').value = limit; }
+            
+            toggleLimitInput();
+            document.getElementById('editModal').classList.replace('hidden', 'flex');
         }
 
-        function toggleCustomLimit() {
-            const plan = document.getElementById('edit-plan').value;
-            document.getElementById('custom-limit-div').classList.toggle('hidden', plan !== 'custom');
+        function toggleLimitInput() {
+            const val = document.getElementById('edit-plan').value;
+            document.getElementById('custom-limit-div').classList.toggle('hidden', val !== 'custom');
         }
 
         document.getElementById('editForm').onsubmit = async (e) => {
             e.preventDefault();
-            const plan = document.getElementById('edit-plan').value;
-            let limit = 100;
-            if(plan === 'plan1') limit = 1000;
-            else if(plan === 'plan2') limit = 4000;
-            else if(plan === 'custom') limit = parseInt(document.getElementById('edit-limit').value);
-            const payload = {
-                adminId: session.id,
-                targetId: document.getElementById('edit-id').value,
-                username: document.getElementById('edit-username').value,
-                role: document.getElementById('edit-role').value,
-                limit: limit
-            };
+            const planVal = document.getElementById('edit-plan').value;
+            const limit = planVal === 'custom' ? parseInt(document.getElementById('edit-limit').value) : parseInt(planVal);
+
             const res = await fetch('/api/admin/update-user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    adminId: session.id,
+                    targetId: document.getElementById('edit-id').value,
+                    username: document.getElementById('edit-username').value,
+                    role: document.getElementById('edit-role').value,
+                    limit: limit
+                })
             });
             const data = await res.json();
-            if(data.status) {
-                closeModal();
-                loadUsers();
-            } else {
-                alert(data.message);
-            }
+            if(data.status) { closeModal(); loadUsers(); } else { alert(data.message); }
         };
 
-        function closeModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            document.getElementById('editModal').classList.remove('flex');
-        }
+        function closeModal() { document.getElementById('editModal').classList.replace('flex', 'hidden'); }
 
-        document.addEventListener('DOMContentLoaded', () => loadUsers());
+        window.onload = () => loadUsers();
     </script>
 </body>
 </html>
