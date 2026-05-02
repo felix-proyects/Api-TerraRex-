@@ -32,6 +32,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--dark-bg); display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.5s ease;
         }
         .spinner {
             width: 50px; height: 50px; border: 3px solid rgba(0, 243, 255, 0.1);
@@ -143,7 +144,7 @@
 
     <div id="preloader">
         <div class="spinner"></div>
-        <div class="loading-text">Cargando Sistema...</div>
+        <div class="loading-text">Iniciando Servidores...</div>
     </div>
 
     <header>
@@ -256,15 +257,25 @@
 
         let uptimeInterval;
         async function showCategory(cat) {
+            const startTime = Date.now();
             clearInterval(uptimeInterval);
             const area = document.getElementById('content-area');
-            
-            // Mostrar contenido tras la carga
+            const preloader = document.getElementById('preloader');
+
+            // Cargar datos
             const content = typeof categories[cat] === 'function' ? await categories[cat]() : categories[cat];
             area.innerHTML = content;
 
-            // Ocultar preloader cuando el contenido esté listo
-            document.getElementById('preloader').style.display = 'none';
+            // Calcular cuánto tiempo ha pasado y forzar los 4 segundos (4000ms)
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, 4000 - elapsedTime);
+
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500); // Pequeño fade out suave
+            }, remainingTime);
 
             if (cat === 'inicio') {
                 const res = await fetch('/api/stats/global');
