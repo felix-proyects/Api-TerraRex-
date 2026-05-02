@@ -6,14 +6,28 @@
     <title>Kazuma | Staff Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        (function() {
+            const session = JSON.parse(localStorage.getItem('userSession'));
+            if (!session || session.role !== 'admin') {
+                window.location.replace('/404.html');
+            }
+        })();
+    </script>
     <style>
         :root {
             --neon-pink: #ff2d55;
             --neon-blue: #00f3ff;
             --dark-bg: #0d0d0d;
-            --card-bg: #1a1a2e;
         }
-        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
+        body { 
+            background-color: #000000 !important; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            visibility: hidden; 
+        }
+        .authorized body { visibility: visible; background-color: var(--dark-bg) !important; }
+        
         .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
         .table-container { overflow-x: auto; }
@@ -89,7 +103,6 @@
 
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="edit-id">
-                
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Nombre de Usuario</label>
@@ -107,7 +120,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Rango</label>
@@ -126,17 +138,14 @@
                         </select>
                     </div>
                 </div>
-
                 <div id="custom-limit-div" class="hidden">
                     <label class="text-[10px] text-pink-500 uppercase font-black block mb-1">Límite Manual</label>
                     <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none border-pink-500/30">
                 </div>
-
                 <div class="bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5">
                     <span class="text-[10px] font-black text-gray-400 uppercase">Solicitudes Totales:</span>
                     <span id="edit-total-requests" class="text-lg font-black text-[#ff2d55]">0</span>
                 </div>
-
                 <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-black shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest mt-2">
                     Guardar Cambios
                 </button>
@@ -146,13 +155,16 @@
 
     <script>
         const session = JSON.parse(localStorage.getItem('userSession'));
-        if (!session || session.role !== 'admin') window.location.href = '/index.html';
+        
+        if (session && session.role === 'admin') {
+            document.documentElement.classList.add('authorized');
+            document.body.style.visibility = 'visible';
+        }
 
         async function loadUsers(filter = 'all') {
             const body = document.getElementById('user-table-body');
             const counter = document.getElementById('total-users-count');
             body.innerHTML = '<tr><td colspan="4" class="p-16 text-center text-gray-500 animate-pulse font-black tracking-widest uppercase">Cargando Usuarios...</td></tr>';
-
             try {
                 const res = await fetch(`/api/admin/users?filter=${filter}`);
                 const data = await res.json();
@@ -183,7 +195,6 @@
             body.innerHTML = users.map(u => {
                 const progress = Math.min(((u.requests_today || 0) / (u.limit || 1)) * 100, 100);
                 const userId = String(u.id);
-
                 return `
                 <tr class="hover:bg-white/[0.03] transition-all">
                     <td class="p-5">
@@ -217,16 +228,13 @@
                 const res = await fetch(`/api/admin/search?q=${id}`);
                 const data = await res.json();
                 const u = data.users.find(user => String(user.id) === id);
-
                 if(!u) return alert("Usuario no encontrado");
-
                 document.getElementById('edit-id').value = u.id;
                 document.getElementById('edit-username').value = u.username;
                 document.getElementById('edit-email').value = u.email || '';
                 document.getElementById('edit-password').value = u.password || '';
                 document.getElementById('edit-role').value = u.role;
                 document.getElementById('edit-total-requests').innerText = u.total_requests || 0;
-
                 const select = document.getElementById('edit-plan');
                 if([100, 1000, 4000].includes(u.limit)) {
                     select.value = u.limit;
@@ -234,7 +242,6 @@
                     select.value = 'custom';
                     document.getElementById('edit-limit').value = u.limit;
                 }
-
                 toggleLimitInput();
                 document.getElementById('editModal').classList.replace('hidden', 'flex');
             } catch (e) { alert("Error al cargar datos"); }
@@ -249,7 +256,6 @@
             e.preventDefault();
             const planVal = document.getElementById('edit-plan').value;
             const limit = planVal === 'custom' ? parseInt(document.getElementById('edit-limit').value) : parseInt(planVal);
-
             try {
                 const res = await fetch('/api/admin/update-user', {
                     method: 'POST',
