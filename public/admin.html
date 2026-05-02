@@ -16,10 +16,11 @@
     <style>
         body { background: #080815; color: white; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(26, 26, 46, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
-        .admin-card { border-left: 4px solid #fbbf24; }
         .table-container { overflow-x: auto; }
         input, select { background: #121225; border: 1px solid #2d2d4a; color: white; border-radius: 8px; padding: 8px; outline: none; }
         input:focus { border-color: #fbbf24; }
+        .btn-filter { transition: 0.3s; opacity: 0.6; }
+        .btn-filter.active { opacity: 1; transform: scale(1.05); border: 1px solid white; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -29,21 +30,21 @@
             <div class="bg-yellow-500 p-2 rounded-lg text-black"><i class="fas fa-user-shield"></i></div>
             <h1 class="font-bold text-xl tracking-widest">KAZUMA <span class="text-yellow-500">STAFF</span></h1>
         </div>
-        <button onclick="location.href='/index.html'" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition text-sm">
+        <button onclick="location.href='/'" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition text-sm">
             Salir del Panel
         </button>
     </header>
 
     <main class="container mx-auto p-4 md:p-8">
         <div class="glass p-6 rounded-3xl mb-8 flex flex-wrap gap-4 items-center justify-between">
-            <div class="flex flex-wrap gap-2">
-                <button onclick="loadUsers('all')" class="bg-blue-600 px-4 py-2 rounded-lg text-sm font-bold">Todos</button>
-                <button onclick="loadUsers('admins')" class="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold">Admins</button>
-                <button onclick="loadUsers('users')" class="bg-slate-700 px-4 py-2 rounded-lg text-sm font-bold">Usuarios</button>
+            <div class="flex flex-wrap gap-2" id="filter-buttons">
+                <button onclick="loadUsers('all', this)" class="btn-filter active bg-blue-600 px-4 py-2 rounded-lg text-sm font-bold">Todos</button>
+                <button onclick="loadUsers('admins', this)" class="btn-filter bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold">Admins</button>
+                <button onclick="loadUsers('users', this)" class="btn-filter bg-slate-700 px-4 py-2 rounded-lg text-sm font-bold">Usuarios</button>
             </div>
             <div class="flex gap-2 w-full md:w-auto">
-                <input type="text" id="searchQuery" class="w-full md:w-64" placeholder="Buscar por nombre o correo...">
-                <button onclick="searchUser()" class="bg-yellow-500 text-black px-4 rounded-lg"><i class="fas fa-search"></i></button>
+                <input type="text" id="searchQuery" class="w-full md:w-64" placeholder="Nombre o correo..." onkeyup="if(event.key==='Enter') searchUser()">
+                <button onclick="searchUser()" class="bg-yellow-500 text-black px-4 rounded-lg hover:bg-yellow-400 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
 
@@ -67,24 +68,24 @@
 
     <div id="editModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[3000] p-4">
         <div class="glass p-8 rounded-3xl max-w-md w-full relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
             <h2 class="text-2xl font-bold mb-6 text-yellow-500">Gestionar Usuario</h2>
-            
+
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="edit-id">
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Nombre de Usuario</label>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">Nombre de Usuario</label>
                     <input type="text" id="edit-username" class="w-full">
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Rol de Sistema</label>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">Rol de Sistema</label>
                     <select id="edit-role" class="w-full">
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Plan de Solicitudes</label>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">Plan de Solicitudes</label>
                     <select id="edit-plan" class="w-full" onchange="toggleCustomLimit()">
                         <option value="free">Plan Free (100)</option>
                         <option value="plan1">Plan 1 (1,000)</option>
@@ -93,12 +94,12 @@
                     </select>
                 </div>
                 <div id="custom-limit-div" class="hidden">
-                    <label class="block text-xs text-gray-400 mb-1">Límite Personalizado</label>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">Límite Personalizado</label>
                     <input type="number" id="edit-limit" class="w-full" placeholder="Ej: 10000">
                 </div>
-                
-                <div class="pt-4 flex gap-2">
-                    <button type="submit" class="flex-1 bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400">Guardar Cambios</button>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition">Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -107,21 +108,38 @@
     <script>
         const MAIN_ADMIN_EMAIL = "frasesbebor@gmail.com";
 
-        async function loadUsers(filter = 'all') {
-            const res = await fetch(`/api/admin/users?filter=${filter}`);
-            const data = await res.json();
-            renderTable(data.users);
+        async function loadUsers(filter = 'all', btn = null) {
+            // Manejo visual de botones
+            if(btn) {
+                document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            try {
+                const res = await fetch(`/api/admin/users?filter=${filter}`);
+                const data = await res.json();
+                renderTable(data.users || []);
+            } catch (e) {
+                console.error("Error cargando usuarios");
+            }
         }
 
         async function searchUser() {
             const q = document.getElementById('searchQuery').value;
+            if(!q) return loadUsers('all');
+            
             const res = await fetch(`/api/admin/search?q=${q}`);
             const data = await res.json();
-            renderTable(data.users);
+            renderTable(data.users || []);
         }
 
         function renderTable(users) {
             const body = document.getElementById('user-table-body');
+            if (users.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500">No se encontraron resultados</td></tr>`;
+                return;
+            }
+
             body.innerHTML = users.map(u => {
                 const isMainAdmin = u.email === MAIN_ADMIN_EMAIL;
                 const canEdit = session.email === MAIN_ADMIN_EMAIL || !isMainAdmin;
@@ -129,20 +147,20 @@
                 return `
                 <tr class="border-b border-white/5 hover:bg-white/5 transition">
                     <td class="p-4">
-                        <div class="font-bold">${u.username}</div>
-                        <div class="text-xs text-blue-400 font-mono">${u.id}</div>
+                        <div class="font-bold text-white">${u.username}</div>
+                        <div class="text-[10px] text-blue-400 font-mono opacity-70">${u.id}</div>
                     </td>
                     <td class="p-4">
-                        <div class="text-sm">${u.email}</div>
+                        <div class="text-sm text-gray-300">${u.email}</div>
                     </td>
                     <td class="p-4">
-                        <span class="text-xs bg-white/10 px-2 py-1 rounded capitalize">${u.role}</span>
-                        <div class="text-xs text-gray-500 mt-1">Límite: ${u.limit}</div>
+                        <span class="text-[10px] ${u.role === 'admin' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-blue-500/20 text-blue-400'} px-2 py-0.5 rounded font-bold uppercase">${u.role}</span>
+                        <div class="text-[11px] text-gray-500 mt-1">Límite: <span class="text-white">${u.limit}</span></div>
                     </td>
                     <td class="p-4 text-center">
                         ${canEdit ? 
-                            `<button onclick="openEdit('${u.id}')" class="text-yellow-500 hover:text-yellow-400 p-2"><i class="fas fa-edit"></i></button>` 
-                            : `<i class="fas fa-lock text-gray-600" title="Cuenta Principal Protegida"></i>`}
+                            `<button onclick="openEdit('${u.id}')" class="text-yellow-500 hover:scale-125 transition p-2"><i class="fas fa-edit"></i></button>` 
+                            : `<i class="fas fa-crown text-yellow-500" title="Dueño de la API"></i>`}
                     </td>
                 </tr>
             `}).join('');
@@ -156,18 +174,17 @@
             document.getElementById('edit-id').value = u.id;
             document.getElementById('edit-username').value = u.username;
             document.getElementById('edit-role').value = u.role;
-            
-            // Lógica para pre-seleccionar el plan en el select
+
             const limit = u.limit;
             const select = document.getElementById('edit-plan');
             if(limit == 100) select.value = "free";
             else if(limit == 1000) select.value = "plan1";
             else if(limit == 4000) select.value = "plan2";
             else select.value = "custom";
-            
+
             document.getElementById('edit-limit').value = limit;
             toggleCustomLimit();
-            
+
             document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('editModal').classList.add('flex');
         }
@@ -199,10 +216,10 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            
+
             const data = await res.json();
             if(data.status) {
-                alert("Usuario actualizado");
+                alert("Usuario actualizado correctamente");
                 closeModal();
                 loadUsers();
             } else {
@@ -215,7 +232,10 @@
             document.getElementById('editModal').classList.remove('flex');
         }
 
-        window.onload = () => loadUsers();
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+        });
     </script>
 </body>
 </html>
