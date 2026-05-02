@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const app = express();
 
 const PORT = process.env.PORT || 3032;
-const dbPath = path.join(__dirname, 'data/database.json');
+const dbPath = path.join(process.cwd(), 'data', 'database.json');
 
 const authRoutes = require('./routes/auth');
 const statsRoutes = require('./routes/stats');
@@ -27,38 +27,35 @@ const securityMiddleware = async (req, res, next) => {
         const apikey = req.query.apikey || req.headers['x-api-key'];
         if (!apikey) return res.status(403).json({ status: false, message: "API Key requerida" });
 
-        const db = await fs.readJson(dbPath);
-        const userIndex = db.users.findIndex(u => u.apikey === apikey);
+        try {
+            const db = await fs.readJson(dbPath);
+            const userIndex = db.users.findIndex(u => u.apikey === apikey);
 
-        if (userIndex === -1) return res.status(403).json({ status: false, message: "API Key inválida" });
+            if (userIndex === -1) return res.status(403).json({ status: false, message: "API Key inválida" });
 
-        const user = db.users[userIndex];
-        const today = new Date().toISOString().split('T')[0];
+            const user = db.users[userIndex];
+            const today = new Date().toISOString().split('T')[0];
 
-        if (user.last_reset !== today) {
-            user.requests_today = 0;
-            user.last_reset = today;
+            if (user.last_reset !== today) {
+                user.requests_today = 0;
+                user.last_reset = today;
+            }
+
+            if (user.requests_today >= user.limit) {
+                return res.status(429).json({ status: false, message: "Límite diario alcanzado" });
+            }
+
+            user.requests_today += 1;
+            user.total_requests += 1;
+            await fs.writeJson(dbPath, db, { spaces: 4 });
+        } catch (error) {
+            return res.status(500).json({ status: false, message: "Error DB" });
         }
-
-        if (user.requests_today >= user.limit) {
-            return res.status(429).json({ status: false, message: "Límite diario alcanzado" });
-        }
-
-        user.requests_today += 1;
-        user.total_requests += 1;
-        await fs.writeJson(dbPath, db, { spaces: 4 });
     }
     next();
 };
 
 app.use(securityMiddleware);
-
-app.get(['/login', '/register', '/profile', '/admin'], (req, res) => {
-    const page = req.path.split('/')[1];
-    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
-});
-
-app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/stats', statsRoutes);
@@ -86,6 +83,13 @@ app.get('/api', (req, res) => {
         }
     });
 });
+
+app.get(['/login', '/register', '/profile', '/admin'], (req, res) => {
+    const page = req.path.split('/')[1];
+    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+});
+
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
