@@ -11,27 +11,41 @@
             --neon-pink: #ff2d55;
             --neon-blue: #00f3ff;
             --dark-bg: #0d0d0d;
-            --card-bg: #1a1a2e;
         }
         body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-neon { border: 1px solid var(--neon-pink); color: var(--neon-pink); transition: 0.3s; }
-        .btn-neon:hover { background: var(--neon-pink); color: white; shadow: 0 0 15px var(--neon-pink); }
         .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        
+        .profile-container { position: relative; width: 110px; margin: 0 auto; }
+        #view-img, #view-avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-pink); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; background: #1a1a2e; color: var(--neon-pink); }
+        .edit-pen { position: absolute; bottom: 5px; right: 5px; background: var(--neon-pink); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; border: 2px solid var(--dark-bg); transition: 0.3s; }
+        .edit-pen:hover { transform: scale(1.1); background: white; color: var(--neon-pink); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
-        <div class="font-bold text-xl">KAZUMA <span>PROFILER</span></div>
+        <div class="font-bold text-xl uppercase">KAZUMA <span>PROFILER</span></div>
         <button onclick="location.href='/index.html'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
             <i class="fas fa-arrow-left mr-2"></i> Volver al Inicio
         </button>
     </header>
 
     <main class="container mx-auto p-4 flex-grow max-w-2xl">
-        <div class="glass rounded-3xl p-6 mt-6 text-center">
-            <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="w-24 h-24 rounded-full mx-auto border-2 border-[#ff2d55] mb-4 object-cover">
+        <div class="glass rounded-3xl p-8 mt-6 text-center">
+            <div class="profile-container mb-4">
+                <img id="view-img" src="" class="hidden">
+                <div id="view-avatar" class="hidden"></div>
+                <label for="img-input" class="edit-pen">
+                    <i class="fas fa-pencil-alt"></i>
+                </label>
+                <input type="file" id="img-input" class="hidden" accept="image/*" onchange="uploadImage(this)">
+            </div>
+            
+            <button onclick="deletePhoto()" class="text-[10px] text-gray-500 hover:text-red-500 uppercase font-black mb-4 tracking-tighter">
+                <i class="fas fa-trash-alt mr-1"></i> Eliminar Foto
+            </button>
+
             <h2 id="view-username" class="text-2xl font-bold">Cargando...</h2>
             <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
         </div>
@@ -47,26 +61,26 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div class="glass p-5 rounded-2xl">
                 <p class="text-xs text-gray-400 uppercase font-bold mb-1">Plan Actual</p>
-                <p id="view-plan" class="text-lg font-bold text-yellow-400">Cargando...</p>
-            </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Tu IP Pública</p>
-                <p id="view-ip" class="text-lg font-bold text-blue-400">Detectando...</p>
+                <p id="view-plan" class="text-lg font-bold text-yellow-400">...</p>
             </div>
             <div class="glass p-5 rounded-2xl">
                 <p class="text-xs text-gray-400 uppercase font-bold mb-1">Uso de Hoy</p>
                 <p id="view-requests" class="text-lg font-bold text-pink-500">0 / 0</p>
             </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Correo</p>
-                <p id="view-email" class="text-lg font-bold truncate">Cargando...</p>
-            </div>
         </div>
 
         <div class="glass rounded-3xl p-6 mt-8">
             <h3 class="text-xl font-bold mb-6 flex items-center"><i class="fas fa-user-cog mr-3 text-pink-500"></i> Ajustes de Cuenta</h3>
-            
+
             <div class="space-y-6">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Nombre de Usuario (Mín. 4 caracteres)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-username" class="input-dark w-full p-3 rounded-xl outline-none focus:border-pink-500" placeholder="Nuevo nombre...">
+                        <button onclick="updateData('username')" class="bg-pink-600 px-4 rounded-xl font-bold">Cambiar</button>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm text-gray-400 mb-2">Nuevo Correo</label>
                     <div class="flex gap-2">
@@ -87,17 +101,13 @@
                     <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition">
                         <i class="fas fa-sign-out-alt mr-2 text-yellow-500"></i> Cerrar Sesión
                     </button>
-                    <button onclick="deleteAccount()" class="w-full bg-red-900/20 hover:bg-red-600 text-red-500 hover:text-white p-4 rounded-2xl font-bold transition border border-red-500/20">
-                        <i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta Permanentemente
+                    <button onclick="deleteAccount()" class="w-full bg-red-900/20 hover:bg-red-600 text-red-500 hover:text-white p-4 rounded-2xl font-bold transition border border-red-500/20 text-xs">
+                        Eliminar Cuenta Permanentemente
                     </button>
                 </div>
             </div>
         </div>
     </main>
-
-    <footer class="p-8 text-center text-gray-500 text-xs">
-        <p>© 2026 Kazuma API System. Todos los derechos reservados.</p>
-    </footer>
 
     <script>
         const session = JSON.parse(localStorage.getItem('userSession'));
@@ -105,10 +115,6 @@
 
         async function loadProfile() {
             try {
-                fetch('https://api.ipify.org?format=json')
-                    .then(r => r.json())
-                    .then(d => document.getElementById('view-ip').innerText = d.ip);
-
                 const res = await fetch(`/api/auth/user/${session.id}`);
                 const data = await res.json();
 
@@ -116,33 +122,34 @@
                     const u = data.user;
                     document.getElementById('view-username').innerText = u.username.toUpperCase();
                     document.getElementById('view-id').innerText = `ID: ${u.id}`;
-                    document.getElementById('view-email').innerText = u.email;
                     document.getElementById('view-apikey').value = u.apikey;
                     document.getElementById('view-requests').innerText = `${u.requests_today} / ${u.limit}`;
-                    
-                    let planName = 'Plan Free';
-                    if (u.role === 'admin') planName = 'Plan VIP (Admin)';
-                    else if (u.limit === 1000) planName = 'Plan Premium 1';
-                    else if (u.limit === 4000) planName = 'Plan Premium 2';
-                    else if (u.limit > 4000) planName = 'Plan Personalizado';
-                    
+
+                    const imgEl = document.getElementById('view-img');
+                    const avEl = document.getElementById('view-avatar');
+
+                    if (u.profile_img) {
+                        imgEl.src = u.profile_img;
+                        imgEl.classList.remove('hidden');
+                        avEl.classList.add('hidden');
+                    } else {
+                        avEl.innerText = u.username.substring(0, 2).toUpperCase();
+                        avEl.classList.remove('hidden');
+                        imgEl.classList.add('hidden');
+                    }
+
+                    let planName = u.role === 'admin' ? 'VIP Admin' : (u.limit > 100 ? 'Premium' : 'Free');
                     document.getElementById('view-plan').innerText = planName;
                 }
-            } catch (e) {
-                console.error("Error cargando perfil");
-            }
-        }
-
-        function copyKey() {
-            const keyInput = document.getElementById('view-apikey');
-            keyInput.select();
-            document.execCommand('copy');
-            alert("API Key copiada al portapapeles");
+            } catch (e) { console.error("Error profile"); }
         }
 
         async function updateData(type) {
-            const val = document.getElementById(type === 'email' ? 'new-email' : 'new-pass').value;
+            const inputId = type === 'username' ? 'new-username' : (type === 'email' ? 'new-email' : 'new-pass');
+            const val = document.getElementById(inputId).value;
+
             if (!val) return alert("Ingresa un valor");
+            if (type === 'username' && val.length < 4) return alert("El nombre debe tener al menos 4 dígitos");
 
             const res = await fetch(`/api/auth/update`, {
                 method: 'POST',
@@ -151,30 +158,47 @@
             });
             const data = await res.json();
             if (data.status) {
-                alert("Actualizado con éxito");
+                if(type === 'username') {
+                    session.username = val;
+                    localStorage.setItem('userSession', JSON.stringify(session));
+                }
                 location.reload();
             }
         }
 
-        async function deleteAccount() {
-            if (!confirm("¿ESTÁS SEGURO? Esta acción borrará todos tus datos.")) return;
-            
-            const res = await fetch(`/api/auth/delete`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: session.id })
-            });
-            const data = await res.json();
-            if (data.status) {
-                localStorage.clear();
-                window.location.href = '/register.html';
-            }
+        async function uploadImage(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
+                const res = await fetch('/api/auth/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: session.id, type: 'profile_img', value: base64 })
+                });
+                if ((await res.json()).status) location.reload();
+            };
+            reader.readAsDataURL(file);
         }
 
-        function logout() {
-            localStorage.removeItem('userSession');
-            window.location.href = '/login.html';
+        async function deletePhoto() {
+            const res = await fetch('/api/auth/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: session.id, type: 'profile_img', value: null })
+            });
+            if ((await res.json()).status) location.reload();
         }
+
+        function copyKey() {
+            const keyInput = document.getElementById('view-apikey');
+            keyInput.select();
+            document.execCommand('copy');
+            alert("API Key copiada");
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
 
         window.onload = loadProfile;
     </script>
