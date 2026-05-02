@@ -150,9 +150,10 @@
             if (!val) return alert("Ingresa un valor");
             resBox.innerHTML = "Procesando...";
             try {
-                const response = await fetch(`${endpoint}${val}`, { headers: { 'user-id': user.id } });
+                const url = endpoint.includes('?') ? `${endpoint}${val}&apikey=${user.apikey}` : `${endpoint}${val}?apikey=${user.apikey}`;
+                const response = await fetch(url);
                 if (isQr) {
-                    resBox.innerHTML = `<img src="${endpoint}${val.replace(/\s+/g, '+')}" style="width:200px;margin:auto;display:block;">`;
+                    resBox.innerHTML = `<img src="${url.replace(/\s+/g, '+')}" style="width:200px;margin:auto;display:block;">`;
                 } else {
                     const data = await response.json();
                     resBox.innerHTML = JSON.stringify(data, null, 2);
@@ -184,35 +185,35 @@
                 <h2 style="border-left:4px solid var(--neon-pink);padding-left:10px">Descargas</h2>
                 <div class="api-card">
                     <p><i class="fab fa-tiktok"></i> TikTok</p>
-                    <div class="code-box">/api/download/tiktok?url=</div>
+                    <div class="code-box">/api/download/tiktok?url=&apikey=${user.apikey}</div>
                     <input id="in-tk" class="input-test" placeholder="URL de TikTok">
                     <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')">Probar</button>
                     <div id="res-tk" class="result-box">...</div>
                 </div>
                 <div class="api-card">
                     <p><i class="fab fa-instagram"></i> Instagram</p>
-                    <div class="code-box">/api/download/instagram?url=</div>
+                    <div class="code-box">/api/download/instagram?url=&apikey=${user.apikey}</div>
                     <input id="in-ig" class="input-test" placeholder="URL de Instagram">
                     <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')">Probar</button>
                     <div id="res-ig" class="result-box">...</div>
                 </div>
                 <div class="api-card">
                     <p><i class="fab fa-facebook"></i> Facebook</p>
-                    <div class="code-box">/api/download/facebook?url=</div>
+                    <div class="code-box">/api/download/facebook?url=&apikey=${user.apikey}</div>
                     <input id="in-fb" class="input-test" placeholder="URL de Facebook">
                     <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')">Probar</button>
                     <div id="res-fb" class="result-box">...</div>
                 </div>
                 <div class="api-card">
                     <p><i class="fab fa-youtube"></i> YouTube MP4</p>
-                    <div class="code-box">/api/download/youtube/mp4?url=</div>
+                    <div class="code-box">/api/download/youtube/mp4?url=&apikey=${user.apikey}</div>
                     <input id="in-y4" class="input-test" placeholder="URL de YouTube">
                     <button class="btn-test" onclick="testApi('/api/download/youtube/mp4?url=', 'in-y4', 'res-y4')">Probar</button>
                     <div id="res-y4" class="result-box">...</div>
                 </div>
                 <div class="api-card">
                     <p><i class="fab fa-twitter"></i> Twitter</p>
-                    <div class="code-box">/api/download/twitter?url=</div>
+                    <div class="code-box">/api/download/twitter?url=&apikey=${user.apikey}</div>
                     <input id="in-tw" class="input-test" placeholder="URL de Twitter">
                     <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Probar</button>
                     <div id="res-tw" class="result-box">...</div>
@@ -221,7 +222,7 @@
                 <h2 style="border-left:4px solid var(--neon-pink);padding-left:10px">Herramientas</h2>
                 <div class="api-card">
                     <p><i class="fas fa-qrcode"></i> QR Generator</p>
-                    <div class="code-box">/api/tools/qr?text=</div>
+                    <div class="code-box">/api/tools/qr?text=&apikey=${user.apikey}</div>
                     <input id="in-qr" class="input-test" placeholder="Texto para el QR">
                     <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar</button>
                     <div id="res-qr" class="result-box">...</div>
