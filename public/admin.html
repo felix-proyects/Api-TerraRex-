@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kazuma | Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // BLOQUEO DE SEGURIDAD INMEDIATO
+        const session = JSON.parse(localStorage.getItem('userSession'));
+        if (!session || session.role !== 'admin') {
+            window.location.href = '/404.html';
+        }
+    </script>
+    <style>
+        body { background: #080815; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(26, 26, 46, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
+        .admin-card { border-left: 4px solid #fbbf24; }
+        .table-container { overflow-x: auto; }
+        input, select { background: #121225; border: 1px solid #2d2d4a; color: white; border-radius: 8px; padding: 8px; outline: none; }
+        input:focus { border-color: #fbbf24; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <header class="p-6 border-b border-white/5 flex justify-between items-center glass sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="bg-yellow-500 p-2 rounded-lg text-black"><i class="fas fa-user-shield"></i></div>
+            <h1 class="font-bold text-xl tracking-widest">KAZUMA <span class="text-yellow-500">STAFF</span></h1>
+        </div>
+        <button onclick="location.href='/index.html'" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition text-sm">
+            Salir del Panel
+        </button>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <div class="glass p-6 rounded-3xl mb-8 flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="loadUsers('all')" class="bg-blue-600 px-4 py-2 rounded-lg text-sm font-bold">Todos</button>
+                <button onclick="loadUsers('admins')" class="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold">Admins</button>
+                <button onclick="loadUsers('users')" class="bg-slate-700 px-4 py-2 rounded-lg text-sm font-bold">Usuarios</button>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <input type="text" id="searchQuery" class="w-full md:w-64" placeholder="Buscar por nombre o correo...">
+                <button onclick="searchUser()" class="bg-yellow-500 text-black px-4 rounded-lg"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="glass rounded-3xl overflow-hidden">
+            <div class="table-container">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
+                            <th class="p-4">ID / Usuario</th>
+                            <th class="p-4">Contacto</th>
+                            <th class="p-4">Plan / Rol</th>
+                            <th class="p-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="editModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[3000] p-4">
+        <div class="glass p-8 rounded-3xl max-w-md w-full relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-yellow-500">Gestionar Usuario</h2>
+            
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre de Usuario</label>
+                    <input type="text" id="edit-username" class="w-full">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Rol de Sistema</label>
+                    <select id="edit-role" class="w-full">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Plan de Solicitudes</label>
+                    <select id="edit-plan" class="w-full" onchange="toggleCustomLimit()">
+                        <option value="free">Plan Free (100)</option>
+                        <option value="plan1">Plan 1 (1,000)</option>
+                        <option value="plan2">Plan 2 (4,000)</option>
+                        <option value="custom">Plan Edit (Personalizado)</option>
+                    </select>
+                </div>
+                <div id="custom-limit-div" class="hidden">
+                    <label class="block text-xs text-gray-400 mb-1">Límite Personalizado</label>
+                    <input type="number" id="edit-limit" class="w-full" placeholder="Ej: 10000">
+                </div>
+                
+                <div class="pt-4 flex gap-2">
+                    <button type="submit" class="flex-1 bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const MAIN_ADMIN_EMAIL = "frasesbebor@gmail.com";
+
+        async function loadUsers(filter = 'all') {
+            const res = await fetch(`/api/admin/users?filter=${filter}`);
+            const data = await res.json();
+            renderTable(data.users);
+        }
+
+        async function searchUser() {
+            const q = document.getElementById('searchQuery').value;
+            const res = await fetch(`/api/admin/search?q=${q}`);
+            const data = await res.json();
+            renderTable(data.users);
+        }
+
+        function renderTable(users) {
+            const body = document.getElementById('user-table-body');
+            body.innerHTML = users.map(u => {
+                const isMainAdmin = u.email === MAIN_ADMIN_EMAIL;
+                const canEdit = session.email === MAIN_ADMIN_EMAIL || !isMainAdmin;
+
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                    <td class="p-4">
+                        <div class="font-bold">${u.username}</div>
+                        <div class="text-xs text-blue-400 font-mono">${u.id}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="text-sm">${u.email}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="text-xs bg-white/10 px-2 py-1 rounded capitalize">${u.role}</span>
+                        <div class="text-xs text-gray-500 mt-1">Límite: ${u.limit}</div>
+                    </td>
+                    <td class="p-4 text-center">
+                        ${canEdit ? 
+                            `<button onclick="openEdit('${u.id}')" class="text-yellow-500 hover:text-yellow-400 p-2"><i class="fas fa-edit"></i></button>` 
+                            : `<i class="fas fa-lock text-gray-600" title="Cuenta Principal Protegida"></i>`}
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        async function openEdit(id) {
+            const res = await fetch(`/api/auth/user/${id}`);
+            const data = await res.json();
+            const u = data.user;
+
+            document.getElementById('edit-id').value = u.id;
+            document.getElementById('edit-username').value = u.username;
+            document.getElementById('edit-role').value = u.role;
+            
+            // Lógica para pre-seleccionar el plan en el select
+            const limit = u.limit;
+            const select = document.getElementById('edit-plan');
+            if(limit == 100) select.value = "free";
+            else if(limit == 1000) select.value = "plan1";
+            else if(limit == 4000) select.value = "plan2";
+            else select.value = "custom";
+            
+            document.getElementById('edit-limit').value = limit;
+            toggleCustomLimit();
+            
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('flex');
+        }
+
+        function toggleCustomLimit() {
+            const plan = document.getElementById('edit-plan').value;
+            const div = document.getElementById('custom-limit-div');
+            div.classList.toggle('hidden', plan !== 'custom');
+        }
+
+        document.getElementById('editForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const plan = document.getElementById('edit-plan').value;
+            let limit = 100;
+            if(plan === 'plan1') limit = 1000;
+            else if(plan === 'plan2') limit = 4000;
+            else if(plan === 'custom') limit = parseInt(document.getElementById('edit-limit').value);
+
+            const payload = {
+                adminId: session.id,
+                targetId: document.getElementById('edit-id').value,
+                username: document.getElementById('edit-username').value,
+                role: document.getElementById('edit-role').value,
+                limit: limit
+            };
+
+            const res = await fetch('/api/admin/update-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await res.json();
+            if(data.status) {
+                alert("Usuario actualizado");
+                closeModal();
+                loadUsers();
+            } else {
+                alert(data.message);
+            }
+        };
+
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+        }
+
+        window.onload = () => loadUsers();
+    </script>
+</body>
+</html>
