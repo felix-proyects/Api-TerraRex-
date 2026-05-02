@@ -2,44 +2,116 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        :root {
+            --neon-pink: #ff2d55;
+            --neon-blue: #00f3ff;
+            --dark-bg: #0d0d0d;
+            --card-bg: #1a1a2e;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .brand { font-weight: 800; font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 10px; }
+        .brand span { color: var(--neon-pink); }
+
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.7rem; color: #a0a0a0; text-transform: uppercase; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .input-field:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+
+        .btn-login {
+            width: 100%;
+            background: var(--neon-pink);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 45, 85, 0.4); }
+
+        .footer-links { margin-top: 25px; font-size: 0.8rem; color: #777; }
+        .footer-links a { color: var(--neon-blue); text-decoration: none; font-weight: bold; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="glass p-8 rounded-2xl w-full max-w-md">
-        <h2 class="text-3xl font-bold mb-2 text-center text-blue-500 uppercase tracking-tighter">API Kazuma</h2>
-        <p class="text-slate-400 text-center mb-6 text-sm">Ingresa tu usuario o correo</p>
+<body>
 
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label class="block text-sm text-slate-400 mb-1">Usuario o Correo</label>
-                <input type="text" id="identifier" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" placeholder="Ej: felix_ofc" required>
+    <div class="login-card">
+        <div class="brand">API <span>KAZUMA</span></div>
+        <p style="color: #666; font-size: 0.85rem; margin-bottom: 30px;">AUTH PROTOCOL v2.0</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Usuario o Correo</label>
+                <input type="text" id="identifier" class="input-field" placeholder="félix_dev" required>
             </div>
-            <div>
-                <label class="block text-sm text-slate-400 mb-1">Contraseña</label>
-                <input type="password" id="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" placeholder="••••••••" required>
+            
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" class="input-field" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 font-bold py-3 rounded-lg transition shadow-lg shadow-blue-900/20">ENTRAR</button>
+
+            <button type="submit" class="btn-login">Acceder al Sistema</button>
         </form>
-        <p class="mt-4 text-center text-slate-400 text-sm">¿No tienes cuenta? <a href="/register.html" class="text-blue-500 font-medium">Regístrate</a></p>
+
+        <div class="footer-links">
+            ¿No tienes acceso? <a href="/register.html">Crea una cuenta</a>
+        </div>
     </div>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             const loginData = {
-                identifier: document.getElementById('identifier').value, // Ahora enviamos 'identifier'
+                identifier: document.getElementById('identifier').value,
                 password: document.getElementById('password').value
             };
 
             try {
-                // Asegúrate que tu backend maneje la búsqueda por email O username
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -52,10 +124,10 @@
                     localStorage.setItem('userSession', JSON.stringify(data.user));
                     window.location.href = '/index.html';
                 } else {
-                    alert(data.message || 'Credenciales incorrectas.');
+                    alert(data.message || 'Error en las credenciales.');
                 }
             } catch (error) {
-                alert('Error al conectar con la API.');
+                alert('Fallo en la conexión con el servidor.');
             }
         });
     </script>
