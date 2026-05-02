@@ -98,6 +98,8 @@
             border-radius: 10px;
             margin-top: 10px;
             display: none;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; }
@@ -138,15 +140,13 @@
 
             let fullUrl;
             if (isQr) {
-                // Formato QR con reemplazo de espacios por + sin codificar el +
+                // Formato QR con texto separado por + (ej: hola+soy+felix)
                 let formattedText = val.trim().replace(/\s+/g, '+');
                 fullUrl = `${baseUrl}${endpoint}${formattedText}`;
-                
-                // Para QR mostramos la imagen directamente
                 resBox.innerHTML = `<img src="${fullUrl}" class="qr-result-img" style="display:block;" alt="Código QR">`;
                 return;
             } else {
-                // Para descargas enviamos el texto crudo sin encodeURIComponent para evitar los %
+                // Solicitud tal cual sin codificar caracteres especiales (%20, %3A, etc)
                 fullUrl = `${baseUrl}${endpoint}${val}`;
             }
 
@@ -156,14 +156,14 @@
                 const response = await fetch(fullUrl);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Error: ${response.status}`);
                 }
 
                 const data = await response.json();
                 resBox.innerHTML = JSON.stringify(data, null, 2);
             } catch (err) {
-                resBox.innerHTML = `Error al conectar con la API.\nURL intentada: ${fullUrl}`;
-                console.error("Error en fetch:", err);
+                resBox.innerHTML = `Error al conectar con la API.\nURL: ${fullUrl}`;
+                console.error("Error:", err);
             }
         }
 
@@ -184,25 +184,25 @@
                 
                 <div class="api-card">
                     <div class="api-header"><i class="fab fa-tiktok"></i> TikTok Downloader</div>
-                    <div class="code-box">/api/TikTok?url=</div>
+                    <div class="code-box">/api/download/tiktok?url=</div>
                     <input id="in-tk" class="input-test" placeholder="Pega enlace de TikTok aquí...">
-                    <button class="btn-test" onclick="testApi('/api/TikTok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
+                    <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')"><i class="fas fa-play"></i> Probar</button>
                     <div id="res-tk" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header"><i class="fab fa-instagram"></i> Instagram Downloader</div>
-                    <div class="code-box">/api/Instagram?url=</div>
+                    <div class="code-box">/api/download/instagram?url=</div>
                     <input id="in-ig" class="input-test" placeholder="Pega enlace de Instagram aquí...">
-                    <button class="btn-test" onclick="testApi('/api/Instagram?url=', 'in-ig', 'res-ig')"><i class="fas fa-play"></i> Probar</button>
+                    <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')"><i class="fas fa-play"></i> Probar</button>
                     <div id="res-ig" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header"><i class="fab fa-facebook"></i> Facebook Downloader</div>
-                    <div class="code-box">/api/Facebook?url=</div>
+                    <div class="code-box">/api/download/facebook?url=</div>
                     <input id="in-fb" class="input-test" placeholder="Pega enlace de Facebook aquí...">
-                    <button class="btn-test" onclick="testApi('/api/Facebook?url=', 'in-fb', 'res-fb')"><i class="fas fa-play"></i> Probar</button>
+                    <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')"><i class="fas fa-play"></i> Probar</button>
                     <div id="res-fb" class="result-box">El resultado aparecerá aquí...</div>
                 </div>
             `,
