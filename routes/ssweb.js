@@ -9,7 +9,7 @@ const DOWNLOAD_DIR = path.join(__dirname, '../public/download');
 
 fs.ensureDirSync(DOWNLOAD_DIR);
 
-router.get('/ssweb', async (req, res) => {
+router.get('/', async (req, res) => {
   const targetUrl = req.query.url;
 
   if (!targetUrl) {
@@ -62,7 +62,7 @@ router.get('/ssweb', async (req, res) => {
           await fs.remove(zipPath);
         }
       } catch (err) {
-        console.error("Error al borrar temporal:", err);
+        console.error(err);
       }
     }, 5 * 60 * 1000);
 
