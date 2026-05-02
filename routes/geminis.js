@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const GEMINI_API_KEY = "AIzaSyDWxBQC_V3SO5euWuxSClbh2PeiTXTt1-4";
+const GEMINI_API_KEY = "AIzaSyChyeuN0e7BD-ZtnaBIC2kBGiityL3qEWs";
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 router.get('/', async (req, res) => {
