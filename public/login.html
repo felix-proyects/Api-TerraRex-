@@ -26,7 +26,7 @@
             </div>
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 font-bold py-3 rounded-lg transition shadow-lg shadow-blue-900/20">Entrar</button>
         </form>
-        <p class="mt-4 text-center text-slate-400 text-sm">¿No tienes cuenta? <a href="/register.html" class="text-blue-500 font-medium">Regístrate</a></p>
+        <p class="mt-4 text-center text-slate-400 text-sm">¿No tienes cuenta? <a href="/register" class="text-blue-500 font-medium">Regístrate</a></p>
     </div>
 
     <script>
@@ -48,9 +48,9 @@
                 const data = await response.json();
 
                 if (data.status) {
-                    // Guardar datos de sesión
                     localStorage.setItem('userSession', JSON.stringify(data.user));
-                    window.location.href = '/profile.html';
+                    // Redirigir a la raíz para que se vea limpio
+                    window.location.href = '/';
                 } else {
                     alert(data.message || 'Credenciales incorrectas.');
                 }
