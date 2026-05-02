@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kazuma | Mi Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --neon-pink: #ff2d55;
+            --neon-blue: #00f3ff;
+            --dark-bg: #0d0d0d;
+            --card-bg: #1a1a2e;
+        }
+        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-neon { border: 1px solid var(--neon-pink); color: var(--neon-pink); transition: 0.3s; }
+        .btn-neon:hover { background: var(--neon-pink); color: white; shadow: 0 0 15px var(--neon-pink); }
+        .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
+        <div class="font-bold text-xl">KAZUMA <span>PROFILER</span></div>
+        <button onclick="location.href='/index.html'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al Inicio
+        </button>
+    </header>
+
+    <main class="container mx-auto p-4 flex-grow max-w-2xl">
+        <div class="glass rounded-3xl p-6 mt-6 text-center">
+            <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="w-24 h-24 rounded-full mx-auto border-2 border-[#ff2d55] mb-4 object-cover">
+            <h2 id="view-username" class="text-2xl font-bold">Cargando...</h2>
+            <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Plan Actual</p>
+                <p id="view-plan" class="text-lg font-bold text-yellow-400">Cargando...</p>
+            </div>
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Tu IP Pública</p>
+                <p id="view-ip" class="text-lg font-bold text-blue-400">Detectando...</p>
+            </div>
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Uso de Hoy</p>
+                <p id="view-requests" class="text-lg font-bold text-pink-500">0 / 0</p>
+            </div>
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Correo</p>
+                <p id="view-email" class="text-lg font-bold truncate">Cargando...</p>
+            </div>
+        </div>
+
+        <div class="glass rounded-3xl p-6 mt-8">
+            <h3 class="text-xl font-bold mb-6 flex items-center"><i class="fas fa-user-cog mr-3 text-pink-500"></i> Ajustes de Cuenta</h3>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Nuevo Correo</label>
+                    <div class="flex gap-2">
+                        <input type="email" id="new-email" class="input-dark w-full p-3 rounded-xl outline-none focus:border-pink-500" placeholder="ejemplo@correo.com">
+                        <button onclick="updateData('email')" class="bg-blue-600 px-4 rounded-xl font-bold">Cambiar</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Nueva Contraseña</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="new-pass" class="input-dark w-full p-3 rounded-xl outline-none focus:border-pink-500" placeholder="••••••••">
+                        <button onclick="updateData('password')" class="bg-blue-600 px-4 rounded-xl font-bold">Cambiar</button>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-white/5 space-y-4">
+                    <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition">
+                        <i class="fas fa-sign-out-alt mr-2 text-yellow-500"></i> Cerrar Sesión
+                    </button>
+                    <button onclick="deleteAccount()" class="w-full bg-red-900/20 hover:bg-red-600 text-red-500 hover:text-white p-4 rounded-2xl font-bold transition border border-red-500/20">
+                        <i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta Permanentemente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="p-8 text-center text-gray-500 text-xs">
+        <p>© 2026 Kazuma API System. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        const session = JSON.parse(localStorage.getItem('userSession'));
+        if (!session) window.location.href = '/login.html';
+
+        async function loadProfile() {
+            try {
+                // Obtener IP
+                fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => document.getElementById('view-ip').innerText = d.ip);
+
+                const res = await fetch(`/api/auth/user/${session.id}`);
+                const data = await res.json();
+
+                if (data.status) {
+                    const u = data.user;
+                    document.getElementById('view-username').innerText = u.username.toUpperCase();
+                    document.getElementById('view-id').innerText = `ID: ${u.id}`;
+                    document.getElementById('view-email').innerText = u.email;
+                    document.getElementById('view-requests').innerText = `${u.requests_today} / ${u.limit}`;
+                    document.getElementById('view-plan').innerText = u.role === 'admin' ? 'Plan VIP (Admin)' : 'Plan Free';
+                }
+            } catch (e) {
+                console.error("Error cargando perfil");
+            }
+        }
+
+        async function updateData(type) {
+            const val = document.getElementById(type === 'email' ? 'new-email' : 'new-pass').value;
+            if (!val) return alert("Ingresa un valor");
+
+            const res = await fetch(`/api/auth/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: session.id, type, value: val })
+            });
+            const data = await res.json();
+            if (data.status) {
+                alert("Actualizado con éxito");
+                location.reload();
+            }
+        }
+
+        async function deleteAccount() {
+            if (!confirm("¿ESTÁS SEGURO? Esta acción borrará todos tus datos y no podrás crear otra cuenta en este dispositivo fácilmente.")) return;
+            
+            const res = await fetch(`/api/auth/delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: session.id })
+            });
+            const data = await res.json();
+            if (data.status) {
+                localStorage.clear();
+                window.location.href = '/register.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('userSession');
+            window.location.href = '/login.html';
+        }
+
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>
