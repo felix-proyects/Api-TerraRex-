@@ -16,6 +16,7 @@ const youtubeRoutes = require('./routes/youtube');
 const twitterRoutes = require('./routes/twitter');
 const qrcodeRoutes = require('./routes/qrcode');
 const { pinterestRoute } = require('./routes/pinterest');
+const { pinterestSearchRoute } = require('./routes/search/pinterest');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -71,6 +72,7 @@ app.use('/api/download/facebook', facebookRoutes);
 app.use('/api/download/youtube', youtubeRoutes);
 app.use('/api/download/twitter', twitterRoutes);
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
+app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
 app.use('/api/tools/qr', qrcodeRoutes);
 
 app.get('/api', (req, res) => {
@@ -83,7 +85,8 @@ app.get('/api', (req, res) => {
             instagram: '/api/download/instagram?url=URL&apikey=TU_KEY',
             facebook: '/api/download/facebook?url=URL&apikey=TU_KEY',
             twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
-            pinterest: '/api/download/pinterest?url=URL&apikey=TU_KEY',
+            pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
+            pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
             youtube_mp3: '/api/download/youtube/mp3?url=URL&apikey=TU_KEY',
             youtube_mp4: '/api/download/youtube/mp4?url=URL&apikey=TU_KEY',
             qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY'
@@ -91,7 +94,7 @@ app.get('/api', (req, res) => {
     });
 });
 
-app.get(['/login', '/register', '/profile', '/admin'], (req, res) => {
+app.get(['/login', '/register', '/profile', '/admin', '/search'], (req, res) => {
     const page = req.path.split('/')[1];
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
 });
