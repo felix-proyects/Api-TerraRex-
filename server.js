@@ -21,7 +21,13 @@ app.use(express.urlencoded({ extended: true }));
 
 const securityMiddleware = async (req, res, next) => {
     const isApiRoute = req.path.startsWith('/api/');
-    const isPublicApi = req.path.includes('/auth') || req.path.includes('/stats') || req.path === '/api';
+    
+    // CORRECCIÓN: Se añade req.path.includes('/admin') para que el panel pueda consultar la DB
+    const isPublicApi = 
+        req.path.includes('/auth') || 
+        req.path.includes('/stats') || 
+        req.path.includes('/admin') || 
+        req.path === '/api';
 
     if (isApiRoute && !isPublicApi) {
         const apikey = req.query.apikey || req.headers['x-api-key'];
