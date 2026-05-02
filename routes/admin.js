@@ -3,14 +3,15 @@ const router = express.Router();
 const fs = require('fs-extra');
 const path = require('path');
 
-// Esto busca la carpeta data en la raíz del proyecto sin importar desde dónde se ejecute
+// Forzamos la ruta desde la raíz del proyecto para evitar errores de PM2
 const dbPath = path.join(process.cwd(), 'data', 'database.json');
+const MAIN_ADMIN_EMAIL = "frasesbebor@gmail.com";
 
+// --- RUTA: OBTENER TODOS LOS USUARIOS ---
 router.get('/users', async (req, res) => {
     try {
-        console.log("Intentando leer DB en:", dbPath); // Esto saldrá en pm2 logs
         if (!(await fs.pathExists(dbPath))) {
-            return res.json({ status: false, users: [], message: "Archivo no encontrado" });
+            return res.json({ status: false, users: [], message: "Base de datos no encontrada" });
         }
         
         const db = await fs.readJson(dbPath);
@@ -25,10 +26,58 @@ router.get('/users', async (req, res) => {
 
         res.json({ status: true, users });
     } catch (err) {
-        console.error("Error crítico en /users:", err);
+        console.error("Error en GET /users:", err);
         res.status(500).json({ status: false, users: [], error: err.message });
     }
 });
 
-// ... tu ruta search y update-user igual ...
+// --- RUTA: BUSCAR USUARIOS ---
+router.get('/search', async (req, res) => {
+    try {
+        const db = await fs.readJson(dbPath);
+        const q = req.query.q ? req.query.q.toLowerCase() : "";
+        
+        const users = db.users.filter(u => 
+            u.username.toLowerCase().includes(q) || 
+            u.email.toLowerCase().includes(q)
+        );
+        
+        res.json({ status: true, users });
+    } catch (err) {
+        res.status(500).json({ status: false, users: [] });
+    }
+});
+
+// --- RUTA: ACTUALIZAR USUARIO (CON PROTECCIÓN) ---
+router.post('/update-user', async (req, res) => {
+    try {
+        const { adminId, targetId, username, role, limit } = req.body;
+        const db = await fs.readJson(dbPath);
+        
+        const admin = db.users.find(u => u.id == adminId);
+        const target = db.users.find(u => u.id == targetId);
+
+        // Seguridad: Solo los admins entran aquí
+        if (!admin || admin.role !== 'admin') {
+            return res.json({ status: false, message: "No tienes permisos de administrador" });
+        }
+
+        // REGLA DE ORO: Si el objetivo es el Dueño, y el que edita no eres TÚ, bloqueamos
+        if (target.email === MAIN_ADMIN_EMAIL && admin.email !== MAIN_ADMIN_EMAIL) {
+            return res.json({ status: false, message: "Acceso denegado: No puedes editar al Dueño" });
+        }
+
+        // Aplicar cambios
+        target.username = username;
+        target.role = role;
+        target.limit = parseInt(limit);
+
+        await fs.writeJson(dbPath, db, { spaces: 4 });
+        res.json({ status: true, message: "Usuario actualizado correctamente" });
+    } catch (err) {
+        console.error("Error en POST /update-user:", err);
+        res.json({ status: false, message: "Error interno al guardar cambios" });
+    }
+});
+
 module.exports = router;
