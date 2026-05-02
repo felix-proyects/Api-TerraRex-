@@ -1,9 +1,14 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs-extra');
 const app = express();
 
 const PORT = process.env.PORT || 3032;
+const dbPath = path.join(__dirname, 'data/database.json');
 
+const authRoutes = require('./routes/auth');
+const statsRoutes = require('./routes/stats');
+const adminRoutes = require('./routes/admin');
 const tiktokRoutes = require('./routes/tiktok');
 const instagramRoutes = require('./routes/instagramvid');
 const facebookRoutes = require('./routes/facebookvid');
@@ -14,8 +19,50 @@ const qrcodeRoutes = require('./routes/qrcode');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+const securityMiddleware = async (req, res, next) => {
+    const isApiRoute = req.path.startsWith('/api/');
+    const isPublicApi = req.path.includes('/auth') || req.path.includes('/stats') || req.path === '/api';
 
+    if (isApiRoute && !isPublicApi) {
+        const apikey = req.query.apikey || req.headers['x-api-key'];
+        if (!apikey) return res.status(403).json({ status: false, message: "API Key requerida" });
+
+        const db = await fs.readJson(dbPath);
+        const userIndex = db.users.findIndex(u => u.apikey === apikey);
+
+        if (userIndex === -1) return res.status(403).json({ status: false, message: "API Key inválida" });
+
+        const user = db.users[userIndex];
+        const today = new Date().toISOString().split('T')[0];
+
+        if (user.last_reset !== today) {
+            user.requests_today = 0;
+            user.last_reset = today;
+        }
+
+        if (user.requests_today >= user.limit) {
+            return res.status(429).json({ status: false, message: "Límite diario alcanzado" });
+        }
+
+        user.requests_today += 1;
+        user.total_requests += 1;
+        await fs.writeJson(dbPath, db, { spaces: 4 });
+    }
+    next();
+};
+
+app.use(securityMiddleware);
+
+app.get(['/login', '/register', '/profile', '/admin'], (req, res) => {
+    const page = req.path.split('/')[1];
+    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+});
+
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/download/tiktok', tiktokRoutes);
 app.use('/api/download/instagram', instagramRoutes);
 app.use('/api/download/facebook', facebookRoutes);
@@ -29,13 +76,13 @@ app.get('/api', (req, res) => {
         message: 'Api Kazuma activa',
         creator: 'Félix Ofc',
         endpoints: {
-            tiktok: '/api/download/tiktok?url=URL',
-            instagram: '/api/download/instagram?url=URL',
-            facebook: '/api/download/facebook?url=URL',
-            twitter: '/api/download/twitter?url=URL',
-            youtube_mp3: '/api/download/youtube/mp3?url=URL',
-            youtube_mp4: '/api/download/youtube/mp4?url=URL',
-            qrcode: '/api/tools/qr?text=TEXTO'
+            tiktok: '/api/download/tiktok?url=URL&apikey=TU_KEY',
+            instagram: '/api/download/instagram?url=URL&apikey=TU_KEY',
+            facebook: '/api/download/facebook?url=URL&apikey=TU_KEY',
+            twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
+            youtube_mp3: '/api/download/youtube/mp3?url=URL&apikey=TU_KEY',
+            youtube_mp4: '/api/download/youtube/mp4?url=URL&apikey=TU_KEY',
+            qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY'
         }
     });
 });
