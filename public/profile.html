@@ -36,7 +36,15 @@
             <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <div class="glass p-5 rounded-2xl mt-6 border-l-4 border-[#00f3ff]">
+            <p class="text-xs text-gray-400 uppercase font-bold mb-2">Tu API Key Personal</p>
+            <div class="flex gap-2">
+                <input type="text" id="view-apikey" class="input-dark w-full p-3 rounded-xl outline-none font-mono text-sm" readonly>
+                <button onclick="copyKey()" class="bg-[#00f3ff] text-black px-4 rounded-xl font-bold hover:bg-white transition"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div class="glass p-5 rounded-2xl">
                 <p class="text-xs text-gray-400 uppercase font-bold mb-1">Plan Actual</p>
                 <p id="view-plan" class="text-lg font-bold text-yellow-400">Cargando...</p>
@@ -97,7 +105,6 @@
 
         async function loadProfile() {
             try {
-                // Obtener IP
                 fetch('https://api.ipify.org?format=json')
                     .then(r => r.json())
                     .then(d => document.getElementById('view-ip').innerText = d.ip);
@@ -110,12 +117,27 @@
                     document.getElementById('view-username').innerText = u.username.toUpperCase();
                     document.getElementById('view-id').innerText = `ID: ${u.id}`;
                     document.getElementById('view-email').innerText = u.email;
+                    document.getElementById('view-apikey').value = u.apikey;
                     document.getElementById('view-requests').innerText = `${u.requests_today} / ${u.limit}`;
-                    document.getElementById('view-plan').innerText = u.role === 'admin' ? 'Plan VIP (Admin)' : 'Plan Free';
+                    
+                    let planName = 'Plan Free';
+                    if (u.role === 'admin') planName = 'Plan VIP (Admin)';
+                    else if (u.limit === 1000) planName = 'Plan Premium 1';
+                    else if (u.limit === 4000) planName = 'Plan Premium 2';
+                    else if (u.limit > 4000) planName = 'Plan Personalizado';
+                    
+                    document.getElementById('view-plan').innerText = planName;
                 }
             } catch (e) {
                 console.error("Error cargando perfil");
             }
+        }
+
+        function copyKey() {
+            const keyInput = document.getElementById('view-apikey');
+            keyInput.select();
+            document.execCommand('copy');
+            alert("API Key copiada al portapapeles");
         }
 
         async function updateData(type) {
@@ -135,7 +157,7 @@
         }
 
         async function deleteAccount() {
-            if (!confirm("¿ESTÁS SEGURO? Esta acción borrará todos tus datos y no podrás crear otra cuenta en este dispositivo fácilmente.")) return;
+            if (!confirm("¿ESTÁS SEGURO? Esta acción borrará todos tus datos.")) return;
             
             const res = await fetch(`/api/auth/delete`, {
                 method: 'POST',
