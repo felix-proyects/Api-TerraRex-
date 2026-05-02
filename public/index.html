@@ -6,6 +6,7 @@
     <title>Api Kazuma | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Estilos base (IDÉNTICOS en todas las páginas para no perder el diseño) */
         :root {
             --neon-pink: #ff2d55;
             --neon-blue: #00f3ff;
@@ -36,7 +37,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             position: sticky; top: 0; z-index: 1000;
         }
-        .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; }
+        .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
         .brand span { color: var(--neon-pink); }
 
         .sidebar {
@@ -77,52 +78,24 @@
         .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
         .stat-value { font-size: 1.4rem; font-weight: 900; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
 
-        /* Top Usuarios Rediseñado */
         .top-users-container { display: flex; flex-direction: column; gap: 12px; }
         .user-card {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .user-card:first-child { 
-            background: linear-gradient(90deg, rgba(255, 45, 85, 0.1) 0%, rgba(22, 22, 37, 1) 100%);
-            border: 1px solid rgba(255, 45, 85, 0.3);
-        }
-        .user-info { display: flex; align-items: center; gap: 12px; }
         .rank-badge {
             width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
             border-radius: 8px; font-size: 0.7rem; font-weight: 900; background: rgba(255,255,255,0.1);
         }
         .rank-1 { background: gold !important; color: black; }
-        .rank-2 { background: silver !important; color: black; }
-        .rank-3 { background: #cd7f32 !important; color: black; }
-
+        
         .user-avatar-mini { 
             width: 38px; height: 38px; border-radius: 12px; background: var(--code-bg); 
             display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem;
-            border: 1px solid rgba(255,255,255,0.1);
         }
         .user-name { font-weight: 700; font-size: 0.9rem; }
         .user-reqs { font-weight: 800; color: var(--neon-blue); font-size: 0.75rem; background: rgba(0,243,255,0.1); padding: 5px 12px; border-radius: 10px; }
-
-        .code-box {
-            background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace;
-            font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1);
-        }
-        .input-test {
-            width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
-            padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
-        }
-        .btn-test {
-            background: var(--neon-pink); color: white; border: none; padding: 14px; width: 100%;
-            border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-        }
-
-        .result-box {
-            background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px;
-            margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
-            white-space: pre-wrap; word-break: break-all; max-height: 250px; overflow-y: auto;
-        }
 
         .footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; line-height: 1.6; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
@@ -132,7 +105,7 @@
 <body>
 
     <header>
-        <div class="brand">KAZUMA <span>DASH</span></div>
+        <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
         <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     </header>
 
@@ -147,17 +120,46 @@
         </div>
 
         <p class="nav-category">Menú Principal</p>
-        <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-th-large"></i> Dashboard</div>
+        <div class="sidebar-link" onclick="location.href='/'"><i class="fas fa-th-large"></i> Dashboard</div>
         <div class="sidebar-link" onclick="location.href='/profile'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
 
         <p class="nav-category">Servicios API</p>
-        <div class="sidebar-link" onclick="showCategory('descargas')"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
-        <div class="sidebar-link" onclick="showCategory('herramientas')"><i class="fas fa-tools"></i> Herramientas</div>
+        <div class="sidebar-link" onclick="location.href='/endpoints/descargas.html'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
+        <div class="sidebar-link" onclick="location.href='/endpoints/tools.html'"><i class="fas fa-tools"></i> Herramientas</div>
 
         <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
     </nav>
 
-    <div class="container" id="content-area"></div>
+    <div class="container" id="content-area">
+        <section class="hero">
+            <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
+            <h1>SISTEMA <span>ACTIVO</span></h1>
+            <p id="welcome-user" style="color:var(--text-muted); font-size: 0.8rem; font-weight:700; margin-top:5px;">CARGANDO...</p>
+        </section>
+
+        <div class="api-card">
+            <p class="nav-category" style="margin-top:0">Información de Plataforma</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="stat-label">Solicitudes Totales (Global)</div>
+                    <div id="global-requests" class="stat-value">0</div>
+                </div>
+                <div class="stat-box" style="border-left-color: var(--neon-pink);">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-label">Tiempo de Actividad (Uptime)</div>
+                    <div id="server-uptime" class="stat-value" style="color: var(--neon-pink);">0:00:00:00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="api-card">
+            <p class="nav-category" style="margin-top:0">Top 5 Master Users</p>
+            <div id="top-users-list" class="top-users-container">
+                <p style="text-align:center; opacity:0.5;">Cargando ranking...</p>
+            </div>
+        </div>
+    </div>
 
     <footer class="footer">
         <p>SISTEMA API KAZUMA v2.5<br>© 2026 KurayamiTeam & Félix Ofc<br>Villa Altagracia, RD</p>
@@ -187,134 +189,37 @@
             return `${days}:${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
         }
 
-        const categories = {
-            inicio: async () => {
-                const res = await fetch('/api/stats/global');
-                const stats = await res.json();
-                const serverStart = stats.serverStart || (Date.now() - 300000000); 
-
-                const topList = stats.topUsers.length > 0 
-                    ? stats.topUsers.map((u, i) => `
-                        <div class="user-card">
-                            <div class="user-info">
-                                <div class="rank-badge rank-${i+1}">#${i+1}</div>
-                                <div class="user-avatar-mini">${u.username.substring(0,1).toUpperCase()}</div>
-                                <span class="user-name">${u.username}</span>
-                            </div>
-                            <span class="user-reqs">${u.requests.toLocaleString()} reqs</span>
-                        </div>
-                    `).join('') 
-                    : '<p style="text-align:center; color:gray; font-size:0.8rem;">Esperando actividad...</p>';
-
-                return `
-                <section class="hero">
-                    <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
-                    <h1>SISTEMA <span>ACTIVO</span></h1>
-                    <p style="color:var(--text-muted); font-size: 0.8rem; font-weight:700; margin-top:5px;">USUARIO: ${user.username.toUpperCase()}</p>
-                </section>
-
-                <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Información de Plataforma</p>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <i class="fas fa-chart-line"></i>
-                            <div class="stat-label">Solicitudes Totales (Global)</div>
-                            <div class="stat-value">${stats.totalRequests.toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box" style="border-left-color: var(--neon-pink);">
-                            <i class="fas fa-clock"></i>
-                            <div class="stat-label">Tiempo de Actividad (Uptime)</div>
-                            <div id="server-uptime" class="stat-value" style="color: var(--neon-pink);">${formatUptime(serverStart)}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Top 5 Master Users</p>
-                    <div class="top-users-container">
-                        ${topList}
-                    </div>
-                </div>`;
-            },
-            descargas: `
-                <h2 style="border-left:5px solid var(--neon-pink); padding-left:15px; font-weight:900;">DESCARGAS</h2>
-                <div class="api-card">
-                    <p class="label-clear"><i class="fab fa-tiktok" style="color:#ff0050"></i> TIKTOK VIDEO</p>
-                    <div class="code-box">GET /api/download/tiktok?url=&apikey=${user.apikey}</div>
-                    <input id="in-tk" class="input-test" placeholder="Pega el link aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')">Ejecutar</button>
-                    <div id="res-tk" class="result-box">...</div>
-                </div>
-                <div class="api-card">
-                    <p class="label-clear"><i class="fab fa-instagram" style="color:#e1306c"></i> INSTAGRAM REELS</p>
-                    <div class="code-box">GET /api/download/instagram?url=&apikey=${user.apikey}</div>
-                    <input id="in-ig" class="input-test" placeholder="Pega el link aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')">Ejecutar</button>
-                    <div id="res-ig" class="result-box">...</div>
-                </div>
-                <div class="api-card">
-                    <p class="label-clear"><i class="fab fa-facebook" style="color:#1877f2"></i> FACEBOOK VIDEO</p>
-                    <div class="code-box">GET /api/download/facebook?url=&apikey=${user.apikey}</div>
-                    <input id="in-fb" class="input-test" placeholder="Pega el link aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')">Ejecutar</button>
-                    <div id="res-fb" class="result-box">...</div>
-                </div>
-                <div class="api-card">
-                    <p class="label-clear"><i class="fab fa-twitter" style="color:#1da1f2"></i> TWITTER (X) VIDEO</p>
-                    <div class="code-box">GET /api/download/twitter?url=&apikey=${user.apikey}</div>
-                    <input id="in-tw" class="input-test" placeholder="Pega el link aquí...">
-                    <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Ejecutar</button>
-                    <div id="res-tw" class="result-box">...</div>
-                </div>`,
-            herramientas: `
-                <h2 style="border-left:5px solid var(--neon-blue); padding-left:15px; font-weight:900;">HERRAMIENTAS</h2>
-                <div class="api-card">
-                    <p class="label-clear"><i class="fas fa-qrcode"></i> GENERADOR QR</p>
-                    <div class="code-box">GET /api/tools/qr?text=&apikey=${user.apikey}</div>
-                    <input id="in-qr" class="input-test" placeholder="Escribe el texto para el QR...">
-                    <button class="btn-test" style="background: var(--neon-blue); color: black;" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar QR</button>
-                    <div id="res-qr" class="result-box" style="text-align:center;">...</div>
-                </div>`
-        };
-
-        let uptimeInterval;
-        async function showCategory(cat) {
-            clearInterval(uptimeInterval);
-            const area = document.getElementById('content-area');
-            area.innerHTML = typeof categories[cat] === 'function' ? await categories[cat]() : categories[cat];
-
-            if (cat === 'inicio') {
-                const res = await fetch('/api/stats/global');
-                const stats = await res.json();
-                const serverStart = stats.serverStart || (Date.now() - 300000000);
-                uptimeInterval = setInterval(() => {
-                    const el = document.getElementById('server-uptime');
-                    if (el) el.innerText = formatUptime(serverStart);
-                }, 1000);
-            }
-            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
-        }
-
-        async function testApi(endpoint, inputId, resultId, isQr = false) {
-            let val = document.getElementById(inputId).value;
-            const resBox = document.getElementById(resultId);
-            if (!val) return alert("Falta el parámetro de entrada");
-            resBox.innerHTML = "PROCESANDO SOLICITUD...";
+        async function initDashboard() {
+            document.getElementById('welcome-user').innerText = `USUARIO: ${user.username.toUpperCase()}`;
+            
             try {
-                const url = `${endpoint}${encodeURIComponent(val)}&apikey=${user.apikey}`;
-                if (isQr) {
-                    resBox.innerHTML = `<img src="${url}" style="width:180px; border: 5px solid white; border-radius:10px; margin: 10px auto;">`;
-                } else {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    resBox.innerHTML = JSON.stringify(data, null, 2);
-                }
-            } catch (err) { resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; }
+                const res = await fetch('/api/stats/global');
+                const stats = await res.json();
+                
+                document.getElementById('global-requests').innerText = stats.totalRequests.toLocaleString();
+                
+                const topList = stats.topUsers.map((u, i) => `
+                    <div class="user-card">
+                        <div class="user-info">
+                            <div class="rank-badge ${i === 0 ? 'rank-1' : ''}">#${i+1}</div>
+                            <div class="user-avatar-mini">${u.username.substring(0,1).toUpperCase()}</div>
+                            <span class="user-name">${u.username}</span>
+                        </div>
+                        <span class="user-reqs">${u.requests.toLocaleString()} reqs</span>
+                    </div>`).join('');
+                
+                document.getElementById('top-users-list').innerHTML = topList || '<p>Sin actividad</p>';
+
+                setInterval(() => {
+                    document.getElementById('server-uptime').innerText = formatUptime(stats.serverStart);
+                }, 1000);
+
+            } catch (e) { console.error("Error cargando stats"); }
         }
 
         window.onload = () => {
             if (user.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
-            showCategory('inicio');
+            initDashboard();
         };
     </script>
 </body>
