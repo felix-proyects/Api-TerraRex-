@@ -8,6 +8,8 @@
       "role": "admin",
       "limit": 1000,
       "requests_today": 0,
+      "total_requests": 0,
+      "apikey": "kzm-A1b2C-Akoajzpu",
       "last_reset": "2026-05-02"
     }
   ]
