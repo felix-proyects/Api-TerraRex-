@@ -104,26 +104,17 @@
         .user-name { font-weight: 700; font-size: 0.9rem; }
         .user-reqs { font-weight: 800; color: var(--neon-blue); font-size: 0.75rem; background: rgba(0,243,255,0.1); padding: 5px 12px; border-radius: 10px; }
 
-        .code-box {
-            background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace;
-            font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1);
+        .footer { 
+            text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
+            font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
+            border-bottom: 3px solid transparent; 
         }
-        .input-test {
-            width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
-            padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
-        }
-        .btn-test {
-            background: var(--neon-pink); color: white; border: none; padding: 14px; width: 100%;
-            border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+        .footer:active { 
+            border-bottom: 3px solid var(--neon-pink); 
+            background: rgba(255, 45, 85, 0.05);
+            color: var(--text-main);
         }
 
-        .result-box {
-            background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px;
-            margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
-            white-space: pre-wrap; word-break: break-all; max-height: 250px; overflow-y: auto;
-        }
-
-        .footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; line-height: 1.6; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
     </style>
@@ -158,8 +149,8 @@
 
     <div class="container" id="content-area"></div>
 
-    <footer class="footer">
-        <p>SISTEMA API KAZUMA v2.5<br>© 2026 KurayamiTeam & Félix Ofc<br>Villa Altagracia, RD</p>
+    <footer class="footer" onclick="location.href='https://kazuma.giize.com'">
+        <p>Copyright © 2026 API Kazuma. All rights reserved.<br>Powered by PixelCrew-Team.</p>
     </footer>
 
     <script>
@@ -235,7 +226,6 @@
                     </div>
                 </div>`;
             }
-            // He quitado descargas y herramientas de aquí porque ahora son páginas aparte.
         };
 
         let uptimeInterval;
