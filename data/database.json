@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "Admin",
+      "email": "frasesbebor@gmail.com",
+      "password": "Mantis2026",
+      "role": "admin",
+      "limit": 1000,
+      "requests_today": 0,
+      "last_reset": "2026-05-02"
+    }
+  ]
+}
