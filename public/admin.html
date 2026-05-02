@@ -73,7 +73,7 @@
                         </tr>
                     </thead>
                     <tbody id="user-table-body" class="text-sm">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -84,25 +84,41 @@
             <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition">
                 <i class="fas fa-times text-xl"></i>
             </button>
-            <h2 class="text-2xl font-black mb-6 text-[#ff2d55] tracking-tighter">EDITAR PERFIL</h2>
+            <h2 class="text-2xl font-black mb-2 text-[#ff2d55] tracking-tighter">SOPORTE TÉCNICO</h2>
+            <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest font-bold">Gestión de Perfil</p>
 
-            <form id="editForm" class="space-y-5">
+            <form id="editForm" class="space-y-4">
                 <input type="hidden" id="edit-id">
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase font-black block mb-2 tracking-widest">Nombre de Usuario</label>
-                    <input type="text" id="edit-username" class="input-dark w-full p-4 rounded-2xl outline-none focus:border-[#ff2d55]">
+                
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Nombre de Usuario</label>
+                        <input type="text" id="edit-username" class="input-dark w-full p-3 rounded-xl outline-none focus:border-[#ff2d55]">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Correo Electrónico</label>
+                        <input type="email" id="edit-email" class="input-dark w-full p-3 rounded-xl outline-none focus:border-[#ff2d55]">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-yellow-500 uppercase font-black block mb-1">Contraseña</label>
+                        <div class="relative">
+                            <input type="text" id="edit-password" class="input-dark w-full p-3 rounded-xl outline-none border-yellow-500/20 focus:border-yellow-500">
+                            <i class="fas fa-key absolute right-4 top-4 text-yellow-500/30"></i>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-2 tracking-widest">Rango</label>
-                        <select id="edit-role" class="input-dark w-full p-4 rounded-2xl outline-none appearance-none cursor-pointer">
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Rango</label>
+                        <select id="edit-role" class="input-dark w-full p-3 rounded-xl outline-none">
                             <option value="user">USER</option>
                             <option value="admin">ADMIN</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-2 tracking-widest">Plan</label>
-                        <select id="edit-plan" class="input-dark w-full p-4 rounded-2xl outline-none appearance-none cursor-pointer" onchange="toggleLimitInput()">
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Plan</label>
+                        <select id="edit-plan" class="input-dark w-full p-3 rounded-xl outline-none" onchange="toggleLimitInput()">
                             <option value="100">FREE (100)</option>
                             <option value="1000">PLAN 1 (1k)</option>
                             <option value="4000">PLAN 2 (4k)</option>
@@ -110,11 +126,18 @@
                         </select>
                     </div>
                 </div>
+
                 <div id="custom-limit-div" class="hidden">
-                    <label class="text-[10px] text-yellow-500 uppercase font-black block mb-2 tracking-widest">Límite Manual</label>
-                    <input type="number" id="edit-limit" class="input-dark w-full p-4 rounded-2xl outline-none border-yellow-500/30">
+                    <label class="text-[10px] text-pink-500 uppercase font-black block mb-1">Límite Manual</label>
+                    <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none border-pink-500/30">
                 </div>
-                <button type="submit" class="w-full bg-[#ff2d55] p-5 rounded-2xl font-black mt-4 shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest">
+
+                <div class="bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">Solicitudes Totales:</span>
+                    <span id="edit-total-requests" class="text-lg font-black text-[#ff2d55]">0</span>
+                </div>
+
+                <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-black shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest mt-2">
                     Guardar Cambios
                 </button>
             </form>
@@ -128,18 +151,16 @@
         async function loadUsers(filter = 'all') {
             const body = document.getElementById('user-table-body');
             const counter = document.getElementById('total-users-count');
-            body.innerHTML = '<tr><td colspan="4" class="p-16 text-center text-gray-500 animate-pulse font-black tracking-widest">ACCEDIENDO A LA DB...</td></tr>';
+            body.innerHTML = '<tr><td colspan="4" class="p-16 text-center text-gray-500 animate-pulse font-black tracking-widest uppercase">Cargando Usuarios...</td></tr>';
 
             try {
                 const res = await fetch(`/api/admin/users?filter=${filter}`);
                 const data = await res.json();
-                
                 const users = data.users || [];
-                // Usamos data.total del backend para el contador global
                 counter.innerText = data.total || users.length;
                 renderTable(users);
             } catch (e) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500 font-bold uppercase">Error de conexión</td></tr>';
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500 font-bold uppercase">Error de DB</td></tr>';
             }
         }
 
@@ -156,12 +177,11 @@
         function renderTable(users) {
             const body = document.getElementById('user-table-body');
             if (!users || users.length === 0) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold">SIN REGISTROS COINCIDENTES</td></tr>';
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold uppercase">Sin Resultados</td></tr>';
                 return;
             }
             body.innerHTML = users.map(u => {
                 const progress = Math.min(((u.requests_today || 0) / (u.limit || 1)) * 100, 100);
-                // Convertimos el ID a String para evitar problemas en el HTML
                 const userId = String(u.id);
 
                 return `
@@ -194,7 +214,6 @@
 
         async function openEdit(id) {
             try {
-                // Buscamos al usuario para cargar los datos en el modal
                 const res = await fetch(`/api/admin/search?q=${id}`);
                 const data = await res.json();
                 const u = data.users.find(user => String(user.id) === id);
@@ -203,7 +222,10 @@
 
                 document.getElementById('edit-id').value = u.id;
                 document.getElementById('edit-username').value = u.username;
+                document.getElementById('edit-email').value = u.email || '';
+                document.getElementById('edit-password').value = u.password || '';
                 document.getElementById('edit-role').value = u.role;
+                document.getElementById('edit-total-requests').innerText = u.total_requests || 0;
 
                 const select = document.getElementById('edit-plan');
                 if([100, 1000, 4000].includes(u.limit)) {
@@ -215,7 +237,7 @@
 
                 toggleLimitInput();
                 document.getElementById('editModal').classList.replace('hidden', 'flex');
-            } catch (e) { alert("Error al abrir edición"); }
+            } catch (e) { alert("Error al cargar datos"); }
         }
 
         function toggleLimitInput() {
@@ -236,6 +258,8 @@
                         adminId: session.id,
                         targetId: document.getElementById('edit-id').value,
                         username: document.getElementById('edit-username').value,
+                        email: document.getElementById('edit-email').value,
+                        password: document.getElementById('edit-password').value,
                         role: document.getElementById('edit-role').value,
                         limit: limit
                     })
@@ -247,7 +271,7 @@
                 } else { 
                     alert(data.message); 
                 }
-            } catch (e) { alert("Error al guardar cambios"); }
+            } catch (e) { alert("Error al conectar"); }
         };
 
         function closeModal() { document.getElementById('editModal').classList.replace('flex', 'hidden'); }
