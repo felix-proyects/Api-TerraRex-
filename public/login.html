@@ -2,38 +2,122 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        :root {
+            --neon-pink: #ff2d55;
+            --neon-blue: #00f3ff;
+            --dark-bg: #0d0d0d;
+            --card-bg: #1a1a2e;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .bg-blob {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--neon-pink);
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        .glass {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand { font-weight: 800; font-size: 1.8rem; letter-spacing: 2px; }
+        .brand span { color: var(--neon-pink); }
+
+        .input-dark {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: 0.3s;
+        }
+
+        .input-dark:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .btn-neon {
+            background: var(--neon-pink);
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
+            background: #ff4d73;
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="glass p-8 rounded-2xl w-full max-w-md">
-        <h2 class="text-3xl font-bold mb-2 text-center text-blue-500">Bienvenido</h2>
-        <p class="text-slate-400 text-center mb-6 text-sm">Ingresa tus credenciales</p>
+<body>
 
-        <form id="loginForm" class="space-y-4">
+    <div class="bg-blob" style="top: -10%; left: -10%;"></div>
+    <div class="bg-blob" style="bottom: -10%; right: -10%; background: var(--neon-blue);"></div>
+
+    <div class="glass p-10 rounded-[2.5rem] w-full max-w-md border-t-2 border-t-white/10">
+        <div class="text-center mb-8">
+            <div class="brand mb-2">API <span>KAZUMA</span></div>
+            <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] font-bold">Protocolo de Acceso</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
             <div>
-                <label class="block text-sm text-slate-400 mb-1">Correo o Usuario</label>
-                <input type="text" id="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" required>
+                <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1 font-bold">Correo o Usuario</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-xs"></i>
+                    <input type="text" id="email" class="input-dark w-full pl-11 p-4 rounded-2xl outline-none" placeholder="IDENTIDAD" required>
+                </div>
             </div>
+
             <div>
-                <label class="block text-sm text-slate-400 mb-1">Contraseña</label>
-                <input type="password" id="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 outline-none focus:border-blue-500" required>
+                <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1 font-bold">Contraseña</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-xs"></i>
+                    <input type="password" id="password" class="input-dark w-full pl-11 p-4 rounded-2xl outline-none" placeholder="••••••••" required>
+                </div>
             </div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 font-bold py-3 rounded-lg transition shadow-lg shadow-blue-900/20">Entrar</button>
+
+            <button type="submit" class="btn-neon w-full py-4 rounded-2xl text-white shadow-lg">
+                Iniciar Sesión
+            </button>
         </form>
-        <p class="mt-4 text-center text-slate-400 text-sm">¿No tienes cuenta? <a href="/register" class="text-blue-500 font-medium">Regístrate</a></p>
+
+        <p class="mt-8 text-center text-gray-500 text-xs">
+            ¿Sin credenciales? <a href="/register.html" class="text-[#00f3ff] font-bold hover:underline">Solicitar Acceso</a>
+        </p>
     </div>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Mantenemos la llave "email" para no romper tu backend
             const loginData = {
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value
@@ -50,12 +134,12 @@
 
                 if (data.status) {
                     localStorage.setItem('userSession', JSON.stringify(data.user));
-                    window.location.href = '/';
+                    window.location.href = '/index.html';
                 } else {
-                    alert(data.message || 'Credenciales incorrectas.');
+                    alert(data.message || 'Error de autenticación.');
                 }
             } catch (error) {
-                alert('Error al conectar con la API.');
+                alert('Fallo en el enlace con el servidor de la API.');
             }
         });
     </script>
