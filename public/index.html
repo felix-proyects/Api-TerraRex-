@@ -27,6 +27,7 @@
             min-height: 100vh;
         }
 
+        /* Header */
         header {
             background-color: var(--sidebar-bg);
             padding: 15px 20px;
@@ -39,6 +40,7 @@
         .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; }
         .brand span { color: var(--neon-pink); }
 
+        /* Sidebar & Menu */
         .sidebar {
             position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
             background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
@@ -52,6 +54,7 @@
         }
         .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 25px 0 10px 5px; letter-spacing: 1.5px; }
 
+        /* Main Container */
         .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
 
         .hero { text-align: center; padding: 30px 10px; }
@@ -60,28 +63,43 @@
             border: 3px solid var(--neon-pink); margin-bottom: 15px; 
             object-fit: cover; box-shadow: 0 0 20px rgba(255, 45, 85, 0.3);
         }
+        .hero h1 { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin: 0; }
+        .hero h1 span { color: var(--neon-pink); }
 
+        /* Stats Design */
         .api-card {
             background: var(--card-bg); border-radius: 24px; padding: 25px; margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
+        .stats-grid { display: grid; grid-cols: 1; gap: 12px; }
         .stat-box { 
             background: var(--code-bg); padding: 20px; border-radius: 18px; 
-            border-left: 4px solid var(--neon-blue); margin-bottom: 12px;
+            border-left: 4px solid var(--neon-blue); position: relative; overflow: hidden;
         }
-        .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
-        .stat-value { font-size: 1.4rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+        .stat-box i { position: absolute; right: -10px; bottom: -10px; font-size: 4rem; opacity: 0.05; color: var(--neon-blue); }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.4rem; font-weight: 900; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
 
+        /* Top Usuarios */
+        .top-users-container { display: flex; flex-direction: column; gap: 10px; }
         .user-card {
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 15px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .user-avatar-mini { width: 35px; height: 35px; border-radius: 10px; background: var(--neon-pink); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar-mini { 
+            width: 40px; height: 40px; border-radius: 12px; background: var(--neon-pink); 
+            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem;
+        }
+        .user-name { font-weight: 700; font-size: 0.95rem; }
+        .user-reqs { font-weight: 800; color: var(--neon-blue); font-size: 0.85rem; background: rgba(0,243,255,0.1); padding: 4px 10px; border-radius: 8px; }
 
+        /* API Endpoints Styles */
         .code-box {
             background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace;
-            font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1); overflow-x: auto;
+            font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1);
         }
         .input-test {
             width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
@@ -89,7 +107,7 @@
         }
         .btn-test {
             background: var(--neon-pink); color: white; border: none; padding: 14px; width: 100%;
-            border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer;
+            border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
         }
 
         .result-box {
@@ -98,6 +116,7 @@
             white-space: pre-wrap; word-break: break-all; max-height: 250px; overflow-y: auto;
         }
 
+        .footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; line-height: 1.6; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
     </style>
@@ -112,21 +131,29 @@
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div style="text-align: right; padding: 10px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
+        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
+        
         <div id="admin-nav" style="display:none;">
             <p class="nav-category">Staff Control</p>
             <div class="sidebar-link" style="border-left: 4px solid #fbbf24;" onclick="location.href='/admin'"><i class="fas fa-user-shield"></i> Panel Admin</div>
         </div>
-        <p class="nav-category">Menú</p>
+
+        <p class="nav-category">Menú Principal</p>
         <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-th-large"></i> Dashboard</div>
         <div class="sidebar-link" onclick="location.href='/profile.html'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
-        <p class="nav-category">Endpoints</p>
+
+        <p class="nav-category">Servicios API</p>
         <div class="sidebar-link" onclick="showCategory('descargas')"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
         <div class="sidebar-link" onclick="showCategory('herramientas')"><i class="fas fa-tools"></i> Herramientas</div>
-        <div class="sidebar-link" style="margin-top:20px; color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Salir</div>
+        
+        <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
     </nav>
 
     <div class="container" id="content-area"></div>
+
+    <footer class="footer">
+        <p>SISTEMA API KAZUMA v2.5<br>© 2026 KurayamiTeam & Félix Ofc<br>Villa Altagracia, RD</p>
+    </footer>
 
     <script>
         const user = JSON.parse(localStorage.getItem('userSession'));
@@ -137,106 +164,119 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        }
 
         function formatUptime(startTime) {
-            const diff = Date.now() - startTime;
-            const d = Math.floor(diff / 86400000);
-            const h = Math.floor((diff / 3600000) % 24);
-            const m = Math.floor((diff / 60000) % 60);
-            const s = Math.floor((diff / 1000) % 60);
-            return `${d}:${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const now = Date.now();
+            const diff = now - startTime;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diff / (1000 * 60)) % 60);
+            const secs = Math.floor((diff / 1000) % 60);
+            return `${days}:${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
         }
 
         const categories = {
             inicio: async () => {
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
-                const serverStart = stats.serverStart || (Date.now() - 3600000);
+                const serverStart = stats.serverStart || (Date.now() - 300000000); 
+
                 return `
                 <section class="hero">
                     <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
-                    <h1>DASHBOARD <span>KAZUMA</span></h1>
+                    <h1>SISTEMA <span>ACTIVO</span></h1>
+                    <p style="color:var(--text-muted); font-size: 0.8rem; font-weight:700; margin-top:5px;">USUARIO: ${user.username.toUpperCase()}</p>
                 </section>
+
                 <div class="api-card">
-                    <div class="stat-box"><div class="stat-label">Solicitudes Totales</div><div class="stat-value">${stats.totalRequests.toLocaleString()}</div></div>
-                    <div class="stat-box" style="border-left-color: var(--neon-pink);"><div class="stat-label">Server Uptime</div><div id="uptime-val" class="stat-value">${formatUptime(serverStart)}</div></div>
-                </div>
-                <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Top Usuarios</p>
-                    ${stats.topUsers.slice(0,5).map(u => `
-                        <div class="user-card">
-                            <div style="display:flex;align-items:center;gap:10px">
-                                <div class="user-avatar-mini">${u.username.substring(0,2).toUpperCase()}</div>
-                                <span style="font-weight:700">${u.username}</span>
-                            </div>
-                            <span style="color:var(--neon-blue);font-weight:800">${u.requests} reqs</span>
+                    <p class="nav-category" style="margin-top:0">Información de Plataforma</p>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <i class="fas fa-chart-line"></i>
+                            <div class="stat-label">Solicitudes Totales (Global)</div>
+                            <div class="stat-value">${stats.totalRequests.toLocaleString()}</div>
                         </div>
-                    `).join('')}
+                        <div class="stat-box" style="border-left-color: var(--neon-pink);">
+                            <i class="fas fa-clock"></i>
+                            <div class="stat-label">Tiempo de Actividad (Uptime)</div>
+                            <div id="server-uptime" class="stat-value" style="color: var(--neon-pink);">${formatUptime(serverStart)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <p class="nav-category" style="margin-top:0">Top 5 Usuarios con más Request</p>
+                    <div class="top-users-container">
+                        ${stats.topUsers.slice(0, 5).map((u, i) => `
+                            <div class="user-card">
+                                <div class="user-info">
+                                    <div class="user-avatar-mini">${u.username.substring(0,2).toUpperCase()}</div>
+                                    <span class="user-name">${u.username}</span>
+                                </div>
+                                <span class="user-reqs">${u.requests.toLocaleString()} reqs</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>`;
             },
             descargas: `
-                <h2 style="border-left:5px solid var(--neon-pink); padding-left:15px; font-weight:900; margin-bottom:20px;">DESCARGAS</h2>
-                
+                <h2 style="border-left:5px solid var(--neon-pink); padding-left:15px; font-weight:900;">DESCARGAS</h2>
                 <div class="api-card">
-                    <p style="font-weight:800"><i class="fab fa-tiktok"></i> TIKTOK</p>
-                    <div class="code-box">/api/download/tiktok?url=...&apikey=${user.apikey}</div>
-                    <input id="in-tk" class="input-test" placeholder="URL de TikTok">
+                    <p class="label-clear"><i class="fab fa-tiktok" style="color:#ff0050"></i> TIKTOK VIDEO</p>
+                    <div class="code-box">GET /api/download/tiktok?url=&apikey=${user.apikey}</div>
+                    <input id="in-tk" class="input-test" placeholder="Pega el link aquí...">
                     <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')">Ejecutar</button>
                     <div id="res-tk" class="result-box">...</div>
                 </div>
-
                 <div class="api-card">
-                    <p style="font-weight:800"><i class="fab fa-instagram"></i> INSTAGRAM</p>
-                    <div class="code-box">/api/download/instagram?url=...&apikey=${user.apikey}</div>
-                    <input id="in-ig" class="input-test" placeholder="URL de Instagram">
+                    <p class="label-clear"><i class="fab fa-instagram" style="color:#e1306c"></i> INSTAGRAM REELS</p>
+                    <div class="code-box">GET /api/download/instagram?url=&apikey=${user.apikey}</div>
+                    <input id="in-ig" class="input-test" placeholder="Pega el link aquí...">
                     <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')">Ejecutar</button>
                     <div id="res-ig" class="result-box">...</div>
                 </div>
-
                 <div class="api-card">
-                    <p style="font-weight:800"><i class="fab fa-facebook"></i> FACEBOOK</p>
-                    <div class="code-box">/api/download/facebook?url=...&apikey=${user.apikey}</div>
-                    <input id="in-fb" class="input-test" placeholder="URL de Facebook">
+                    <p class="label-clear"><i class="fab fa-facebook" style="color:#1877f2"></i> FACEBOOK VIDEO</p>
+                    <div class="code-box">GET /api/download/facebook?url=&apikey=${user.apikey}</div>
+                    <input id="in-fb" class="input-test" placeholder="Pega el link aquí...">
                     <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')">Ejecutar</button>
                     <div id="res-fb" class="result-box">...</div>
                 </div>
-
                 <div class="api-card">
-                    <p style="font-weight:800"><i class="fab fa-youtube"></i> YOUTUBE MP4</p>
-                    <div class="code-box">/api/download/youtube/mp4?url=...&apikey=${user.apikey}</div>
-                    <input id="in-y4" class="input-test" placeholder="URL de YouTube">
-                    <button class="btn-test" onclick="testApi('/api/download/youtube/mp4?url=', 'in-y4', 'res-y4')">Ejecutar</button>
-                    <div id="res-y4" class="result-box">...</div>
-                </div>
-
-                <div class="api-card">
-                    <p style="font-weight:800"><i class="fab fa-twitter"></i> TWITTER (X)</p>
-                    <div class="code-box">/api/download/twitter?url=...&apikey=${user.apikey}</div>
-                    <input id="in-tw" class="input-test" placeholder="URL de Twitter">
+                    <p class="label-clear"><i class="fab fa-twitter" style="color:#1da1f2"></i> TWITTER (X) VIDEO</p>
+                    <div class="code-box">GET /api/download/twitter?url=&apikey=${user.apikey}</div>
+                    <input id="in-tw" class="input-test" placeholder="Pega el link aquí...">
                     <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Ejecutar</button>
                     <div id="res-tw" class="result-box">...</div>
                 </div>`,
             herramientas: `
-                <h2 style="border-left:5px solid var(--neon-blue); padding-left:15px; font-weight:900; margin-bottom:20px;">HERRAMIENTAS</h2>
+                <h2 style="border-left:5px solid var(--neon-blue); padding-left:15px; font-weight:900;">HERRAMIENTAS</h2>
                 <div class="api-card">
-                    <p style="font-weight:800"><i class="fas fa-qrcode"></i> QR GENERATOR</p>
-                    <div class="code-box">/api/tools/qr?text=...&apikey=${user.apikey}</div>
-                    <input id="in-qr" class="input-test" placeholder="Texto o Enlace">
-                    <button class="btn-test" style="background:var(--neon-blue);color:black" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar</button>
-                    <div id="res-qr" class="result-box" style="text-align:center">...</div>
+                    <p class="label-clear"><i class="fas fa-qrcode"></i> GENERADOR QR</p>
+                    <div class="code-box">GET /api/tools/qr?text=&apikey=${user.apikey}</div>
+                    <input id="in-qr" class="input-test" placeholder="Escribe el texto para el QR...">
+                    <button class="btn-test" style="background: var(--neon-blue); color: black;" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar QR</button>
+                    <div id="res-qr" class="result-box" style="text-align:center;">...</div>
                 </div>`
         };
 
+        let uptimeInterval;
         async function showCategory(cat) {
+            clearInterval(uptimeInterval);
             const area = document.getElementById('content-area');
             area.innerHTML = typeof categories[cat] === 'function' ? await categories[cat]() : categories[cat];
+            
             if (cat === 'inicio') {
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
-                setInterval(() => {
-                    const el = document.getElementById('uptime-val');
-                    if (el) el.innerText = formatUptime(stats.serverStart || Date.now());
+                const serverStart = stats.serverStart || (Date.now() - 300000000);
+                uptimeInterval = setInterval(() => {
+                    const el = document.getElementById('server-uptime');
+                    if (el) el.innerText = formatUptime(serverStart);
                 }, 1000);
             }
             if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
@@ -245,17 +285,18 @@
         async function testApi(endpoint, inputId, resultId, isQr = false) {
             let val = document.getElementById(inputId).value;
             const resBox = document.getElementById(resultId);
-            if (!val) return alert("Ingresa un valor");
-            resBox.innerHTML = "Cargando...";
+            if (!val) return alert("Falta el parámetro de entrada");
+            resBox.innerHTML = "PROCESANDO SOLICITUD...";
             try {
                 const url = `${endpoint}${encodeURIComponent(val)}&apikey=${user.apikey}`;
                 if (isQr) {
-                    resBox.innerHTML = `<img src="${url}" style="width:180px;border:4px solid white;margin:10px auto;border-radius:10px">`;
+                    resBox.innerHTML = `<img src="${url}" style="width:180px; border: 5px solid white; border-radius:10px; margin: 10px auto;">`;
                 } else {
                     const response = await fetch(url);
-                    resBox.innerHTML = JSON.stringify(await response.json(), null, 2);
+                    const data = await response.json();
+                    resBox.innerHTML = JSON.stringify(data, null, 2);
                 }
-            } catch (err) { resBox.innerHTML = "Error de API."; }
+            } catch (err) { resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; }
         }
 
         window.onload = () => {
