@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
-        // SEGURIDAD: Bloqueo si no hay sesión o no es admin
         const session = JSON.parse(localStorage.getItem('userSession'));
         if (!session || session.role !== 'admin') {
             window.location.href = '/login';
@@ -68,8 +67,7 @@
                             <th class="p-6 text-center">Gestión</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body" class="divide-y divide-white/5">
-                        </tbody>
+                    <tbody id="user-table-body" class="divide-y divide-white/5"></tbody>
                 </table>
             </div>
         </div>
@@ -88,12 +86,10 @@
 
             <form id="editForm" class="space-y-5">
                 <input type="hidden" id="edit-id">
-                
                 <div>
                     <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1">Nombre Público</label>
                     <input type="text" id="edit-username" class="w-full font-bold">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1">Rango</label>
@@ -112,12 +108,10 @@
                         </select>
                     </div>
                 </div>
-
                 <div id="custom-limit-div" class="hidden">
                     <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1 text-yellow-500">Créditos Personalizados</label>
                     <input type="number" id="edit-limit" class="w-full font-mono border-yellow-500/30">
                 </div>
-
                 <div class="pt-6">
                     <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 shadow-xl shadow-yellow-500/20 transition uppercase tracking-widest">
                         Actualizar Datos
@@ -135,25 +129,23 @@
                 document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
-
             try {
                 const res = await fetch(`/api/admin/users?filter=${filter}`);
                 const data = await res.json();
                 renderTable(data.users || []);
             } catch (e) {
-                console.error("Error al obtener usuarios:", e);
+                renderTable([]);
             }
         }
 
         async function searchUser() {
             const q = document.getElementById('searchQuery').value;
             if(!q) return loadUsers('all');
-            
             try {
                 const res = await fetch(`/api/admin/search?q=${q}`);
                 const data = await res.json();
                 renderTable(data.users || []);
-            } catch (e) { console.error(e); }
+            } catch (e) { renderTable([]); }
         }
 
         function renderTable(users) {
@@ -162,11 +154,9 @@
                 body.innerHTML = `<tr><td colspan="4" class="p-12 text-center text-gray-600 font-bold italic">No se encontraron registros en la base de datos</td></tr>`;
                 return;
             }
-
             body.innerHTML = users.map(u => {
                 const isMainAdmin = u.email === MAIN_ADMIN_EMAIL;
                 const canEdit = session.email === MAIN_ADMIN_EMAIL || !isMainAdmin;
-
                 return `
                 <tr class="hover:bg-white/[0.03] transition group">
                     <td class="p-6">
@@ -187,53 +177,43 @@
                             `<button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-yellow-500 hover:text-black w-10 h-10 rounded-xl transition-all duration-300">
                                 <i class="fas fa-user-edit text-xs"></i>
                             </button>` 
-                            : `<div class="w-10 h-10 flex items-center justify-center mx-auto text-yellow-500 bg-yellow-500/10 rounded-full" title="Propietario">
-                                <i class="fas fa-crown"></i>
-                               </div>`}
+                            : `<div class="w-10 h-10 flex items-center justify-center mx-auto text-yellow-500 bg-yellow-500/10 rounded-full"><i class="fas fa-crown"></i></div>`}
                     </td>
-                </tr>
-            `}).join('');
+                </tr>`;
+            }).join('');
         }
 
         async function openEdit(id) {
             const res = await fetch(`/api/auth/user/${id}`);
             const data = await res.json();
             const u = data.user;
-
             document.getElementById('edit-id').value = u.id;
             document.getElementById('edit-username').value = u.username;
             document.getElementById('edit-role').value = u.role;
-
             const limit = u.limit;
             const select = document.getElementById('edit-plan');
-            
             if(limit == 100) select.value = "free";
             else if(limit == 1000) select.value = "plan1";
             else if(limit == 4000) select.value = "plan2";
             else select.value = "custom";
-
             document.getElementById('edit-limit').value = limit;
             toggleCustomLimit();
-
             document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('editModal').classList.add('flex');
         }
 
         function toggleCustomLimit() {
             const plan = document.getElementById('edit-plan').value;
-            const div = document.getElementById('custom-limit-div');
-            div.classList.toggle('hidden', plan !== 'custom');
+            document.getElementById('custom-limit-div').classList.toggle('hidden', plan !== 'custom');
         }
 
         document.getElementById('editForm').onsubmit = async (e) => {
             e.preventDefault();
             const plan = document.getElementById('edit-plan').value;
             let limit = 100;
-            
             if(plan === 'plan1') limit = 1000;
             else if(plan === 'plan2') limit = 4000;
             else if(plan === 'custom') limit = parseInt(document.getElementById('edit-limit').value);
-
             const payload = {
                 adminId: session.id,
                 targetId: document.getElementById('edit-id').value,
@@ -241,13 +221,11 @@
                 role: document.getElementById('edit-role').value,
                 limit: limit
             };
-
             const res = await fetch('/api/admin/update-user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-
             const data = await res.json();
             if(data.status) {
                 closeModal();
@@ -262,7 +240,6 @@
             document.getElementById('editModal').classList.remove('flex');
         }
 
-        // Inicio automático
         document.addEventListener('DOMContentLoaded', () => loadUsers());
     </script>
 </body>
