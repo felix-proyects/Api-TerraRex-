@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-require('dotenv').config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_API_KEY = "AIzaSyChyeuN0e7BD-ZtnaBIC2kBGiityL3qEWs";
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 router.get('/', async (req, res) => {
@@ -12,13 +11,6 @@ router.get('/', async (req, res) => {
     return res.status(400).json({
       status: false,
       error: "Debes proporcionar un texto en el parámetro ?text="
-    });
-  }
-
-  if (!GEMINI_API_KEY) {
-    return res.status(500).json({
-      status: false,
-      error: "API Key no configurada en el servidor."
     });
   }
 
@@ -39,7 +31,7 @@ router.get('/', async (req, res) => {
 
     if (!apiResponse.ok) {
         const errorData = await apiResponse.json();
-        throw new Error(errorData.error?.message || "Error en la API de Google");
+        throw new Error(errorData.error.message || "Error en la API de Google");
     }
 
     const responseData = await apiResponse.json();
