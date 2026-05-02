@@ -10,19 +10,19 @@
   "author": "Félix ofc",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "path": "^0.12.7",
-    "fs": "^0.0.1-security",
-    "crypto": "^1.0.1",
-    "yt-search": "^2.13.1",
-    "child_process": "^1.0.2",
     "@vreden/youtube_scraper": "^1.2.7",
-    "chatgpt": "^5.2.5",
-    "youtube-dl-exec": "^3.0.25",
-    "qrcode": "^1.5.4",
+    "adm-zip": "^0.5.10",
     "axios": "^1.1.2",
+    "chatgpt": "^5.2.5",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "fs-extra": "^11.2.0",
     "node-fetch": "^2.6.7",
+    "puppeteer": "^22.6.0",
+    "qrcode": "^1.5.4",
     "ruhend-scraper": "^7.0.4",
-    "cheerio": "^1.0.0-rc.12"
+    "youtube-dl-exec": "^3.0.25",
+    "yt-search": "^2.13.1"
   }
 }
