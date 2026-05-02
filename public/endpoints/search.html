@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Búsquedas | Api Kazuma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-pink: #ff2d55;
+            --neon-blue: #00f3ff;
+            --dark-bg: #0d0d0d;
+            --card-bg: #161625;
+            --sidebar-bg: #121212;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --code-bg: #212135;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--sidebar-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
+        .brand span { color: var(--neon-pink); }
+
+        .sidebar {
+            position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
+            background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
+            padding: 30px 20px; box-sizing: border-box; overflow-y: auto;
+        }
+        .sidebar.active { right: 0; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 15px; color: var(--text-main);
+            text-decoration: none; padding: 14px; border-radius: 12px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem; font-weight: 600;
+        }
+        .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 25px 0 10px 5px; letter-spacing: 1.5px; }
+
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
+
+        .api-card {
+            background: var(--card-bg); border-radius: 24px; padding: 25px; margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .code-box {
+            background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace;
+            font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1);
+        }
+        .input-test {
+            width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
+        }
+        .select-test {
+            width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none;
+        }
+        .btn-test {
+            background: var(--neon-pink); color: white; border: none; padding: 14px; width: 100%;
+            border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+        }
+
+        .result-box {
+            background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px;
+            margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
+            white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto;
+        }
+
+        .footer { 
+            text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
+            font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
+        }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
+
+        <div id="admin-nav" style="display:none;">
+            <p class="nav-category">Staff Control</p>
+            <div class="sidebar-link" style="border-left: 4px solid #fbbf24;" onclick="location.href='/admin'"><i class="fas fa-user-shield"></i> Panel Admin</div>
+        </div>
+
+        <p class="nav-category">Menú Principal</p>
+        <div class="sidebar-link" onclick="location.href='/'"><i class="fas fa-th-large"></i> Dashboard</div>
+        <div class="sidebar-link" onclick="location.href='/profile'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
+
+        <p class="nav-category">Servicios API</p>
+        <div class="sidebar-link" onclick="location.href='/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
+        <div class="sidebar-link" onclick="location.href='/search'"><i class="fas fa-search"></i> Búsquedas</div>
+        <div class="sidebar-link" onclick="location.href='/tools'"><i class="fas fa-tools"></i> Herramientas</div>
+
+        <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
+    </nav>
+
+    <div class="container">
+        <h2 style="border-left:5px solid var(--neon-blue); padding-left:15px; font-weight:900;">BÚSQUEDAS</h2>
+
+        <div class="api-card">
+            <p><i class="fab fa-pinterest" style="color:#bd081c"></i> PINTEREST SEARCH</p>
+            <div id="ps-box" class="code-box">Cargando...</div>
+            <input id="in-ps" class="input-test" placeholder="Ej: anime aesthetic...">
+            <select id="type-ps" class="select-test">
+                <option value="">Todo</option>
+                <option value="image">Solo Imágenes</option>
+                <option value="video">Solo Videos</option>
+                <option value="gif">Solo GIFs</option>
+            </select>
+            <button class="btn-test" onclick="testSearch()">Ejecutar</button>
+            <div id="res-ps" class="result-box">...</div>
+        </div>
+    </div>
+
+    <footer class="footer" onclick="location.href='https://kazuma.giize.com'">
+        <p>Copyright © 2026 API Kazuma. All rights reserved.<br>Powered by PixelCrew-Team.</p>
+    </footer>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('userSession'));
+        if (!user) window.location.href = '/login.html';
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        }
+
+        async function testSearch() {
+            const query = document.getElementById('in-ps').value;
+            const type = document.getElementById('type-ps').value;
+            const resBox = document.getElementById('res-ps');
+            
+            if (!query) return alert("Ingresa un término de búsqueda");
+            
+            resBox.innerHTML = "BUSCANDO RESULTADOS...";
+            try {
+                let url = `/api/search/pinterest?query=${encodeURIComponent(query)}&apikey=${user.apikey}`;
+                if(type) url += `&type=${type}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                resBox.innerHTML = JSON.stringify(data, null, 2);
+            } catch (err) { 
+                resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; 
+            }
+        }
+
+        window.onload = () => {
+            if (user.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
+            document.getElementById('ps-box').innerText = `GET /api/search/pinterest?query=&type=&apikey=${user.apikey}`;
+        };
+    </script>
+</body>
+</html>
