@@ -1,55 +1,34 @@
-const axios = require("axios");
-const yts = require("yt-search");
-const ytdl = require("ytdl-core");
+const express = require('express');
+const axios = require('axios');
 
 class Youtube {
-  constructor() {
-    this.name = "Youtube Downloader";
-  }
-
-  isUrl(str) {
-    try {
-      new URL(str);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
+  constructor() {}
 
   async searchAndDownload(query) {
     try {
-      let videoUrl = query;
+      // Usamos una API estable para evitar el error 410
+      const response = await axios.get(`https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(query)}`);
+      const res = response.data;
 
-      if (!ytdl.validateURL(query)) {
-        const search = await yts(query);
-        if (!search.videos.length) return { status: false, code: 404, message: "No se encontraron videos." };
-        videoUrl = search.videos[0].url;
+      if (!res.status) {
+        return { status: false, code: 404, message: "No se pudo obtener el video." };
       }
-
-      const info = await ytdl.getInfo(videoUrl);
-      const format = ytdl.chooseFormat(info.formats, { 
-        quality: 'highest', 
-        filter: 'audioandvideo' 
-      });
 
       return {
         status: true,
         code: 200,
         result: {
-          id: info.videoDetails.videoId,
-          title: info.videoDetails.title,
-          description: info.videoDetails.description?.slice(0, 200),
-          duration: info.videoDetails.lengthSeconds,
-          views: info.videoDetails.viewCount,
-          author: info.videoDetails.author.name,
-          thumbnail: info.videoDetails.thumbnails[0].url,
-          url_youtube: videoUrl,
-          download_url: format.url,
-          quality: format.qualityLabel || '720p'
+          id: res.result.id || '',
+          title: res.result.title,
+          author: res.result.author || 'YouTube',
+          thumbnail: res.result.thumbnail,
+          url_youtube: query,
+          download_url: res.result.download.url,
+          quality: res.result.download.quality || '720p'
         }
       };
     } catch (error) {
-      return { status: false, code: 500, message: error.message };
+      return { status: false, code: 500, message: "Error en el servidor de descarga." };
     }
   }
 }
@@ -59,15 +38,14 @@ const youtube = new Youtube();
 const youtubeRoute = {
   endpoint: "/api/download/youtube",
   async run(req, res) {
-    const query = (req.query.url || req.query.query || req.body.url || req.body.query || "").trim();
+    const query = (req.query.query || req.body.query || req.query.url || "").trim();
     
     if (!query) {
-      return res.status(400).json({ status: false, error: "URL or Query parameter is required", code: 400 });
+      return res.status(400).json({ status: false, error: "Query or URL is required", code: 400 });
     }
 
     try {
       const result = await youtube.searchAndDownload(query);
-      
       if (!result.status) {
         return res.status(result.code).json({ status: false, error: result.message, code: result.code });
       }
@@ -79,7 +57,7 @@ const youtubeRoute = {
         timestamp: new Date().toISOString() 
       });
     } catch (error) {
-      return res.status(500).json({ status: false, error: error.message || "Internal Server Error", code: 500 });
+      return res.status(500).json({ status: false, error: "Internal Server Error", code: 500 });
     }
   }
 };
