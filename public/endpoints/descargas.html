@@ -27,6 +27,26 @@
             min-height: 100vh;
         }
 
+        /* --- ESTILOS DEL LOADER --- */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark-bg); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid rgba(0, 243, 255, 0.1);
+            border-top: 3px solid var(--neon-blue); border-radius: 50%;
+            animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--neon-blue);
+        }
+        .loading-text {
+            margin-top: 20px; font-size: 0.7rem; font-weight: 900;
+            letter-spacing: 2px; color: var(--neon-blue); text-transform: uppercase;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
         header {
             background-color: var(--sidebar-bg);
             padding: 15px 20px;
@@ -59,10 +79,6 @@
             border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .code-box {
-            background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace;
-            font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1);
-        }
         .input-test {
             width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
             padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
@@ -75,18 +91,12 @@
         .result-box {
             background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px;
             margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
-            white-space: pre-wrap; word-break: break-all; max-height: 250px; overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto;
         }
 
         .footer { 
             text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
             font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
-            border-bottom: 3px solid transparent; 
-        }
-        .footer:active { 
-            border-bottom: 3px solid var(--neon-pink); 
-            background: rgba(255, 45, 85, 0.05);
-            color: var(--text-main);
         }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
@@ -94,6 +104,11 @@
     </style>
 </head>
 <body>
+
+    <div id="preloader">
+        <div class="spinner"></div>
+        <div class="loading-text">Cargando API...</div>
+    </div>
 
     <header>
         <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
@@ -115,9 +130,9 @@
         <div class="sidebar-link" onclick="location.href='/profile'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
 
         <p class="nav-category">Servicios API</p>
-        <div class="sidebar-link" onclick="location.href='/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
-        <div class="sidebar-link" onclick="location.href='/search'"><i class="fas fa-search"></i> Búsquedas</div>
-        <div class="sidebar-link" onclick="location.href='/tools'"><i class="fas fa-tools"></i> Herramientas</div>
+        <div class="sidebar-link" onclick="location.href='/endpoints/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
+        <div class="sidebar-link" onclick="location.href='/endpoints/search'"><i class="fas fa-search"></i> Búsquedas</div>
+        <div class="sidebar-link" onclick="location.href='/endpoints/tools'"><i class="fas fa-tools"></i> Herramientas</div>
 
         <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
     </nav>
@@ -126,43 +141,10 @@
         <h2 style="border-left:5px solid var(--neon-pink); padding-left:15px; font-weight:900;">DESCARGAS</h2>
 
         <div class="api-card">
-            <p><i class="fab fa-tiktok" style="color:#ff0050"></i> TIKTOK VIDEO</p>
-            <div id="tk-box" class="code-box">Cargando...</div>
-            <input id="in-tk" class="input-test" placeholder="Pega el link aquí...">
-            <button class="btn-test" onclick="testApi('/api/download/tiktok?url=', 'in-tk', 'res-tk')">Ejecutar</button>
-            <div id="res-tk" class="result-box">...</div>
-        </div>
-
-        <div class="api-card">
-            <p><i class="fab fa-instagram" style="color:#e1306c"></i> INSTAGRAM REELS</p>
-            <div id="ig-box" class="code-box">Cargando...</div>
-            <input id="in-ig" class="input-test" placeholder="Pega el link aquí...">
-            <button class="btn-test" onclick="testApi('/api/download/instagram?url=', 'in-ig', 'res-ig')">Ejecutar</button>
-            <div id="res-ig" class="result-box">...</div>
-        </div>
-
-        <div class="api-card">
-            <p><i class="fab fa-facebook" style="color:#1877f2"></i> FACEBOOK VIDEO</p>
-            <div id="fb-box" class="code-box">Cargando...</div>
-            <input id="in-fb" class="input-test" placeholder="Pega el link aquí...">
-            <button class="btn-test" onclick="testApi('/api/download/facebook?url=', 'in-fb', 'res-fb')">Ejecutar</button>
-            <div id="res-fb" class="result-box">...</div>
-        </div>
-
-        <div class="api-card">
-            <p><i class="fab fa-twitter" style="color:#1da1f2"></i> TWITTER (X) VIDEO</p>
-            <div id="tw-box" class="code-box">Cargando...</div>
-            <input id="in-tw" class="input-test" placeholder="Pega el link aquí...">
-            <button class="btn-test" onclick="testApi('/api/download/twitter?url=', 'in-tw', 'res-tw')">Ejecutar</button>
-            <div id="res-tw" class="result-box">...</div>
-        </div>
-
-        <div class="api-card">
-            <p><i class="fab fa-pinterest" style="color:#bd081c"></i> PINTEREST DL</p>
-            <div id="pin-box" class="code-box">Cargando...</div>
-            <input id="in-pin" class="input-test" placeholder="Pega el link aquí...">
-            <button class="btn-test" onclick="testApi('/api/download/pinterest?url=', 'in-pin', 'res-pin')">Ejecutar</button>
-            <div id="res-pin" class="result-box">...</div>
+            <p><i class="fab fa-instagram"></i> INSTAGRAM DOWNLOADER</p>
+            <input id="in-dl" class="input-test" placeholder="Pega el enlace de Instagram aquí...">
+            <button class="btn-test" onclick="testDownload()">Descargar</button>
+            <div id="res-dl" class="result-box">...</div>
         </div>
     </div>
 
@@ -184,26 +166,33 @@
             window.location.href = '/login';
         }
 
-        async function testApi(endpoint, inputId, resultId) {
-            let val = document.getElementById(inputId).value;
-            const resBox = document.getElementById(resultId);
-            if (!val) return alert("Falta el parámetro de entrada");
-            resBox.innerHTML = "PROCESANDO SOLICITUD...";
+        async function testDownload() {
+            const urlIn = document.getElementById('in-dl').value;
+            const resBox = document.getElementById('res-dl');
+
+            if (!urlIn) return alert("Ingresa una URL válida");
+
+            resBox.innerHTML = "PROCESANDO DESCARGA...";
             try {
-                const url = `${endpoint}${encodeURIComponent(val)}&apikey=${user.apikey}`;
-                const response = await fetch(url);
-                const data = await response.json();
+                // Tu lógica de API aquí
+                const res = await fetch(`/api/download/ig?url=${encodeURIComponent(urlIn)}&apikey=${user.apikey}`);
+                const data = await res.json();
                 resBox.innerHTML = JSON.stringify(data, null, 2);
-            } catch (err) { resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; }
+            } catch (err) { 
+                resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; 
+            }
         }
 
         window.onload = () => {
+            const startTime = Date.now();
             if (user.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
-            document.getElementById('tk-box').innerText = `GET /api/download/tiktok?url=&apikey=${user.apikey}`;
-            document.getElementById('ig-box').innerText = `GET /api/download/instagram?url=&apikey=${user.apikey}`;
-            document.getElementById('fb-box').innerText = `GET /api/download/facebook?url=&apikey=${user.apikey}`;
-            document.getElementById('tw-box').innerText = `GET /api/download/twitter?url=&apikey=${user.apikey}`;
-            document.getElementById('pin-box').innerText = `GET /api/download/pinterest?url=&apikey=${user.apikey}`;
+
+            const remainingTime = Math.max(0, 4000 - (Date.now() - startTime));
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                preloader.style.opacity = '0';
+                setTimeout(() => { preloader.style.display = 'none'; }, 500);
+            }, remainingTime);
         };
     </script>
 </body>
