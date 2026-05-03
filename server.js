@@ -12,9 +12,10 @@ const adminRoutes = require('./routes/admin');
 const tiktokRoutes = require('./routes/tiktok');
 const instagramRoutes = require('./routes/instagramvid');
 const facebookRoutes = require('./routes/facebookvid');
-const youtubeRoutes = require('./routes/youtube');
 const twitterRoutes = require('./routes/twitter');
 const qrcodeRoutes = require('./routes/qrcode');
+// Adaptación para las rutas que usan estructura de clase/objeto
+const { youtubeRoute } = require('./routes/youtube'); 
 const { pinterestRoute } = require('./routes/pinterest');
 const { pinterestSearchRoute } = require('./routes/search/pinterest');
 
@@ -69,11 +70,13 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/download/tiktok', tiktokRoutes);
 app.use('/api/download/instagram', instagramRoutes);
 app.use('/api/download/facebook', facebookRoutes);
-app.use('/api/download/youtube', youtubeRoutes);
 app.use('/api/download/twitter', twitterRoutes);
+app.use('/api/tools/qr', qrcodeRoutes);
+
+// Rutas adaptadas al nuevo formato de clase (usando .run)
+app.use('/api/download/youtube', (req, res) => youtubeRoute.run(req, res));
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
-app.use('/api/tools/qr', qrcodeRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -87,8 +90,7 @@ app.get('/api', (req, res) => {
             twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
             pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
             pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
-            youtube_mp3: '/api/download/youtube/mp3?url=URL&apikey=TU_KEY',
-            youtube_mp4: '/api/download/youtube/mp4?url=URL&apikey=TU_KEY',
+            youtube: '/api/download/youtube?query=URL_O_TEXTO&apikey=TU_KEY',
             qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY'
         }
     });
