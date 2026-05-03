@@ -39,7 +39,6 @@
         .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
         .brand span { color: var(--neon-pink); }
 
-        /* Botón Volver */
         .btn-back {
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-main);
@@ -73,6 +72,11 @@
             width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
             padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
         }
+        .select-test {
+            width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box;
+            appearance: none;
+        }
         .btn-test {
             background: var(--neon-blue); color: #000; border: none; padding: 14px; width: 100%;
             border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
@@ -81,8 +85,9 @@
         .result-box {
             background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px;
             margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
-            white-space: pre-wrap; word-break: break-all; max-height: 350px; overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all; max-height: 450px; overflow-y: auto;
         }
+        .result-box img { max-width: 100%; border-radius: 8px; border: 2px solid var(--neon-blue); margin-top: 10px; }
 
         .footer { 
             text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
@@ -96,7 +101,7 @@
 
     <header>
         <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
-        <button class="btn-back" onclick="location.href='/dash'"><i class="fas fa-home"></i> VOLVER</button>
+        <button class="btn-back" onclick="location.href='/profile'"><i class="fas fa-home"></i> VOLVER</button>
     </header>
 
     <div class="container">
@@ -106,12 +111,31 @@
             <p style="font-weight: 700;"><i class="fas fa-qrcode"></i> GENERADOR QR</p>
             <div id="qr-box" class="code-box">GET /api/tools/qr?text=&apikey=</div>
             <input id="in-qr" class="input-test" placeholder="Escribe el texto para el QR...">
-            <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar QR</button>
+            <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', 'qr')">Generar QR</button>
             <div id="res-qr" class="result-box" style="text-align:center;">...</div>
+        </div>
+
+        <div class="api-card">
+            <p style="font-weight: 700;"><i class="fas fa-camera"></i> SSWEB (SCREENSHOT)</p>
+            <div id="ss-box" class="code-box">GET /api/tools/ssweb?url=&theme=dark&device=desktop&apikey=</div>
+            <input id="in-ss" class="input-test" placeholder="https://google.com">
+            <div style="display: flex; gap: 10px;">
+                <select id="ss-theme" class="select-test">
+                    <option value="dark">Tema Oscuro</option>
+                    <option value="light">Tema Claro</option>
+                </select>
+                <select id="ss-device" class="select-test">
+                    <option value="desktop">Escritorio</option>
+                    <option value="mobile">Móvil</option>
+                    <option value="tablet">Tablet</option>
+                </select>
+            </div>
+            <button class="btn-test" onclick="testSsweb()">Capturar Pantalla</button>
+            <div id="res-ss" class="result-box" style="text-align:center;">...</div>
         </div>
     </div>
 
-    <footer class="footer" onclick="location.href='https://kazuma.giize.com'">
+    <footer class="footer" onclick="location.href='#'">
         <p>Copyright © 2026 API Kazuma. All rights reserved.<br>Powered by PixelCrew-Team.</p>
     </footer>
 
@@ -119,27 +143,45 @@
         const user = JSON.parse(localStorage.getItem('userSession'));
         if (!user) window.location.href = '/login';
 
-        async function testApi(endpoint, inputId, resultId, isQr = false) {
+        async function testApi(endpoint, inputId, resultId, type) {
             let val = document.getElementById(inputId).value;
             const resBox = document.getElementById(resultId);
             if (!val) return alert("Falta el parámetro de entrada");
             
             resBox.innerHTML = "PROCESANDO SOLICITUD...";
-            try {
-                // Según tus reglas, el texto se envía tal cual
-                const url = `${endpoint}${val}&apikey=${user.apikey}`;
-                if (isQr) {
-                    resBox.innerHTML = `<img src="${url}" style="width:180px; border: 5px solid white; border-radius:10px; margin: 10px auto; display:block;">`;
-                } else {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    resBox.innerHTML = JSON.stringify(data, null, 2);
-                }
-            } catch (err) { resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; }
+            const url = `${endpoint}${encodeURIComponent(val)}&apikey=${user.apikey}`;
+            
+            if (type === 'qr') {
+                resBox.innerHTML = `<img src="${url}" style="width:180px; border: 5px solid white; border-radius:10px; margin: 10px auto; display:block;">`;
+            }
+        }
+
+        async function testSsweb() {
+            const urlIn = document.getElementById('in-ss').value;
+            const theme = document.getElementById('ss-theme').value;
+            const device = document.getElementById('ss-device').value;
+            const resBox = document.getElementById('res-ss');
+
+            if (!urlIn) return alert("Ingresa una URL válida");
+
+            resBox.innerHTML = "GENERANDO CAPTURA (ESTO PUEDE TARDAR)...";
+            
+            const finalUrl = `/api/tools/ssweb?url=${encodeURIComponent(urlIn)}&theme=${theme}&device=${device}&apikey=${user.apikey}`;
+            
+            const img = new Image();
+            img.onload = () => {
+                resBox.innerHTML = '';
+                resBox.appendChild(img);
+            };
+            img.onerror = () => {
+                resBox.innerHTML = "ERROR AL GENERAR CAPTURA. VERIFICA LA URL.";
+            };
+            img.src = finalUrl;
         }
 
         window.onload = () => {
             document.getElementById('qr-box').innerText = `GET /api/tools/qr?text=&apikey=${user.apikey}`;
+            document.getElementById('ss-box').innerText = `GET /api/tools/ssweb?url=&theme=dark&device=desktop&apikey=${user.apikey}`;
         };
     </script>
 </body>
