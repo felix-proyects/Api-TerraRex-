@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const statsRoutes = require('./routes/stats');
 const adminRoutes = require('./routes/admin');
 const tiktokRoutes = require('./routes/tiktok');
+const tiktokSearchRoute = require('./routes/search/tiktok');
 const instagramRoutes = require('./routes/instagramvid');
 const facebookRoutes = require('./routes/facebookvid');
 const twitterRoutes = require('./routes/twitter');
@@ -67,6 +68,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/download/tiktok', tiktokRoutes);
+app.use('/api/search/tiktok', tiktokSearchRoute);
 app.use('/api/download/instagram', instagramRoutes);
 app.use('/api/download/facebook', facebookRoutes);
 app.use('/api/download/twitter', twitterRoutes);
@@ -83,6 +85,7 @@ app.get('/api', (req, res) => {
         creator: 'Félix Ofc',
         endpoints: {
             tiktok: '/api/download/tiktok?url=URL&apikey=TU_KEY',
+            tiktok_search: '/api/search/tiktok?query=TEXTO&apikey=TU_KEY',
             instagram: '/api/download/instagram?url=URL&apikey=TU_KEY',
             facebook: '/api/download/facebook?url=URL&apikey=TU_KEY',
             twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
