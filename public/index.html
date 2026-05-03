@@ -190,9 +190,7 @@
         }
 
         const categories = {
-            inicio: async () => {
-                const res = await fetch('/api/stats/global');
-                const stats = await res.json();
+            inicio: async (stats) => {
                 const serverStart = stats.serverStart || Date.now(); 
 
                 const topList = stats.topUsers.length > 0 
@@ -243,17 +241,22 @@
             clearInterval(uptimeInterval);
             const area = document.getElementById('content-area');
             const preloader = document.getElementById('preloader');
+            
             preloader.style.display = 'flex';
             preloader.style.opacity = '1';
 
             try {
-                const content = typeof categories[cat] === 'function' ? await categories[cat]() : categories[cat];
+                // Fetch de datos primero
+                const res = await fetch('/api/stats/global');
+                const stats = await res.json();
+                
+                // Generar contenido pasando los stats
+                const content = (cat === 'inicio') ? await categories.inicio(stats) : categories[cat];
                 area.innerHTML = content;
 
                 if (cat === 'inicio') {
-                    const res = await fetch('/api/stats/global');
-                    const stats = await res.json();
-                    const serverStart = stats.serverStart || Date.now();
+                    // Usar el tiempo exacto que mandó el servidor
+                    const serverStart = stats.serverStart;
                     uptimeInterval = setInterval(() => {
                         const el = document.getElementById('server-uptime');
                         if (el) el.innerText = formatUptime(serverStart);
