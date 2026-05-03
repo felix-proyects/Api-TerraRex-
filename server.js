@@ -14,7 +14,6 @@ const instagramRoutes = require('./routes/instagramvid');
 const facebookRoutes = require('./routes/facebookvid');
 const twitterRoutes = require('./routes/twitter');
 const qrcodeRoutes = require('./routes/qrcode');
-// Adaptación para las rutas que usan estructura de clase/objeto
 const { youtubeRoute } = require('./routes/youtube'); 
 const { pinterestRoute } = require('./routes/pinterest');
 const { pinterestSearchRoute } = require('./routes/search/pinterest');
@@ -73,7 +72,6 @@ app.use('/api/download/facebook', facebookRoutes);
 app.use('/api/download/twitter', twitterRoutes);
 app.use('/api/tools/qr', qrcodeRoutes);
 
-// Rutas adaptadas al nuevo formato de clase (usando .run)
 app.use('/api/download/youtube', (req, res) => youtubeRoute.run(req, res));
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
