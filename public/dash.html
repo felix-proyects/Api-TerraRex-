@@ -31,7 +31,6 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        /* PANTALLA NEGRA DE SEGURIDAD */
         #safety-block {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 10001; display: block;
@@ -91,9 +90,9 @@
             border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
-        /* ESTILOS NUEVOS PARA KEY Y CHART */
+        /* ESTILOS DE KEY CON OJO */
         .key-box { background: #080810; padding: 15px; border-radius: 15px; border: 1px solid rgba(0,243,255,0.1); display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .key-txt { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--neon-blue); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .key-txt { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--neon-blue); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; width: 70%; }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-box { 
@@ -103,17 +102,12 @@
         .stat-box i { position: absolute; right: -5px; bottom: -5px; font-size: 2.5rem; opacity: 0.05; color: var(--neon-blue); }
         .stat-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
         .stat-value { font-size: 1.1rem; font-weight: 900; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
-        .top-users-container { display: flex; flex-direction: column; gap: 12px; }
+        
         .user-card {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 18px;
             border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
         }
-        .user-card:first-child { 
-            background: linear-gradient(90deg, rgba(255, 45, 85, 0.1) 0%, rgba(22, 22, 37, 1) 100%);
-            border: 1px solid rgba(255, 45, 85, 0.3);
-        }
-        .user-info { display: flex; align-items: center; gap: 12px; }
         .rank-badge {
             width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
             border-radius: 8px; font-size: 0.7rem; font-weight: 900; background: rgba(255,255,255,0.1);
@@ -130,13 +124,7 @@
         .user-reqs { font-weight: 800; color: var(--neon-blue); font-size: 0.75rem; background: rgba(0,243,255,0.1); padding: 5px 12px; border-radius: 10px; }
         .footer { 
             text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
-            font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
-            border-bottom: 3px solid transparent; 
-        }
-        .footer:active { 
-            border-bottom: 3px solid var(--neon-pink); 
-            background: rgba(255, 45, 85, 0.05);
-            color: var(--text-main);
+            font-weight: 600; line-height: 1.6; cursor: pointer; transition: 0.2s;
         }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
@@ -170,8 +158,6 @@
         <p class="nav-category">Servicios API</p>
         <div class="sidebar-link" onclick="location.href='/endpoints/ai'"><i class="fas fa-robot"></i> Inteligencia Artificial</div>
         <div class="sidebar-link" onclick="location.href='/endpoints/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
-        <div class="sidebar-link" onclick="location.href='/endpoints/search'"><i class="fas fa-search"></i> Búsquedas</div>
-        <div class="sidebar-link" onclick="location.href='/endpoints/tools'"><i class="fas fa-tools"></i> Herramientas</div>
         <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
     </nav>
 
@@ -182,12 +168,13 @@
     </footer>
 
     <script>
-        const user = JSON.parse(localStorage.getItem('userSession'));
-        
+        const session = JSON.parse(localStorage.getItem('userSession'));
+        let officialApiKey = ""; // Guardar la key real aquí
+
         window.onload = () => {
-            if (user) {
+            if (session) {
                 document.getElementById('safety-block').style.display = 'none';
-                if (user.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
+                if (session.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
                 showCategory('inicio');
             }
         };
@@ -197,14 +184,24 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/login';
-        }
+        function logout() { localStorage.clear(); window.location.href = '/login'; }
 
         function copyKey() {
-            navigator.clipboard.writeText(user.apiKey || 'SIN-KEY');
+            if(!officialApiKey) return;
+            navigator.clipboard.writeText(officialApiKey);
             alert('API KEY Copiada');
+        }
+
+        function toggleKeyView() {
+            const el = document.getElementById('key-display');
+            const eye = document.getElementById('eye-icon');
+            if (el.innerText.includes('••••')) {
+                el.innerText = officialApiKey;
+                eye.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                el.innerText = '••••••••••••••••';
+                eye.classList.replace('fa-eye-slash', 'fa-eye');
+            }
         }
 
         function formatUptime(startTime) {
@@ -214,74 +211,60 @@
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const secs = Math.floor((diff % (1000 * 60)) / 1000);
-            let uptimeStr = "";
-            if (days > 0) uptimeStr += `${days}d `;
-            uptimeStr += `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-            return uptimeStr;
+            return `${days > 0 ? days+'d ' : ''}${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
         }
 
         const categories = {
-            inicio: async (stats) => {
+            inicio: async (stats, userData) => {
                 const serverStart = stats.serverStart || Date.now(); 
+                officialApiKey = userData.apikey; // Guardamos la key real del backend
 
                 const topList = stats.topUsers.length > 0 
                     ? stats.topUsers.map((u, i) => `
-                        <div class="user-card">
+                        <div class="user-card" style="margin-bottom:8px;">
                             <div class="user-info">
                                 <div class="rank-badge rank-${i+1}">#${i+1}</div>
                                 <div class="user-avatar-mini">${u.username.substring(0,1).toUpperCase()}</div>
                                 <span class="user-name">${u.username}</span>
                             </div>
                             <span class="user-reqs">${u.requests.toLocaleString()} reqs</span>
-                        </div>
-                    `).join('') 
-                    : '<p style="text-align:center; color:gray; font-size:0.8rem;">Esperando actividad...</p>';
+                        </div>`).join('') : '<p>Esperando actividad...</p>';
 
                 return `
                 <section class="hero">
-                    <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
+                    <img src="${userData.profile_img || 'https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg'}" class="hero-img">
                     <h1>SISTEMA <span>ACTIVO</span></h1>
-                    <p style="color:var(--text-muted); font-size: 0.8rem; font-weight:700; margin-top:5px;">USUARIO: ${user.username.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size: 0.7rem; font-weight:700; margin-top:5px;">ID: ${userData.id}</p>
                 </section>
 
                 <div class="api-card">
                     <p class="nav-category" style="margin-top:0"><i class="fas fa-key"></i> MI API KEY</p>
                     <div class="key-box">
-                        <span class="key-txt">${user.apiKey || 'Cargando...'}</span>
-                        <i class="fas fa-copy" style="cursor:pointer; color:var(--text-muted)" onclick="copyKey()"></i>
+                        <span class="key-txt" id="key-display">••••••••••••••••</span>
+                        <div class="flex gap-3">
+                            <i class="fas fa-eye" id="eye-icon" style="cursor:pointer; color:var(--text-muted)" onclick="toggleKeyView()"></i>
+                            <i class="fas fa-copy" style="cursor:pointer; color:var(--text-muted)" onclick="copyKey()"></i>
+                        </div>
                     </div>
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category" style="margin-top:0"><i class="fas fa-chart-area"></i> ACTIVIDAD DE TU API</p>
+                    <p class="nav-category" style="margin-top:0"><i class="fas fa-chart-area"></i> ACTIVIDAD</p>
                     <div style="height: 180px; width:100%"><canvas id="userChart"></canvas></div>
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Información de Plataforma</p>
+                    <p class="nav-category" style="margin-top:0">Plataforma</p>
                     <div class="stats-grid">
-                        <div class="stat-box" style="grid-column: span 2;">
-                            <i class="fas fa-users"></i>
-                            <div class="stat-label">Usuarios Registrados</div>
-                            <div class="stat-value">${stats.totalUsers.toLocaleString()} Usuarios</div>
-                        </div>
-                        <div class="stat-box">
-                            <i class="fas fa-chart-line"></i>
-                            <div class="stat-label">Solicitudes Totales</div>
-                            <div class="stat-value">${stats.totalRequests.toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box" style="border-left-color: var(--neon-pink);">
-                            <i class="fas fa-clock"></i>
-                            <div class="stat-label">Uptime Servidor</div>
-                            <div id="server-uptime" class="stat-value" style="color: var(--neon-pink);">${formatUptime(serverStart)}</div>
-                        </div>
+                        <div class="stat-box" style="grid-column: span 2;"><div class="stat-label">Usuarios</div><div class="stat-value">${stats.totalUsers}</div></div>
+                        <div class="stat-box"><div class="stat-label">Total Reqs</div><div class="stat-value">${stats.totalRequests}</div></div>
+                        <div class="stat-box" style="border-left-color:var(--neon-pink);"><div class="stat-label">Uptime</div><div id="server-uptime" class="stat-value" style="color:var(--neon-pink);">${formatUptime(serverStart)}</div></div>
                     </div>
                 </div>
+
                 <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Top 5 Master Users</p>
-                    <div class="top-users-container">
-                        ${topList}
-                    </div>
+                    <p class="nav-category" style="margin-top:0">Top Users</p>
+                    <div class="top-users-container">${topList}</div>
                 </div>`;
             }
         };
@@ -291,51 +274,47 @@
             clearInterval(uptimeInterval);
             const area = document.getElementById('content-area');
             const preloader = document.getElementById('preloader');
-
             preloader.style.display = 'flex';
             preloader.style.opacity = '1';
 
             try {
-                const res = await fetch('/api/stats/global');
-                const stats = await res.json();
-
-                area.innerHTML = (cat === 'inicio') ? await categories.inicio(stats) : "Contenido no disponible";
+                // Lógica de perfil para obtener la Key oficial y datos reales
+                const resUser = await fetch(`/api/auth/user/${session.id}`);
+                const userData = await resUser.json();
+                
+                const resStats = await fetch('/api/stats/global');
+                const stats = await resStats.json();
 
                 if (cat === 'inicio') {
-                    // INICIAR GRÁFICA DESPUÉS DE RENDERIZAR
+                    area.innerHTML = await categories.inicio(stats, userData.user);
+                    
                     const ctx = document.getElementById('userChart').getContext('2d');
                     new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
                             datasets: [{
-                                label: 'Requests',
-                                data: [12, 19, 5, 8, 12, 4, 0],
+                                data: [10, 25, 15, 30, 20, 45, 30],
                                 borderColor: '#00f3ff',
                                 tension: 0.4,
                                 fill: true,
                                 backgroundColor: 'rgba(0, 243, 255, 0.05)'
                             }]
                         },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#555' } } } }
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#444' } } } }
                     });
 
-                    const serverStart = stats.serverStart;
                     uptimeInterval = setInterval(() => {
                         const el = document.getElementById('server-uptime');
-                        if (el) el.innerText = formatUptime(serverStart);
+                        if (el) el.innerText = formatUptime(stats.serverStart);
                     }, 1000);
                 }
-            } catch (e) {
-                area.innerHTML = "<p style='text-align:center;'>Error de carga.</p>";
-            }
+            } catch (e) { area.innerHTML = "Error de carga."; }
 
             setTimeout(() => {
                 preloader.style.opacity = '0';
                 setTimeout(() => { preloader.style.display = 'none'; }, 500);
-            }, 1300);
-
-            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+            }, 1000);
         }
     </script>
 </body>
