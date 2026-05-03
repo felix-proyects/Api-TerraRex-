@@ -4,120 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --neon-pink: #ff2d55;
-            --neon-blue: #00f3ff;
-            --dark-bg: #0d0d0d;
-            --card-bg: #1a1a2e;
-        }
-
-        body {
-            background-color: var(--dark-bg);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .bg-blob {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: var(--neon-pink);
-            filter: blur(150px);
-            opacity: 0.15;
-            z-index: 0;
-        }
-
-        .glass {
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 10;
-        }
-
-        .brand { font-weight: 800; font-size: 1.8rem; letter-spacing: 2px; }
-        .brand span { color: var(--neon-pink); }
-
-        .input-dark {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            transition: 0.3s;
-        }
-
-        .input-dark:focus {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
-        }
-
-        .btn-neon {
-            background: var(--neon-pink);
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 800;
-        }
-
-        .btn-neon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
-            background: #ff4d73;
-        }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
+        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
+        .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-pink:hover { opacity: 0.9; transform: translateY(-2px); }
+        .pass-container { position: relative; }
+        .toggle-pass { position: absolute; right: 12px; top: 38px; cursor: pointer; color: #555; transition: 0.3s; }
+        .toggle-pass:hover { color: var(--neon-blue); }
+        input[type="checkbox"] { accent-color: var(--neon-blue); }
     </style>
 </head>
-<body>
-
-    <div class="bg-blob" style="top: -10%; left: -10%;"></div>
-    <div class="bg-blob" style="bottom: -10%; right: -10%; background: var(--neon-blue);"></div>
-
-    <div class="glass p-10 rounded-[2.5rem] w-full max-w-md border-t-2 border-t-white/10">
-        <div class="text-center mb-8">
-            <div class="brand mb-2">API <span>KAZUMA</span></div>
-            <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] font-bold">Protocolo de Acceso</p>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="glass p-8 rounded-3xl w-full max-w-md">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-black tracking-tighter">KAZUMA <span style="color: var(--neon-pink);">LOGIN</span></h2>
+            <p class="text-slate-500 text-sm mt-1">Ingresa a tu panel de control</p>
         </div>
-
-        <form id="loginForm" class="space-y-6">
+        
+        <form id="loginForm" class="space-y-4">
             <div>
-                <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1 font-bold">Correo o Usuario</label>
-                <div class="relative">
-                    <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-xs"></i>
-                    <input type="text" id="email" class="input-dark w-full pl-11 p-4 rounded-2xl outline-none" placeholder="IDENTIDAD" required>
-                </div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Correo Electrónico</label>
+                <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="correo@ejemplo.com" required>
+            </div>
+            
+            <div class="pass-container">
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Contraseña</label>
+                <input type="password" id="password" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
+                <i class="fas fa-eye toggle-pass" onclick="togglePassword('password', this)"></i>
             </div>
 
-            <div>
-                <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 ml-1 font-bold">Contraseña</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-xs"></i>
-                    <input type="password" id="password" class="input-dark w-full pl-11 p-4 rounded-2xl outline-none" placeholder="••••••••" required>
-                </div>
+            <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="tos" class="w-4 h-4" required>
+                <label for="tos" class="text-xs text-slate-400">
+                    Acepto los <a href="/tos/terms" class="font-bold" style="color: var(--neon-blue);">términos y condiciones</a>
+                </label>
             </div>
 
-            <button type="submit" class="btn-neon w-full py-4 rounded-2xl text-white shadow-lg">
-                Iniciar Sesión
-            </button>
+            <button type="submit" class="btn-pink w-full font-black py-4 rounded-xl shadow-lg mt-2">Iniciar Sesión</button>
         </form>
 
-        <p class="mt-8 text-center text-gray-500 text-xs">
-            ¿Sin credenciales? <a href="/register.html" class="text-[#00f3ff] font-bold hover:underline">Solicitar Acceso</a>
-        </p>
+        <div class="mt-6 flex flex-col gap-3 text-center">
+            <p class="text-slate-500 text-sm">¿No tienes cuenta? <a href="/register.html" class="font-bold" style="color: var(--neon-blue);">Regístrate</a></p>
+            <hr class="border-white/5 my-2">
+            <a href="mailto:pixelcrewteam@gmail.com" class="py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:border-blue-400">
+                <i class="fas fa-question-circle"></i> ¿NECESITAS AYUDA? CONTACTAR
+            </a>
+        </div>
     </div>
 
     <script>
+        function togglePassword(id, el) {
+            const input = document.getElementById(id);
+            if (input.type === "password") {
+                input.type = "text";
+                el.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                input.type = "password";
+                el.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             const loginData = {
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value
