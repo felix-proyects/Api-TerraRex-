@@ -39,18 +39,23 @@
         .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
         .brand span { color: var(--neon-pink); }
 
-        .sidebar {
-            position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
-            background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
-            padding: 30px 20px; box-sizing: border-box; overflow-y: auto;
+        /* Botón Volver */
+        .btn-back {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
-        .sidebar.active { right: 0; }
-        .sidebar-link {
-            display: flex; align-items: center; gap: 15px; color: var(--text-main);
-            text-decoration: none; padding: 14px; border-radius: 12px; margin-bottom: 8px;
-            background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem; font-weight: 600;
-        }
-        .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 25px 0 10px 5px; letter-spacing: 1.5px; }
+        .btn-back:hover { background: var(--neon-pink); border-color: var(--neon-pink); }
 
         .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
 
@@ -62,6 +67,7 @@
         .code-box {
             background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace;
             font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1);
+            word-break: break-all;
         }
         .input-test {
             width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
@@ -75,59 +81,30 @@
         .result-box {
             background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px;
             margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1);
-            white-space: pre-wrap; word-break: break-all; max-height: 250px; overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all; max-height: 350px; overflow-y: auto;
         }
 
         .footer { 
             text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
-            font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
-            border-bottom: 3px solid transparent; 
-        }
-        .footer:active { 
-            border-bottom: 3px solid var(--neon-pink); 
-            background: rgba(255, 45, 85, 0.05);
-            color: var(--text-main);
+            font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none;
         }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
-        .overlay.active { display: block; }
+        h2 { border-left: 5px solid var(--neon-blue); padding-left: 15px; font-weight: 900; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
-        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        <button class="btn-back" onclick="location.href='/'"><i class="fas fa-home"></i> VOLVER</button>
     </header>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
-    <nav class="sidebar" id="sidebar">
-        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
-
-        <div id="admin-nav" style="display:none;">
-            <p class="nav-category">Staff Control</p>
-            <div class="sidebar-link" style="border-left: 4px solid #fbbf24;" onclick="location.href='/admin'"><i class="fas fa-user-shield"></i> Panel Admin</div>
-        </div>
-
-        <p class="nav-category">Menú Principal</p>
-        <div class="sidebar-link" onclick="location.href='/'"><i class="fas fa-th-large"></i> Dashboard</div>
-        <div class="sidebar-link" onclick="location.href='/profile'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
-
-        <p class="nav-category">Servicios API</p>
-        <div class="sidebar-link" onclick="location.href='/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
-        <div class="sidebar-link" onclick="location.href='/search'"><i class="fas fa-search"></i> Búsquedas</div>
-        <div class="sidebar-link" onclick="location.href='/tools'"><i class="fas fa-tools"></i> Herramientas</div>
-
-        <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
-    </nav>
-
     <div class="container">
-        <h2 style="border-left:5px solid var(--neon-blue); padding-left:15px; font-weight:900;">HERRAMIENTAS</h2>
+        <h2>HERRAMIENTAS</h2>
         
         <div class="api-card">
-            <p><i class="fas fa-qrcode"></i> GENERADOR QR</p>
-            <div id="qr-box" class="code-box">Cargando endpoint...</div>
+            <p style="font-weight: 700;"><i class="fas fa-qrcode"></i> GENERADOR QR</p>
+            <div id="qr-box" class="code-box">GET /api/tools/qr?text=&apikey=</div>
             <input id="in-qr" class="input-test" placeholder="Escribe el texto para el QR...">
             <button class="btn-test" onclick="testApi('/api/tools/qr?text=', 'in-qr', 'res-qr', true)">Generar QR</button>
             <div id="res-qr" class="result-box" style="text-align:center;">...</div>
@@ -142,25 +119,17 @@
         const user = JSON.parse(localStorage.getItem('userSession'));
         if (!user) window.location.href = '/login';
 
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/login';
-        }
-
         async function testApi(endpoint, inputId, resultId, isQr = false) {
             let val = document.getElementById(inputId).value;
             const resBox = document.getElementById(resultId);
             if (!val) return alert("Falta el parámetro de entrada");
+            
             resBox.innerHTML = "PROCESANDO SOLICITUD...";
             try {
-                const url = `${endpoint}${encodeURIComponent(val)}&apikey=${user.apikey}`;
+                // Según tus reglas, el texto se envía tal cual
+                const url = `${endpoint}${val}&apikey=${user.apikey}`;
                 if (isQr) {
-                    resBox.innerHTML = `<img src="${url}" style="width:180px; border: 5px solid white; border-radius:10px; margin: 10px auto;">`;
+                    resBox.innerHTML = `<img src="${url}" style="width:180px; border: 5px solid white; border-radius:10px; margin: 10px auto; display:block;">`;
                 } else {
                     const response = await fetch(url);
                     const data = await response.json();
@@ -170,7 +139,6 @@
         }
 
         window.onload = () => {
-            if (user.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
             document.getElementById('qr-box').innerText = `GET /api/tools/qr?text=&apikey=${user.apikey}`;
         };
     </script>
