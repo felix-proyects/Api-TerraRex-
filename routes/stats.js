@@ -32,8 +32,7 @@ router.get('/global', async (req, res) => {
             totalRequests: totalRequests,
             totalEndpoints: endpointFiles.length,
             topUsers: topUsers,
-
-            serverStart: global.serverStart || Date.now() 
+            serverStart: global.serverStart || Date.now()
         });
 
     } catch (err) {
