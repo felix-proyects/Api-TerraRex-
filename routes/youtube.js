@@ -6,7 +6,6 @@ class Youtube {
 
   async searchAndDownload(query) {
     try {
-      // Usamos una API estable para evitar el error 410
       const response = await axios.get(`https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(query)}`);
       const res = response.data;
 
