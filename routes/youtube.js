@@ -1,64 +1,71 @@
-const express = require('express');
-const axios = require('axios');
-
-class Youtube {
-  constructor() {}
-
-  async searchAndDownload(query) {
-    try {
-      const response = await axios.get(`https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(query)}`);
-      const res = response.data;
-
-      if (!res.status) {
-        return { status: false, code: 404, message: "No se pudo obtener el video." };
-      }
-
-      return {
-        status: true,
-        code: 200,
-        result: {
-          id: res.result.id || '',
-          title: res.result.title,
-          author: res.result.author || 'YouTube',
-          thumbnail: res.result.thumbnail,
-          url_youtube: query,
-          download_url: res.result.download.url,
-          quality: res.result.download.quality || '720p'
-        }
-      };
-    } catch (error) {
-      return { status: false, code: 500, message: "Error en el servidor de descarga." };
-    }
-  }
-}
-
-const youtube = new Youtube();
+const yts = require('yt-search');
+const ytdl = require('ytdl-core');
+const fs = require('fs-extra');
+const path = require('path');
 
 const youtubeRoute = {
-  endpoint: "/api/download/youtube",
-  async run(req, res) {
-    const query = (req.query.query || req.body.query || req.query.url || "").trim();
-    
-    if (!query) {
-      return res.status(400).json({ status: false, error: "Query or URL is required", code: 400 });
-    }
+    endpoint: "/api/download/ytplay",
+    async run(req, res) {
+        const { q } = req.query;
+        const creator = "Félix Ofc";
 
-    try {
-      const result = await youtube.searchAndDownload(query);
-      if (!result.status) {
-        return res.status(result.code).json({ status: false, error: result.message, code: result.code });
-      }
+        if (!q) {
+            return res.status(400).json({ status: false, creator, error: 'Query is required' });
+        }
 
-      return res.json({ 
-        status: true, 
-        creator: "Félix Ofc",
-        data: result.result, 
-        timestamp: new Date().toISOString() 
-      });
-    } catch (error) {
-      return res.status(500).json({ status: false, error: "Internal Server Error", code: 500 });
+        try {
+            const ytResults = await yts.search(q);
+            const video = ytResults.videos[0];
+
+            if (!video) {
+                return res.status(404).json({ status: false, creator, error: 'No se encontró el video' });
+            }
+
+            const fileName = `yt_${Date.now()}.mp3`;
+            const tempDir = path.join(process.cwd(), 'public', 'temp');
+            const filePath = path.join(tempDir, fileName);
+            
+            await fs.ensureDir(tempDir);
+
+            const stream = ytdl(video.url, { 
+                filter: 'audioonly', 
+                quality: 'highestaudio' 
+            });
+            
+            const fileStream = fs.createWriteStream(filePath);
+            stream.pipe(fileStream);
+
+            fileStream.on('finish', () => {
+                res.status(200).json({
+                    status: true,
+                    creator,
+                    result: {
+                        title: video.title,
+                        channel: video.author.name,
+                        duration: video.duration.timestamp,
+                        thumbnail: video.thumbnail,
+                        url_original: video.url,
+                        download_url: `${req.protocol}://${req.get('host')}/temp/${fileName}`
+                    }
+                });
+
+                setTimeout(async () => {
+                    try {
+                        if (await fs.pathExists(filePath)) {
+                            await fs.remove(filePath);
+                        }
+                    } catch (err) {}
+                }, 300000); 
+            });
+
+            fileStream.on('error', (err) => {
+                res.status(500).json({ status: false, creator, error: err.message });
+            });
+
+        } catch (error) {
+            res.status(500).json({ status: false, creator, error: error.message });
+        }
     }
-  }
 };
 
-module.exports = { youtube, youtubeRoute };
+module.exports = { youtubeRoute };
