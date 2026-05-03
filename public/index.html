@@ -150,6 +150,7 @@
         <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-th-large"></i> Dashboard</div>
         <div class="sidebar-link" onclick="location.href='/profile'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
         <p class="nav-category">Servicios API</p>
+        <div class="sidebar-link" onclick="location.href='/endpoints/ai'"><i class="fas fa-robot"></i> Inteligencia Artificial</div>
         <div class="sidebar-link" onclick="location.href='/endpoints/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
         <div class="sidebar-link" onclick="location.href='/endpoints/search'"><i class="fas fa-search"></i> Búsquedas</div>
         <div class="sidebar-link" onclick="location.href='/endpoints/tools'"><i class="fas fa-tools"></i> Herramientas</div>
@@ -241,21 +242,18 @@
             clearInterval(uptimeInterval);
             const area = document.getElementById('content-area');
             const preloader = document.getElementById('preloader');
-            
+
             preloader.style.display = 'flex';
             preloader.style.opacity = '1';
 
             try {
-                // Fetch de datos primero
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
-                
-                // Generar contenido pasando los stats
+
                 const content = (cat === 'inicio') ? await categories.inicio(stats) : categories[cat];
                 area.innerHTML = content;
 
                 if (cat === 'inicio') {
-                    // Usar el tiempo exacto que mandó el servidor
                     const serverStart = stats.serverStart;
                     uptimeInterval = setInterval(() => {
                         const el = document.getElementById('server-uptime');
