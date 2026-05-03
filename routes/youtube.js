@@ -1,5 +1,5 @@
 const yts = require('yt-search');
-const ytdl = require('ytdl-core');
+const { exec } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -27,24 +27,13 @@ const youtubeRoute = {
             
             await fs.ensureDir(tempDir);
 
-            const stream = ytdl(video.url, { 
-                filter: 'audioonly', 
-                quality: 'lowest' 
-            });
-            
-            const fileStream = fs.createWriteStream(filePath);
-            
-            let timeout = setTimeout(() => {
-                stream.destroy();
-                if (!res.headersSent) {
-                    res.status(504).json({ status: false, creator, error: 'Tiempo de espera agotado al descargar' });
+            const command = `yt-dlp -x --audio-format mp3 --audio-quality 96K -o "${filePath}" ${video.url}`;
+
+            exec(command, (error) => {
+                if (error) {
+                    return res.status(500).json({ status: false, creator, error: 'Error al procesar audio' });
                 }
-            }, 40000);
 
-            stream.pipe(fileStream);
-
-            fileStream.on('finish', () => {
-                clearTimeout(timeout);
                 res.status(200).json({
                     status: true,
                     creator,
@@ -64,20 +53,11 @@ const youtubeRoute = {
                             await fs.remove(filePath);
                         }
                     } catch (err) {}
-                }, 300000); 
-            });
-
-            fileStream.on('error', (err) => {
-                clearTimeout(timeout);
-                if (!res.headersSent) {
-                    res.status(500).json({ status: false, creator, error: err.message });
-                }
+                }, 300000);
             });
 
         } catch (error) {
-            if (!res.headersSent) {
-                res.status(500).json({ status: false, creator, error: error.message });
-            }
+            res.status(500).json({ status: false, creator, error: error.message });
         }
     }
 };
