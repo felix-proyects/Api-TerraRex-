@@ -10,7 +10,6 @@
   "author": "Félix ofc",
   "license": "MIT",
   "dependencies": {
-    "@vreden/youtube_scraper": "^1.2.7",
     "adm-zip": "^0.5.10",
     "axios": "^1.1.2",
     "chatgpt": "^5.2.5",
@@ -22,7 +21,6 @@
     "puppeteer": "^22.6.0",
     "qrcode": "^1.5.4",
     "ruhend-scraper": "^7.0.4",
-    "youtube-dl-exec": "^3.0.25",
-    "yt-search": "^2.13.1"
+    "yt-search": "^2.13.1",
+    "ytdl-core": "latest"
   }
-}
