@@ -21,6 +21,7 @@ const geminiRoutes = require('./routes/ai/gemini');
 const { youtubeRoute } = require('./routes/youtube'); 
 const { pinterestRoute } = require('./routes/pinterest');
 const { pinterestSearchRoute } = require('./routes/search/pinterest');
+const { sswebRoute } = require('./routes/tools/ssweb');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -82,6 +83,7 @@ app.post('/api/ai/gemini', (req, res) => {
 app.use('/api/download/youtube', (req, res) => youtubeRoute.run(req, res));
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
+app.use('/api/tools/ssweb', (req, res) => sswebRoute.run(req, res));
 
 app.get('/api', (req, res) => {
     res.json({
@@ -99,7 +101,8 @@ app.get('/api', (req, res) => {
             pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
             pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
             youtube: '/api/download/youtube?query=URL_O_TEXTO&apikey=TU_KEY',
-            qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY'
+            qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY',
+            ssweb: '/api/tools/ssweb?url=URL&theme=dark&device=desktop&apikey=TU_KEY'
         }
     });
 });
