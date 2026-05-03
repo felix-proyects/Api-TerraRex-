@@ -106,14 +106,6 @@
         <h2>BÚSQUEDAS</h2>
 
         <div class="api-card">
-            <p style="font-weight: 700;"><i class="fab fa-youtube" style="color:#ff0000"></i> YOUTUBE PLAY (AUDIO)</p>
-            <div id="yp-box" class="code-box">GET /api/download/ytplay?q=&apikey=</div>
-            <input id="in-yp" class="input-test" placeholder="Nombre de la canción o video...">
-            <button class="btn-test" onclick="testYoutubePlay()">Buscar y Descargar</button>
-            <div id="res-yp" class="result-box">Esperando acción...</div>
-        </div>
-
-        <div class="api-card">
             <p style="font-weight: 700;"><i class="fab fa-tiktok" style="color:#ffffff"></i> TIKTOK SEARCH</p>
             <div id="ts-box" class="code-box">GET /api/search/tiktok?query=&apikey=</div>
             <input id="in-ts" class="input-test" placeholder="Ej: edits de anime, bailes...">
@@ -145,25 +137,9 @@
         if (!user) window.location.href = '/login';
 
         window.onload = () => {
-            document.getElementById('yp-box').innerText = `GET /api/download/ytplay?q=&apikey=${user.apikey}`;
             document.getElementById('ts-box').innerText = `GET /api/search/tiktok?query=&apikey=${user.apikey}`;
             document.getElementById('ps-box').innerText = `GET /api/search/pinterest?query=&type=&apikey=${user.apikey}`;
         };
-
-        async function testYoutubePlay() {
-            const q = document.getElementById('in-yp').value;
-            const resBox = document.getElementById('res-yp');
-            if (!q) return alert("Ingresa un término para YouTube");
-
-            resBox.innerHTML = "BUSCANDO Y GENERANDO LINK DE DESCARGA...";
-            try {
-                const response = await fetch(`/api/download/ytplay?q=${encodeURIComponent(q)}&apikey=${user.apikey}`);
-                const data = await response.json();
-                resBox.innerHTML = JSON.stringify(data, null, 2);
-            } catch (err) { 
-                resBox.innerHTML = "ERROR: No se pudo conectar con el servidor."; 
-            }
-        }
 
         async function testTiktokSearch() {
             const query = document.getElementById('in-ts').value;
