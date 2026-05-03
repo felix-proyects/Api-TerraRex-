@@ -2,112 +2,151 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Api Kazuma | El Futuro del Desarrollo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>API KAZUMA | Infrastructure</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #050505; --card-bg: #111111; }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #050505; --card-bg: #0d0d15; }
         body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .hero-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 500px; background: radial-gradient(circle, rgba(255, 45, 85, 0.15) 0%, transparent 70%); z-index: 0; }
-        .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .btn-neon { background: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 45, 85, 0.3); transition: 0.3s; }
-        .btn-neon:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 45, 85, 0.5); }
-        .btn-outline { border: 1px solid var(--neon-blue); color: var(--neon-blue); transition: 0.3s; }
-        .btn-outline:hover { background: var(--neon-blue); color: black; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
-        .feature-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .feature-card:hover { border-color: var(--neon-pink); transform: translateY(-5px); }
-        .stat-val { color: var(--neon-blue); font-weight: 900; }
-        .floating { animation: floating 3s ease-in-out infinite; }
-        @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        /* Efectos Neón */
+        .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3); }
+        .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 85, 0.5), 0 0 20px rgba(255, 45, 85, 0.3); }
+        .neon-border { border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.05) 0%, transparent 30%);
+        }
+
+        .glass-card {
+            background: rgba(13, 13, 21, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+
+        .btn-main {
+            background: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+        }
+
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(255, 45, 85, 0.6); }
+
+        .stat-box {
+            background: #000;
+            border-left: 3px solid var(--neon-blue);
+            padding: 15px;
+            border-radius: 0 15px 15px 0;
+        }
+
+        /* Animación de escaneo */
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: var(--neon-blue);
+            opacity: 0.1;
+            position: absolute;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scan { from { top: 0; } to { top: 100%; } }
     </style>
 </head>
-<body>
-    <div class="hero-glow"></div>
+<body class="hero-gradient min-h-screen">
+    <div class="scanline"></div>
 
-    <nav class="nav-glass fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-black tracking-tighter">KAZUMA <span style="color: var(--neon-pink);">API</span></div>
-        <div class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
-            <a href="#features" class="hover:text-white">Características</a>
-            <a href="#stats" class="hover:text-white">Estadísticas</a>
-            <a href="/login" class="hover:text-white">Acceso</a>
-        </div>
-        <a href="/register" class="btn-neon px-6 py-2 rounded-full text-xs font-black">EMPEZAR AHORA</a>
+    <nav class="fixed w-full z-50 px-5 py-4 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-white/5">
+        <div class="text-xl font-black tracking-tighter">KAZUMA <span class="neon-text-pink">API</span></div>
+        <a href="/login" class="text-[10px] font-black uppercase tracking-widest border border-white/10 px-4 py-2 rounded-lg hover:bg-white hover:text-black transition">Acceso</a>
     </nav>
 
-    <section class="relative pt-40 pb-20 px-6 flex flex-col items-center text-center">
-        <div class="bg-white/5 border border-white/10 px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.3em] text-blue-400 mb-6 uppercase">Potencia tus proyectos con IA</div>
-        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-none">LA API MULTIFUNCIÓN <br> <span style="color: var(--neon-pink);">DEFINITIVA.</span></h1>
-        <p class="max-w-2xl text-slate-400 text-lg mb-10">Descargas de redes sociales, Inteligencia Artificial avanzada y herramientas premium. Todo en un solo lugar, optimizado para bot developers y aplicaciones modernas.</p>
-        <div class="flex flex-col md:flex-row gap-4">
-            <a href="/dash" class="btn-neon px-10 py-4 rounded-2xl font-black">ENTRAR AL DASHBOARD</a>
-            <a href="https://wa.me/tu_numero" class="btn-outline px-10 py-4 rounded-2xl font-black">SOPORTE WHATSAPP</a>
+    <main class="relative pt-32 pb-10 px-6 max-w-4xl mx-auto">
+        <div class="text-center mb-16">
+            <span class="text-[9px] font-black tracking-[0.4em] text-blue-400 uppercase bg-blue-400/5 px-3 py-1 rounded-full border border-blue-400/20">System Status: Online</span>
+            <h1 class="text-4xl md:text-6xl font-black mt-6 mb-4 tracking-tighter leading-none">
+                DOMINA EL <br> <span class="neon-text-blue">DESARROLLO.</span>
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+                Infraestructura de alto rendimiento para descarga de medios, Inteligencia Artificial y herramientas de automatización.
+            </p>
+            
+            <div class="mt-10 flex flex-col gap-4">
+                <a href="/dash" class="btn-main py-5 rounded-2xl text-sm">Entrar al Dashboard</a>
+                <div class="flex gap-3">
+                    <a href="/register" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-white/10 transition uppercase">Registro</a>
+                    <a href="mailto:pixelcrewteam@gmail.com" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-white/10 transition uppercase">Ayuda</a>
+                </div>
+            </div>
         </div>
-    </section>
 
-    <section id="stats" class="py-20 px-6 bg-white/5">
-        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div class="text-center">
-                <div class="stat-val text-4xl mb-2" id="total-users">+0</div>
-                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Usuarios</div>
+        <div class="grid grid-cols-2 gap-4 mb-12">
+            <div class="stat-box">
+                <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Usuarios Registrados</p>
+                <h3 class="text-2xl font-black neon-text-blue" id="count-users">...</h3>
             </div>
-            <div class="text-center">
-                <div class="stat-val text-4xl mb-2" id="total-endpoints">+12</div>
-                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Endpoints</div>
-            </div>
-            <div class="text-center">
-                <div class="stat-val text-4xl mb-2">99.9%</div>
-                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Uptime</div>
-            </div>
-            <div class="text-center">
-                <div class="stat-val text-4xl mb-2">FREE</div>
-                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Acceso</div>
+            <div class="stat-box" style="border-color: var(--neon-pink);">
+                <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Endpoints Activos</p>
+                <h3 class="text-2xl font-black neon-text-pink" id="count-endpoints">11</h3>
             </div>
         </div>
-    </section>
 
-    <section id="features" class="py-24 px-6 max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="feature-card p-10 rounded-3xl">
-                <i class="fas fa-bolt text-3xl mb-6" style="color: var(--neon-pink);"></i>
-                <h3 class="text-xl font-bold mb-4">Velocidad Extrema</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Infraestructura optimizada en VPS de alto rendimiento para respuestas en milisegundos.</p>
+        <div class="space-y-4">
+            <div class="glass-card p-6 rounded-2xl flex items-center gap-5">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                    <i class="fas fa-cloud-download-alt text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-tight">Multi-Downloader</h4>
+                    <p class="text-xs text-slate-500">TikTok, IG, FB, YT y más en un solo endpoint.</p>
+                </div>
             </div>
-            <div class="feature-card p-10 rounded-3xl">
-                <i class="fas fa-brain text-3xl mb-6" style="color: var(--neon-blue);"></i>
-                <h3 class="text-xl font-bold mb-4">IA Integrada</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Acceso directo a modelos como Gemini AI para generación de texto e imágenes sin límites complejos.</p>
-            </div>
-            <div class="feature-card p-10 rounded-3xl">
-                <i class="fas fa-shield-alt text-3xl mb-6" style="color: var(--neon-pink);"></i>
-                <h3 class="text-xl font-bold mb-4">Seguridad Total</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Sistema de API Keys personalizadas y gestión de bases de datos segura encriptada.</p>
-            </div>
-        </div>
-    </section>
 
-    <footer class="py-10 border-t border-white/5 text-center">
-        <p class="text-slate-600 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">&copy; 2026 Api Kazuma - Félix Ofc</p>
-        <div class="flex justify-center gap-6 text-slate-500">
-            <a href="/tos/terms" class="hover:text-white text-[10px] font-bold uppercase tracking-widest">Términos</a>
-            <a href="mailto:pixelcrewteam@gmail.com" class="hover:text-white text-[10px] font-bold uppercase tracking-widest">Contacto</a>
+            <div class="glass-card p-6 rounded-2xl flex items-center gap-5">
+                <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400">
+                    <i class="fas fa-robot text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-tight">AI Integration</h4>
+                    <p class="text-xs text-slate-500">Modelos Gemini AI listos para peticiones GET/POST.</p>
+                </div>
+            </div>
         </div>
-    </footer>
+
+        <footer class="mt-20 text-center">
+            <p class="text-slate-700 text-[9px] font-bold uppercase tracking-[0.3em]">&copy; 2026 KAZUMA INFRASTRUCTURE | BY FÉLIX OFC</p>
+            <div class="mt-4 flex justify-center gap-6">
+                <a href="/tos/terms" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">TOS</a>
+                <a href="/login" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">API Status</a>
+            </div>
+        </footer>
+    </main>
 
     <script>
-        // Función para obtener estadísticas reales de tu API
-        async function fetchStats() {
+        async function loadLiveStats() {
             try {
                 const response = await fetch('/api/stats');
                 const data = await response.json();
                 if(data.status) {
-                    document.getElementById('total-users').innerText = `+${data.totalUsers || 0}`;
+                    // Actualiza los usuarios reales
+                    document.getElementById('count-users').innerText = data.totalUsers || '0';
+                    
+                    // Si tu API devuelve el conteo de endpoints, lo usamos, si no, dejamos el 11 por defecto
+                    if(data.totalEndpoints) {
+                        document.getElementById('count-endpoints').innerText = data.totalEndpoints;
+                    }
                 }
-            } catch (error) {
-                console.log("Error cargando estadísticas");
+            } catch (err) {
+                document.getElementById('count-users').innerText = 'OFFLINE';
             }
         }
-        fetchStats();
+        loadLiveStats();
     </script>
 </body>
 </html>
