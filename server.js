@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const securityMiddleware = async (req, res, next) => {
     const isApiRoute = req.path.startsWith('/api/');
-    const isPublicApi = req.path.includes('/auth') || req.path.includes('/stats') || req.path.includes('/admin') || req.path === '/api';
+    const isPublicApi = req.path.includes('/auth') || req.path.includes('/stats') || req.path.includes('/admin') || req.path === '/api' || req.path.startsWith('/temp/');
 
     if (isApiRoute && !isPublicApi) {
         const apikey = req.query.apikey || req.headers['x-api-key'];
@@ -55,6 +55,8 @@ const securityMiddleware = async (req, res, next) => {
 };
 
 app.use(securityMiddleware);
+app.use('/temp', express.static(path.join(process.cwd(), 'public', 'temp')));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
@@ -80,7 +82,7 @@ app.post('/api/ai/gemini', (req, res) => {
     geminiPost.run({ req, guf }).then(result => res.json(result)).catch(err => res.status(500).json({ status: false, error: err.message }));
 });
 
-app.use('/api/download/youtube', (req, res) => youtubeRoute.run(req, res));
+app.use('/api/download/ytplay', (req, res) => youtubeRoute.run(req, res));
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
 app.use('/api/tools/ssweb', (req, res) => sswebRoute.run(req, res));
@@ -100,7 +102,7 @@ app.get('/api', (req, res) => {
             twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
             pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
             pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
-            youtube: '/api/download/youtube?query=URL_O_TEXTO&apikey=TU_KEY',
+            ytplay: '/api/download/ytplay?q=TEXTO&apikey=TU_KEY',
             qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY',
             ssweb: '/api/tools/ssweb?url=URL&theme=dark&device=desktop&apikey=TU_KEY'
         }
