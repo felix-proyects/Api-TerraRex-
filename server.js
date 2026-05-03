@@ -15,6 +15,7 @@ const instagramRoutes = require('./routes/instagramvid');
 const facebookRoutes = require('./routes/facebookvid');
 const twitterRoutes = require('./routes/twitter');
 const qrcodeRoutes = require('./routes/qrcode');
+const geminiRoutes = require('./routes/ai/gemini');
 const { youtubeRoute } = require('./routes/youtube'); 
 const { pinterestRoute } = require('./routes/pinterest');
 const { pinterestSearchRoute } = require('./routes/search/pinterest');
@@ -74,6 +75,21 @@ app.use('/api/download/facebook', facebookRoutes);
 app.use('/api/download/twitter', twitterRoutes);
 app.use('/api/tools/qr', qrcodeRoutes);
 
+const geminiGet = geminiRoutes.find(r => r.metode === "GET");
+const geminiPost = geminiRoutes.find(r => r.metode === "POST");
+
+app.get('/api/ai/gemini', (req, res) => {
+    geminiGet.run({ req }).then(result => res.json(result)).catch(err => res.status(500).json({ status: false, error: err.message }));
+});
+
+app.post('/api/ai/gemini', (req, res) => {
+    const guf = async (request, field) => {
+        if (request.file) return { file: request.file.buffer, name: request.file.originalname, isValid: true };
+        return { file: null, isValid: false };
+    };
+    geminiPost.run({ req, guf }).then(result => res.json(result)).catch(err => res.status(500).json({ status: false, error: err.message }));
+});
+
 app.use('/api/download/youtube', (req, res) => youtubeRoute.run(req, res));
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
@@ -84,6 +100,7 @@ app.get('/api', (req, res) => {
         message: 'Api Kazuma activa',
         creator: 'Félix Ofc',
         endpoints: {
+            gemini: '/api/ai/gemini?text=QUERY&cookie=COOKIE&apikey=TU_KEY',
             tiktok: '/api/download/tiktok?url=URL&apikey=TU_KEY',
             tiktok_search: '/api/search/tiktok?query=TEXTO&apikey=TU_KEY',
             instagram: '/api/download/instagram?url=URL&apikey=TU_KEY',
