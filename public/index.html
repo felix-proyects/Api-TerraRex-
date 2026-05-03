@@ -7,42 +7,90 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #050505; --card-bg: #0d0d15; }
-        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3); }
-        .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 85, 0.5), 0 0 20px rgba(255, 45, 85, 0.3); }
-        .hero-gradient { background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.1) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.05) 0%, transparent 30%); }
-        .glass-card { background: rgba(13, 13, 21, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
-        .btn-main { background: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 45, 85, 0.4); transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(255, 45, 85, 0.6); }
-        .stat-box { background: #000; border-left: 3px solid var(--neon-blue); padding: 15px; border-radius: 0 15px 15px 0; }
-        .scanline { width: 100%; height: 2px; background: var(--neon-blue); opacity: 0.1; position: absolute; animation: scan 4s linear infinite; z-index: 10; }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #050505; }
+        
+        /* Forzamos el fondo negro sólido para evitar el error de la captura */
+        body { 
+            background-color: #000000 !important; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 243, 255, 0.8); }
+        .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 85, 0.8); }
+
+        /* Gradiente mejorado con respaldo oscuro */
+        .hero-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.15) 0%, transparent 60%),
+                        radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-main {
+            background: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.5);
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* Botones secundarios con más visibilidad */
+        .btn-sec {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-box {
+            background: #0a0a0a;
+            border-left: 4px solid var(--neon-blue);
+            padding: 15px;
+            border-radius: 0 15px 15px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .scanline {
+            width: 100%; height: 2px; background: var(--neon-blue); opacity: 0.05;
+            position: absolute; animation: scan 4s linear infinite; z-index: 10;
+        }
         @keyframes scan { from { top: 0; } to { top: 100%; } }
     </style>
 </head>
-<body class="hero-gradient min-h-screen">
+<body>
+    <div class="hero-gradient"></div>
     <div class="scanline"></div>
 
-    <nav class="fixed w-full z-50 px-5 py-4 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-white/5">
+    <nav class="fixed w-full z-50 px-5 py-4 flex justify-between items-center bg-black/80 backdrop-blur-lg border-b border-white/10">
         <div class="text-xl font-black tracking-tighter">KAZUMA <span class="neon-text-pink">API</span></div>
-        <a href="/login" class="text-[10px] font-black uppercase tracking-widest border border-white/10 px-4 py-2 rounded-lg hover:bg-white hover:text-black transition">Acceso</a>
+        <a href="/login" class="text-[10px] font-black uppercase tracking-widest bg-white text-black px-4 py-2 rounded-lg">Acceso</a>
     </nav>
 
     <main class="relative pt-32 pb-10 px-6 max-w-4xl mx-auto">
         <div class="text-center mb-16">
-            <span class="text-[9px] font-black tracking-[0.4em] text-blue-400 uppercase bg-blue-400/5 px-3 py-1 rounded-full border border-blue-400/20">System Status: Online</span>
-            <h1 class="text-4xl md:text-6xl font-black mt-6 mb-4 tracking-tighter leading-none">
+            <span class="text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase bg-blue-400/10 px-4 py-1.5 rounded-full border border-blue-400/30">System Status: Online</span>
+            <h1 class="text-4xl md:text-6xl font-black mt-8 mb-4 tracking-tighter leading-none text-white">
                 DOMINA EL <br> <span class="neon-text-blue">DESARROLLO.</span>
             </h1>
-            <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+            <p class="text-gray-300 text-sm md:text-base max-w-lg mx-auto leading-relaxed font-medium">
                 Infraestructura de alto rendimiento para descarga de medios, Inteligencia Artificial y herramientas de automatización.
             </p>
             
-            <div class="mt-10 flex flex-col gap-4">
-                <a href="/dash" class="btn-main py-5 rounded-2xl text-sm">Entrar al Dashboard</a>
+            <div class="mt-12 flex flex-col gap-4">
+                <a href="/dash" class="btn-main py-5 rounded-2xl text-sm text-white">Entrar al Dashboard</a>
                 <div class="flex gap-3">
-                    <a href="/register" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-white/10 transition uppercase flex items-center justify-center">Registro</a>
-                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" target="_blank" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-blue-400 hover:text-black transition uppercase flex items-center justify-center gap-2">
+                    <a href="/register" class="btn-sec flex-1 py-4 rounded-2xl text-xs font-bold uppercase flex items-center justify-center">Registro</a>
+                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" target="_blank" class="btn-sec flex-1 py-4 rounded-2xl text-xs font-bold uppercase flex items-center justify-center gap-2 hover:border-blue-400">
                         <i class="fab fa-whatsapp"></i> Soporte
                     </a>
                 </div>
@@ -51,53 +99,48 @@
 
         <div class="grid grid-cols-2 gap-4 mb-12">
             <div class="stat-box">
-                <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Usuarios Registrados</p>
+                <p class="text-gray-500 text-[9px] font-bold uppercase tracking-widest">Usuarios Registrados</p>
                 <h3 class="text-2xl font-black neon-text-blue" id="count-users">+13</h3>
             </div>
             <div class="stat-box" style="border-color: var(--neon-pink);">
-                <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Endpoints Activos</p>
+                <p class="text-gray-500 text-[9px] font-bold uppercase tracking-widest">Endpoints Activos</p>
                 <h3 class="text-2xl font-black neon-text-pink" id="count-endpoints">11</h3>
             </div>
         </div>
 
         <div class="space-y-4">
             <div class="glass-card p-6 rounded-2xl flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 border border-blue-500/30">
                     <i class="fas fa-cloud-download-alt text-xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-black uppercase tracking-tight">Multi-Downloader</h4>
-                    <p class="text-xs text-slate-500">TikTok, IG, FB, YT y más en un solo endpoint.</p>
+                    <h4 class="text-sm font-black uppercase tracking-tight text-white">Multi-Downloader</h4>
+                    <p class="text-xs text-gray-400">TikTok, IG, FB, YT y más en un solo endpoint.</p>
                 </div>
             </div>
 
             <div class="glass-card p-6 rounded-2xl flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400">
+                <div class="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400 border border-pink-500/30">
                     <i class="fas fa-robot text-xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-black uppercase tracking-tight">AI Integration</h4>
-                    <p class="text-xs text-slate-500">Modelos Gemini AI listos para peticiones GET/POST.</p>
+                    <h4 class="text-sm font-black uppercase tracking-tight text-white">AI Integration</h4>
+                    <p class="text-xs text-gray-400">Modelos Gemini AI listos para peticiones.</p>
                 </div>
             </div>
         </div>
 
         <footer class="mt-20 text-center">
-            <p class="text-slate-700 text-[9px] font-bold uppercase tracking-[0.3em]">&copy; 2026 KAZUMA INFRASTRUCTURE | BY FÉLIX OFC</p>
+            <p class="text-gray-600 text-[9px] font-bold uppercase tracking-[0.3em]">&copy; 2026 KAZUMA INFRASTRUCTURE | BY FÉLIX OFC</p>
             <div class="mt-4 flex justify-center gap-6">
-                <a href="/tos/terms" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">TOS</a>
-                <a href="mailto:pixelcrewteam@gmail.com" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">Contacto</a>
+                <a href="/tos/terms" class="text-gray-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">TOS</a>
+                <a href="mailto:pixelcrewteam@gmail.com" class="text-gray-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">Contacto</a>
             </div>
         </footer>
     </main>
 
     <script>
-        // CONFIGURACIÓN EDITABLE
-        const stats = {
-            usuarios: "+13", // Cambia este valor cuando quieras
-            endpoints: "11"
-        };
-
+        const stats = { usuarios: "+13", endpoints: "11" };
         window.onload = () => {
             document.getElementById('count-users').innerText = stats.usuarios;
             document.getElementById('count-endpoints').innerText = stats.endpoints;
