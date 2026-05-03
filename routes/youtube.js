@@ -29,13 +29,22 @@ const youtubeRoute = {
 
             const stream = ytdl(video.url, { 
                 filter: 'audioonly', 
-                quality: 'highestaudio' 
+                quality: 'lowest' 
             });
             
             const fileStream = fs.createWriteStream(filePath);
+            
+            let timeout = setTimeout(() => {
+                stream.destroy();
+                if (!res.headersSent) {
+                    res.status(504).json({ status: false, creator, error: 'Tiempo de espera agotado al descargar' });
+                }
+            }, 40000);
+
             stream.pipe(fileStream);
 
             fileStream.on('finish', () => {
+                clearTimeout(timeout);
                 res.status(200).json({
                     status: true,
                     creator,
@@ -59,11 +68,16 @@ const youtubeRoute = {
             });
 
             fileStream.on('error', (err) => {
-                res.status(500).json({ status: false, creator, error: err.message });
+                clearTimeout(timeout);
+                if (!res.headersSent) {
+                    res.status(500).json({ status: false, creator, error: err.message });
+                }
             });
 
         } catch (error) {
-            res.status(500).json({ status: false, creator, error: error.message });
+            if (!res.headersSent) {
+                res.status(500).json({ status: false, creator, error: error.message });
+            }
         }
     }
 };
