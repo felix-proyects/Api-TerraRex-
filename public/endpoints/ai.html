@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Section - Api Kazuma</title>
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --bg: #0f0c29;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #24243e, #302b63, #0f0c29);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5em;
+        }
+
+        .ai-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            color: #ccc;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .endpoint-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            font-family: monospace;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .method-get { color: #569cd6; font-weight: bold; }
+        .method-post { color: #ce9178; font-weight: bold; }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+        }
+
+        .badge {
+            background: #ff4b2b;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.4em;
+            vertical-align: middle;
+            margin-left: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .param { color: #9cdcfe; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="ai-icon">🤖</div>
+            <h1>Inteligencia Artificial <span class="badge">Beta</span></h1>
+            <p class="description">
+                Interactúa con los modelos avanzados de <b>Google Gemini</b> directamente desde tu API. Soporte para conversaciones fluidas y análisis de archivos multimedia.
+            </p>
+
+            <div class="endpoint-box">
+                <span class="method-get">GET</span> /api/ai/gemini?<span class="param">text</span>=HOLA&<span class="param">cookie</span>=TU_COOKIE&<span class="param">apikey</span>=TU_KEY
+            </div>
+
+            <div class="endpoint-box">
+                <span class="method-post">POST</span> /api/ai/gemini <br>
+                <small style="color: #888;">(Content-Type: multipart/form-data | Field: file)</small>
+            </div>
+
+            <div class="btn-group">
+                <a href="/search" class="btn btn-back">⬅ Volver</a>
+                <a href="/profile" class="btn btn-primary">Mi API Key</a>
+                <a href="https://gemini.google.com" target="_blank" class="btn btn-back">Obtener Cookie</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
