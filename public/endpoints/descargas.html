@@ -39,6 +39,14 @@
     <h2>DESCARGAS</h2>
 
     <div class="api-card">
+        <div class="endpoint-title"><i class="fab fa-youtube"></i> YOUTUBE (Search & Download)</div>
+        <div class="code-box" id="yt-path">GET /api/download/youtube?query=</div>
+        <input id="in-yt" class="input-test" placeholder="URL de video o nombre de la canción...">
+        <button class="btn-test" onclick="testApi('yt', '/api/download/youtube', 'query')">Probar YouTube</button>
+        <div id="res-yt" class="result-box">...</div>
+    </div>
+
+    <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-tiktok"></i> TIKTOK</div>
         <div class="code-box" id="tt-path">GET /api/download/tiktok?url=</div>
         <input id="in-tt" class="input-test" placeholder="URL de TikTok...">
@@ -85,20 +93,20 @@
     if (!user) window.location.href = '/login';
 
     window.onload = () => {
-        const ids = ['tt', 'ig', 'fb', 'tw', 'pin'];
+        const ids = ['yt', 'tt', 'ig', 'fb', 'tw', 'pin'];
         ids.forEach(id => {
             const el = document.getElementById(`${id}-path`);
             if(el) el.innerText += `&apikey=${user.apikey}`;
         });
     };
 
-    async function testApi(id, route) {
-        const urlValue = document.getElementById(`in-${id}`).value;
+    async function testApi(id, route, paramName = 'url') {
+        const queryValue = document.getElementById(`in-${id}`).value;
         const resBox = document.getElementById(`res-${id}`);
-        if (!urlValue) return alert("Ingresa una URL");
-        resBox.innerHTML = "CARGANDO...";
+        if (!queryValue) return alert("Ingresa un dato para procesar");
+        resBox.innerHTML = "PROCESANDO...";
         try {
-            const response = await fetch(`${route}?url=${urlValue}&apikey=${user.apikey}`);
+            const response = await fetch(`${route}?${paramName}=${queryValue}&apikey=${user.apikey}`);
             const data = await response.json();
             resBox.innerHTML = JSON.stringify(data, null, 2);
         } catch (err) { resBox.innerHTML = "ERROR DE CONEXIÓN"; }
