@@ -4,29 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Registro</title>
+    
+    <script>
+        if (localStorage.getItem('userSession')) {
+            window.location.href = '/dash';
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
-        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
+        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        #safety-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
         .glass { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         .btn-pink:hover { opacity: 0.9; transform: translateY(-2px); }
-        .pass-container { position: relative; }
-        .toggle-pass { position: absolute; right: 12px; top: 38px; cursor: pointer; color: #555; transition: 0.3s; }
-        .toggle-pass:hover { color: var(--neon-blue); }
-        input[type="checkbox"] { accent-color: var(--neon-blue); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
+    <div id="safety-overlay"></div>
+
     <div class="glass p-8 rounded-3xl w-full max-w-md">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-black tracking-tighter">KAZUMA <span style="color: var(--neon-pink);">REGISTRO</span></h2>
             <p class="text-slate-500 text-sm mt-1">Crea tu acceso a la infraestructura</p>
         </div>
-        
+
         <form id="registerForm" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Username</label>
@@ -36,15 +42,15 @@
                 <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Email</label>
                 <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="correo@ejemplo.com" required>
             </div>
-            <div class="pass-container">
+            <div class="relative">
                 <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Password (Min. 8)</label>
                 <input type="password" id="password" minlength="8" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
-                <i class="fas fa-eye toggle-pass" onclick="togglePassword('password', this)"></i>
+                <i class="fas fa-eye absolute right-4 top-9 cursor-pointer text-slate-600" onclick="togglePassword('password', this)"></i>
             </div>
-            <div class="pass-container">
+            <div class="relative">
                 <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Confirm Password</label>
                 <input type="password" id="confirmPassword" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
-                <i class="fas fa-eye toggle-pass" onclick="togglePassword('confirmPassword', this)"></i>
+                <i class="fas fa-eye absolute right-4 top-9 cursor-pointer text-slate-600" onclick="togglePassword('confirmPassword', this)"></i>
             </div>
 
             <div class="flex items-center gap-2 mt-2">
@@ -60,22 +66,33 @@
         <div class="mt-6 flex flex-col gap-3 text-center">
             <p class="text-slate-500 text-sm">¿Ya tienes cuenta? <a href="/login.html" class="font-bold" style="color: var(--neon-blue);">Inicia sesión</a></p>
             <hr class="border-white/5 my-2">
-            <a href="mailto:pixelcrewteam@gmail.com" class="py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:border-blue-400">
-                <i class="fas fa-question-circle"></i> ¿NECESITAS AYUDA? CONTACTAR
+            <a href="mailto:pixelcrewteam@gmail.com" class="py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-white/5 text-slate-400 hover:text-white border border-white/10">
+                <i class="fas fa-question-circle"></i> ¿NECESITAS AYUDA?
             </a>
         </div>
     </div>
 
     <script>
+        window.onload = () => {
+            // Si ya está logueado, redirigir a dash
+            if (localStorage.getItem('userSession')) {
+                window.location.href = '/dash';
+            } 
+            // Si ya tiene cuenta pero no sesión, avisar y mandar a login
+            else if (localStorage.getItem('hasAccount')) {
+                alert('Ya tienes una cuenta registrada. Por favor, inicia sesión.');
+                window.location.href = '/login.html';
+            } 
+            else {
+                document.getElementById('safety-overlay').style.display = 'none';
+            }
+        };
+
         function togglePassword(id, el) {
             const input = document.getElementById(id);
-            if (input.type === "password") {
-                input.type = "text";
-                el.classList.replace("fa-eye", "fa-eye-slash");
-            } else {
-                input.type = "password";
-                el.classList.replace("fa-eye-slash", "fa-eye");
-            }
+            input.type = input.type === "password" ? "text" : "password";
+            el.classList.toggle("fa-eye");
+            el.classList.toggle("fa-eye-slash");
         }
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -83,9 +100,8 @@
             const pass = document.getElementById('password').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
-            if (pass.length < 8) return alert('La contraseña debe tener al menos 8 dígitos.');
             if (pass !== confirmPass) return alert('Las contraseñas no coinciden.');
-            
+
             const userData = {
                 username: document.getElementById('username').value,
                 email: document.getElementById('email').value,
@@ -99,6 +115,7 @@
                     body: JSON.stringify(userData)
                 });
                 const data = await response.json();
+                
                 if (data.status) {
                     localStorage.setItem('hasAccount', 'true');
                     alert('Registro exitoso.');
@@ -106,7 +123,9 @@
                 } else {
                     alert(data.message || 'Error al registrar.');
                 }
-            } catch (error) { alert('Error de conexión.'); }
+            } catch (error) { 
+                alert('Error de conexión con el servidor.'); 
+            }
         });
     </script>
 </body>
