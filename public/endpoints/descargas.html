@@ -6,11 +6,7 @@
     <title>Descargas | Api Kazuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d;
-            --card-bg: #161625; --sidebar-bg: #121212; --text-main: #ffffff;
-            --text-muted: #a0a0a0; --code-bg: #212135;
-        }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; --sidebar-bg: #121212; --text-main: #ffffff; --text-muted: #a0a0a0; --code-bg: #212135; }
         body { background-color: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
         header { background-color: var(--sidebar-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); position: sticky; top: 0; z-index: 1000; }
         .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
@@ -29,15 +25,12 @@
     </style>
 </head>
 <body>
-
 <header>
     <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
     <button class="btn-back" onclick="location.href='/'"><i class="fas fa-home"></i> VOLVER</button>
 </header>
-
 <div class="container">
     <h2>DESCARGAS</h2>
-
     <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-tiktok"></i> TIKTOK</div>
         <div class="code-box" id="tt-path">GET /api/download/tiktok?url=</div>
@@ -45,7 +38,6 @@
         <button class="btn-test" onclick="testApi('tt', '/api/download/tiktok')">Probar TikTok</button>
         <div id="res-tt" class="result-box">...</div>
     </div>
-
     <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-instagram"></i> INSTAGRAM</div>
         <div class="code-box" id="ig-path">GET /api/download/instagram?url=</div>
@@ -53,7 +45,6 @@
         <button class="btn-test" onclick="testApi('ig', '/api/download/instagram')">Probar Instagram</button>
         <div id="res-ig" class="result-box">...</div>
     </div>
-
     <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-facebook"></i> FACEBOOK</div>
         <div class="code-box" id="fb-path">GET /api/download/facebook?url=</div>
@@ -61,7 +52,6 @@
         <button class="btn-test" onclick="testApi('fb', '/api/download/facebook')">Probar Facebook</button>
         <div id="res-fb" class="result-box">...</div>
     </div>
-
     <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-twitter"></i> TWITTER (X)</div>
         <div class="code-box" id="tw-path">GET /api/download/twitter?url=</div>
@@ -69,7 +59,6 @@
         <button class="btn-test" onclick="testApi('tw', '/api/download/twitter')">Probar Twitter</button>
         <div id="res-tw" class="result-box">...</div>
     </div>
-
     <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-pinterest"></i> PINTEREST</div>
         <div class="code-box" id="pin-path">GET /api/download/pinterest?url=</div>
@@ -77,29 +66,17 @@
         <button class="btn-test" onclick="testApi('pin', '/api/download/pinterest')">Probar Pinterest</button>
         <div id="res-pin" class="result-box">...</div>
     </div>
-
-    <div class="api-card">
-        <div class="endpoint-title"><i class="fab fa-spotify"></i> SPOTIFY</div>
-        <div class="code-box" id="sp-path">GET /api/download/spotify?url=</div>
-        <input id="in-sp" class="input-test" placeholder="URL de Spotify...">
-        <button class="btn-test" onclick="testApi('sp', '/api/download/spotify')">Probar Spotify</button>
-        <div id="res-sp" class="result-box">...</div>
-    </div>
-
 </div>
-
 <script>
     const user = JSON.parse(localStorage.getItem('userSession'));
     if (!user) window.location.href = '/login';
-
     window.onload = () => {
-        const ids = ['tt', 'ig', 'fb', 'tw', 'pin', 'sp'];
+        const ids = ['tt', 'ig', 'fb', 'tw', 'pin'];
         ids.forEach(id => {
             const el = document.getElementById(`${id}-path`);
             if(el) el.innerText += `&apikey=${user.apikey}`;
         });
     };
-
     async function testApi(id, route, paramName = 'url') {
         const queryValue = document.getElementById(`in-${id}`).value;
         const resBox = document.getElementById(`res-${id}`);
