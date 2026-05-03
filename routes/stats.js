@@ -16,7 +16,10 @@ router.get('/global', async (req, res) => {
             !['auth.js', 'admin.js', 'stats.js'].includes(file)
         );
 
+        // Cálculos de solicitudes
         const totalRequests = db.users.reduce((acc, user) => acc + (user.total_requests || 0), 0);
+        const totalSuccess = db.users.reduce((acc, user) => acc + (user.success_requests || 0), 0);
+        const totalErrors = db.users.reduce((acc, user) => acc + (user.error_requests || 0), 0);
 
         const topUsers = db.users
             .filter(u => (u.total_requests || 0) > 0)
@@ -29,7 +32,10 @@ router.get('/global', async (req, res) => {
 
         res.json({
             status: true,
+            totalUsers: db.users.length,
             totalRequests: totalRequests,
+            totalSuccess: totalSuccess,
+            totalErrors: totalErrors,
             totalEndpoints: endpointFiles.length,
             topUsers: topUsers,
             serverStart: global.serverStart || Date.now()
