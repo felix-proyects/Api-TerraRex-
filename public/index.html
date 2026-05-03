@@ -9,53 +9,14 @@
     <style>
         :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #050505; --card-bg: #0d0d15; }
         body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        
-        /* Efectos Neón */
         .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3); }
         .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 85, 0.5), 0 0 20px rgba(255, 45, 85, 0.3); }
-        .neon-border { border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
-        
-        .hero-gradient {
-            background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.05) 0%, transparent 30%);
-        }
-
-        .glass-card {
-            background: rgba(13, 13, 21, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: 0.3s;
-        }
-
-        .btn-main {
-            background: var(--neon-pink);
-            box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 900;
-        }
-
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.1) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.05) 0%, transparent 30%); }
+        .glass-card { background: rgba(13, 13, 21, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+        .btn-main { background: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 45, 85, 0.4); transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
         .btn-main:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(255, 45, 85, 0.6); }
-
-        .stat-box {
-            background: #000;
-            border-left: 3px solid var(--neon-blue);
-            padding: 15px;
-            border-radius: 0 15px 15px 0;
-        }
-
-        /* Animación de escaneo */
-        .scanline {
-            width: 100%;
-            height: 2px;
-            background: var(--neon-blue);
-            opacity: 0.1;
-            position: absolute;
-            animation: scan 4s linear infinite;
-            z-index: 10;
-        }
-
+        .stat-box { background: #000; border-left: 3px solid var(--neon-blue); padding: 15px; border-radius: 0 15px 15px 0; }
+        .scanline { width: 100%; height: 2px; background: var(--neon-blue); opacity: 0.1; position: absolute; animation: scan 4s linear infinite; z-index: 10; }
         @keyframes scan { from { top: 0; } to { top: 100%; } }
     </style>
 </head>
@@ -80,8 +41,10 @@
             <div class="mt-10 flex flex-col gap-4">
                 <a href="/dash" class="btn-main py-5 rounded-2xl text-sm">Entrar al Dashboard</a>
                 <div class="flex gap-3">
-                    <a href="/register" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-white/10 transition uppercase">Registro</a>
-                    <a href="mailto:pixelcrewteam@gmail.com" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-white/10 transition uppercase">Ayuda</a>
+                    <a href="/register" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-white/10 transition uppercase flex items-center justify-center">Registro</a>
+                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" target="_blank" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-xs font-bold hover:bg-blue-400 hover:text-black transition uppercase flex items-center justify-center gap-2">
+                        <i class="fab fa-whatsapp"></i> Soporte
+                    </a>
                 </div>
             </div>
         </div>
@@ -89,7 +52,7 @@
         <div class="grid grid-cols-2 gap-4 mb-12">
             <div class="stat-box">
                 <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Usuarios Registrados</p>
-                <h3 class="text-2xl font-black neon-text-blue" id="count-users">...</h3>
+                <h3 class="text-2xl font-black neon-text-blue" id="count-users">+13</h3>
             </div>
             <div class="stat-box" style="border-color: var(--neon-pink);">
                 <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Endpoints Activos</p>
@@ -123,30 +86,22 @@
             <p class="text-slate-700 text-[9px] font-bold uppercase tracking-[0.3em]">&copy; 2026 KAZUMA INFRASTRUCTURE | BY FÉLIX OFC</p>
             <div class="mt-4 flex justify-center gap-6">
                 <a href="/tos/terms" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">TOS</a>
-                <a href="/login" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">API Status</a>
+                <a href="mailto:pixelcrewteam@gmail.com" class="text-slate-500 hover:text-white text-[9px] font-bold uppercase tracking-widest">Contacto</a>
             </div>
         </footer>
     </main>
 
     <script>
-        async function loadLiveStats() {
-            try {
-                const response = await fetch('/api/stats');
-                const data = await response.json();
-                if(data.status) {
-                    // Actualiza los usuarios reales
-                    document.getElementById('count-users').innerText = data.totalUsers || '0';
-                    
-                    // Si tu API devuelve el conteo de endpoints, lo usamos, si no, dejamos el 11 por defecto
-                    if(data.totalEndpoints) {
-                        document.getElementById('count-endpoints').innerText = data.totalEndpoints;
-                    }
-                }
-            } catch (err) {
-                document.getElementById('count-users').innerText = 'OFFLINE';
-            }
-        }
-        loadLiveStats();
+        // CONFIGURACIÓN EDITABLE
+        const stats = {
+            usuarios: "+13", // Cambia este valor cuando quieras
+            endpoints: "11"
+        };
+
+        window.onload = () => {
+            document.getElementById('count-users').innerText = stats.usuarios;
+            document.getElementById('count-endpoints').innerText = stats.endpoints;
+        };
     </script>
 </body>
 </html>
