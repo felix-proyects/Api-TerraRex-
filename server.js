@@ -1,283 +1,137 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Api Kazuma | Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --neon-pink: #ff2d55;
-            --neon-blue: #00f3ff;
-            --dark-bg: #0d0d0d;
-            --card-bg: #161625;
-            --sidebar-bg: #121212;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --code-bg: #212135;
-        }
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        #preloader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--dark-bg); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        .spinner {
-            width: 50px; height: 50px; border: 3px solid rgba(0, 243, 255, 0.1);
-            border-top: 3px solid var(--neon-blue); border-radius: 50%;
-            animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--neon-blue);
-        }
-        .loading-text {
-            margin-top: 20px; font-size: 0.7rem; font-weight: 900;
-            letter-spacing: 2px; color: var(--neon-blue); text-transform: uppercase;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        header {
-            background-color: var(--sidebar-bg);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
-        .brand span { color: var(--neon-pink); }
-        .sidebar {
-            position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
-            background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
-            padding: 30px 20px; box-sizing: border-box; overflow-y: auto;
-        }
-        .sidebar.active { right: 0; }
-        .sidebar-link {
-            display: flex; align-items: center; gap: 15px; color: var(--text-main);
-            text-decoration: none; padding: 14px; border-radius: 12px; margin-bottom: 8px;
-            background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem; font-weight: 600;
-        }
-        .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 25px 0 10px 5px; letter-spacing: 1.5px; }
-        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
-        .hero { text-align: center; padding: 30px 10px; }
-        .hero-img { 
-            width: 110px; height: 110px; border-radius: 50%; 
-            border: 3px solid var(--neon-pink); margin-bottom: 15px; 
-            object-fit: cover; box-shadow: 0 0 20px rgba(255, 45, 85, 0.3);
-        }
-        .hero h1 { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin: 0; }
-        .hero h1 span { color: var(--neon-pink); }
-        .api-card {
-            background: var(--card-bg); border-radius: 24px; padding: 25px; margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .stats-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        .stat-box { 
-            background: var(--code-bg); padding: 20px; border-radius: 18px; 
-            border-left: 4px solid var(--neon-blue); position: relative; overflow: hidden;
-        }
-        .stat-box i { position: absolute; right: -10px; bottom: -10px; font-size: 4rem; opacity: 0.05; color: var(--neon-blue); }
-        .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 1.4rem; font-weight: 900; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
-        .top-users-container { display: flex; flex-direction: column; gap: 12px; }
-        .user-card {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
-        }
-        .user-card:first-child { 
-            background: linear-gradient(90deg, rgba(255, 45, 85, 0.1) 0%, rgba(22, 22, 37, 1) 100%);
-            border: 1px solid rgba(255, 45, 85, 0.3);
-        }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .rank-badge {
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-            border-radius: 8px; font-size: 0.7rem; font-weight: 900; background: rgba(255,255,255,0.1);
-        }
-        .rank-1 { background: gold !important; color: black; }
-        .rank-2 { background: silver !important; color: black; }
-        .rank-3 { background: #cd7f32 !important; color: black; }
-        .user-avatar-mini { 
-            width: 38px; height: 38px; border-radius: 12px; background: var(--code-bg); 
-            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .user-name { font-weight: 700; font-size: 0.9rem; }
-        .user-reqs { font-weight: 800; color: var(--neon-blue); font-size: 0.75rem; background: rgba(0,243,255,0.1); padding: 5px 12px; border-radius: 10px; }
-        .footer { 
-            text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
-            font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
-            border-bottom: 3px solid transparent; 
-        }
-        .footer:active { 
-            border-bottom: 3px solid var(--neon-pink); 
-            background: rgba(255, 45, 85, 0.05);
-            color: var(--text-main);
-        }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
-        .overlay.active { display: block; }
-    </style>
-</head>
-<body>
+const express = require('express');
+const path = require('path');
+const fs = require('fs-extra');
+const app = express();
 
-    <div id="preloader">
-        <div class="spinner"></div>
-        <div class="loading-text">Cargando API...</div>
-    </div>
+global.serverStart = Date.now();
 
-    <header>
-        <div class="brand" onclick="location.href='/'">KAZUMA <span>DASH</span></div>
-        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
-    </header>
+const PORT = process.env.PORT || 3032;
+const dbPath = path.join(process.cwd(), 'data', 'database.json');
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+const authRoutes = require('./routes/auth');
+const statsRoutes = require('./routes/stats');
+const adminRoutes = require('./routes/admin');
+const tiktokRoutes = require('./routes/tiktok');
+const tiktokSearchRoute = require('./routes/search/tiktok');
+const instagramRoutes = require('./routes/instagramvid');
+const facebookRoutes = require('./routes/facebookvid');
+const twitterRoutes = require('./routes/twitter');
+const qrcodeRoutes = require('./routes/qrcode');
+const geminiRoutes = require('./routes/ai/gemini');
+const { youtubeRoute } = require('./routes/youtube'); 
+const { pinterestRoute } = require('./routes/pinterest');
+const { pinterestSearchRoute } = require('./routes/search/pinterest');
 
-    <nav class="sidebar" id="sidebar">
-        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
-        <div id="admin-nav" style="display:none;">
-            <p class="nav-category">Staff Control</p>
-            <div class="sidebar-link" style="border-left: 4px solid #fbbf24;" onclick="location.href='/admin'"><i class="fas fa-user-shield"></i> Panel Admin</div>
-        </div>
-        <p class="nav-category">Menú Principal</p>
-        <div class="sidebar-link" onclick="showCategory('inicio')"><i class="fas fa-th-large"></i> Dashboard</div>
-        <div class="sidebar-link" onclick="location.href='/profile'"><i class="fas fa-user-circle"></i> Mi Perfil</div>
-        <p class="nav-category">Servicios API</p>
-        <div class="sidebar-link" onclick="location.href='/endpoints/descargas'"><i class="fas fa-cloud-download-alt"></i> Descargas</div>
-        <div class="sidebar-link" onclick="location.href='/endpoints/search'"><i class="fas fa-search"></i> Búsquedas</div>
-        <div class="sidebar-link" onclick="location.href='/endpoints/tools'"><i class="fas fa-tools"></i> Herramientas</div>
-        <div class="sidebar-link" style="margin-top:30px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
-    </nav>
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-    <div class="container" id="content-area"></div>
+const securityMiddleware = async (req, res, next) => {
+    const isApiRoute = req.path.startsWith('/api/');
+    const isPublicApi = 
+        req.path.includes('/auth') || 
+        req.path.includes('/stats') || 
+        req.path.includes('/admin') || 
+        req.path === '/api';
 
-    <footer class="footer" onclick="location.href='https://kazuma.giize.com'">
-        <p>Copyright © 2026 API Kazuma. All rights reserved.<br>Powered by PixelCrew-Team.</p>
-    </footer>
+    if (isApiRoute && !isPublicApi) {
+        const apikey = req.query.apikey || req.headers['x-api-key'];
+        if (!apikey) return res.status(403).json({ status: false, message: "API Key requerida" });
 
-    <script>
-        const user = JSON.parse(localStorage.getItem('userSession'));
-        if (!user) window.location.href = '/login';
+        try {
+            const db = await fs.readJson(dbPath);
+            const userIndex = db.users.findIndex(u => u.apikey === apikey);
 
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
+            if (userIndex === -1) return res.status(403).json({ status: false, message: "API Key inválida" });
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/login';
-        }
+            const user = db.users[userIndex];
+            const today = new Date().toISOString().split('T')[0];
 
-        function formatUptime(startTime) {
-            const now = Date.now();
-            const diff = now - startTime;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-            let uptimeStr = "";
-            if (days > 0) uptimeStr += `${days}d `;
-            uptimeStr += `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-            return uptimeStr;
-        }
-
-        const categories = {
-            inicio: async (stats) => {
-                const serverStart = stats.serverStart || Date.now(); 
-
-                const topList = stats.topUsers.length > 0 
-                    ? stats.topUsers.map((u, i) => `
-                        <div class="user-card">
-                            <div class="user-info">
-                                <div class="rank-badge rank-${i+1}">#${i+1}</div>
-                                <div class="user-avatar-mini">${u.username.substring(0,1).toUpperCase()}</div>
-                                <span class="user-name">${u.username}</span>
-                            </div>
-                            <span class="user-reqs">${u.requests.toLocaleString()} reqs</span>
-                        </div>
-                    `).join('') 
-                    : '<p style="text-align:center; color:gray; font-size:0.8rem;">Esperando actividad...</p>';
-
-                return `
-                <section class="hero">
-                    <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
-                    <h1>SISTEMA <span>ACTIVO</span></h1>
-                    <p style="color:var(--text-muted); font-size: 0.8rem; font-weight:700; margin-top:5px;">USUARIO: ${user.username.toUpperCase()}</p>
-                </section>
-                <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Información de Plataforma</p>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <i class="fas fa-chart-line"></i>
-                            <div class="stat-label">Solicitudes Totales (Global)</div>
-                            <div class="stat-value">${stats.totalRequests.toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box" style="border-left-color: var(--neon-pink);">
-                            <i class="fas fa-clock"></i>
-                            <div class="stat-label">Tiempo de Actividad (Uptime)</div>
-                            <div id="server-uptime" class="stat-value" style="color: var(--neon-pink);">${formatUptime(serverStart)}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="api-card">
-                    <p class="nav-category" style="margin-top:0">Top 5 Master Users</p>
-                    <div class="top-users-container">
-                        ${topList}
-                    </div>
-                </div>`;
-            }
-        };
-
-        let uptimeInterval;
-        async function showCategory(cat) {
-            clearInterval(uptimeInterval);
-            const area = document.getElementById('content-area');
-            const preloader = document.getElementById('preloader');
-            
-            preloader.style.display = 'flex';
-            preloader.style.opacity = '1';
-
-            try {
-                // Fetch de datos primero
-                const res = await fetch('/api/stats/global');
-                const stats = await res.json();
-                
-                // Generar contenido pasando los stats
-                const content = (cat === 'inicio') ? await categories.inicio(stats) : categories[cat];
-                area.innerHTML = content;
-
-                if (cat === 'inicio') {
-                    // Usar el tiempo exacto que mandó el servidor
-                    const serverStart = stats.serverStart;
-                    uptimeInterval = setInterval(() => {
-                        const el = document.getElementById('server-uptime');
-                        if (el) el.innerText = formatUptime(serverStart);
-                    }, 1000);
-                }
-            } catch (e) {
-                area.innerHTML = "<p style='text-align:center;'>Error de carga.</p>";
+            if (user.last_reset !== today) {
+                user.requests_today = 0;
+                user.last_reset = today;
             }
 
-            setTimeout(() => {
-                preloader.style.opacity = '0';
-                setTimeout(() => { preloader.style.display = 'none'; }, 500);
-            }, 1300);
+            if (user.requests_today >= user.limit) {
+                return res.status(429).json({ status: false, message: "Límite diario alcanzado" });
+            }
 
-            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+            user.requests_today += 1;
+            user.total_requests += 1;
+            await fs.writeJson(dbPath, db, { spaces: 4 });
+        } catch (error) {
+            return res.status(500).json({ status: false, message: "Error DB" });
         }
+    }
+    next();
+};
 
-        window.onload = () => {
-            if (user.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
-            showCategory('inicio');
-        };
-    </script>
-</body>
-</html>
+app.use(securityMiddleware);
+
+app.use('/api/auth', authRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/download/tiktok', tiktokRoutes);
+app.use('/api/search/tiktok', tiktokSearchRoute);
+app.use('/api/download/instagram', instagramRoutes);
+app.use('/api/download/facebook', facebookRoutes);
+app.use('/api/download/twitter', twitterRoutes);
+app.use('/api/tools/qr', qrcodeRoutes);
+
+const geminiGet = geminiRoutes.find(r => r.metode === "GET");
+const geminiPost = geminiRoutes.find(r => r.metode === "POST");
+
+app.get('/api/ai/gemini', (req, res) => {
+    geminiGet.run({ req }).then(result => res.json(result)).catch(err => res.status(500).json({ status: false, error: err.message }));
+});
+
+app.post('/api/ai/gemini', (req, res) => {
+    const guf = async (request, field) => {
+        if (request.file) return { file: request.file.buffer, name: request.file.originalname, isValid: true };
+        return { file: null, isValid: false };
+    };
+    geminiPost.run({ req, guf }).then(result => res.json(result)).catch(err => res.status(500).json({ status: false, error: err.message }));
+});
+
+app.use('/api/download/youtube', (req, res) => youtubeRoute.run(req, res));
+app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
+app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
+
+app.get('/api', (req, res) => {
+    res.json({
+        status: true,
+        message: 'Api Kazuma activa',
+        creator: 'Félix Ofc',
+        serverStart: global.serverStart,
+        endpoints: {
+            gemini: '/api/ai/gemini?text=QUERY&cookie=COOKIE&apikey=TU_KEY',
+            tiktok: '/api/download/tiktok?url=URL&apikey=TU_KEY',
+            tiktok_search: '/api/search/tiktok?query=TEXTO&apikey=TU_KEY',
+            instagram: '/api/download/instagram?url=URL&apikey=TU_KEY',
+            facebook: '/api/download/facebook?url=URL&apikey=TU_KEY',
+            twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
+            pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
+            pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
+            youtube: '/api/download/youtube?query=URL_O_TEXTO&apikey=TU_KEY',
+            qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY'
+        }
+    });
+});
+
+app.get(['/login', '/register', '/profile', '/admin', '/search'], (req, res) => {
+    const page = req.path.split('/')[1];
+    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+});
+
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Api Kazuma corriendo en puerto ${PORT}`);
+});
