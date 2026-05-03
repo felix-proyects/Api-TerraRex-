@@ -39,14 +39,6 @@
     <h2>DESCARGAS</h2>
 
     <div class="api-card">
-        <div class="endpoint-title"><i class="fab fa-youtube"></i> YOUTUBE (Search & Download)</div>
-        <div class="code-box" id="yt-path">GET /api/download/youtube?query=</div>
-        <input id="in-yt" class="input-test" placeholder="URL de video o nombre de la canción...">
-        <button class="btn-test" onclick="testApi('yt', '/api/download/youtube', 'query')">Probar YouTube</button>
-        <div id="res-yt" class="result-box">...</div>
-    </div>
-
-    <div class="api-card">
         <div class="endpoint-title"><i class="fab fa-tiktok"></i> TIKTOK</div>
         <div class="code-box" id="tt-path">GET /api/download/tiktok?url=</div>
         <input id="in-tt" class="input-test" placeholder="URL de TikTok...">
@@ -93,7 +85,7 @@
     if (!user) window.location.href = '/login';
 
     window.onload = () => {
-        const ids = ['yt', 'tt', 'ig', 'fb', 'tw', 'pin'];
+        const ids = ['tt', 'ig', 'fb', 'tw', 'pin'];
         ids.forEach(id => {
             const el = document.getElementById(`${id}-path`);
             if(el) el.innerText += `&apikey=${user.apikey}`;
@@ -103,7 +95,7 @@
     async function testApi(id, route, paramName = 'url') {
         const queryValue = document.getElementById(`in-${id}`).value;
         const resBox = document.getElementById(`res-${id}`);
-        if (!queryValue) return alert("Ingresa un dato para procesar");
+        if (!queryValue) return alert("Ingresa una URL");
         resBox.innerHTML = "PROCESANDO...";
         try {
             const response = await fetch(`${route}?${paramName}=${queryValue}&apikey=${user.apikey}`);
