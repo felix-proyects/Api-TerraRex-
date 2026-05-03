@@ -18,7 +18,6 @@ const facebookRoutes = require('./routes/facebookvid');
 const twitterRoutes = require('./routes/twitter');
 const qrcodeRoutes = require('./routes/qrcode');
 const geminiRoutes = require('./routes/ai/gemini');
-const { youtubeRoute } = require('./routes/youtube'); 
 const { pinterestRoute } = require('./routes/pinterest');
 const { pinterestSearchRoute } = require('./routes/search/pinterest');
 const { sswebRoute } = require('./routes/tools/ssweb');
@@ -82,7 +81,6 @@ app.post('/api/ai/gemini', (req, res) => {
     geminiPost.run({ req, guf }).then(result => res.json(result)).catch(err => res.status(500).json({ status: false, error: err.message }));
 });
 
-app.use('/api/download/ytplay', (req, res) => youtubeRoute.run(req, res));
 app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
 app.use('/api/tools/ssweb', (req, res) => sswebRoute.run(req, res));
@@ -102,7 +100,6 @@ app.get('/api', (req, res) => {
             twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
             pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
             pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
-            ytplay: '/api/download/ytplay?q=TEXTO&apikey=TU_KEY',
             qrcode: '/api/tools/qr?text=TEXTO&apikey=TU_KEY',
             ssweb: '/api/tools/ssweb?url=URL&theme=dark&device=desktop&apikey=TU_KEY'
         }
