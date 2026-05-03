@@ -20,13 +20,13 @@
         .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
         .api-card { background: var(--card-bg); border-radius: 24px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .code-box { background: #0d0d1a; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 0.75rem; color: var(--neon-blue); margin: 15px 0; border: 1px solid rgba(0,243,255,0.1); word-break: break-all; }
-        .input-test { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box; }
+        .input-label { font-size: 0.7rem; color: var(--neon-blue); margin-bottom: 5px; display: block; font-weight: 700; text-transform: uppercase; }
+        .input-test { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; color: white; margin-bottom: 15px; outline: none; box-sizing: border-box; }
         .btn-test { background: var(--neon-pink); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
         .result-box { background: #05050a; color: #00ffcc; padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 0.7rem; font-family: monospace; border: 1px solid rgba(0, 255, 204, 0.1); white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
         h2 { border-left: 5px solid var(--neon-pink); padding-left: 15px; font-weight: 900; text-transform: uppercase; }
         .endpoint-title { font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .endpoint-title i { color: var(--neon-pink); }
-        .badge { background: var(--neon-blue); color: #000; padding: 2px 8px; border-radius: 5px; font-size: 0.6rem; font-weight: 900; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -41,16 +41,16 @@
 
     <div class="api-card">
         <div class="endpoint-title">
-            <i class="fas fa-robot"></i> GEMINI AI <span class="badge">GOOGLE</span>
+            <i class="fas fa-robot"></i> GEMINI AI
         </div>
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
-            Interactúa con el modelo avanzado de Gemini. Soporta preguntas y respuestas fluidas.
-        </p>
         
         <div class="code-box" id="gemini-path">GET /api/ai/gemini?text=</div>
         
-        <input id="in-gemini-text" class="input-test" placeholder="Escribe tu pregunta aquí...">
-        <input id="in-gemini-cookie" class="input-test" placeholder="Cookie de sesión (Opcional)...">
+        <span class="input-label">Pregunta</span>
+        <input id="in-gemini-text" class="input-test" placeholder="Escribe tu pregunta...">
+        
+        <span class="input-label">Cookie de Sesión (Obligatorio)</span>
+        <input id="in-gemini-cookie" class="input-test" value="cookie" placeholder="Escribe la cookie...">
         
         <button class="btn-test" onclick="testGemini()">Consultar Gemini</button>
         
@@ -64,7 +64,7 @@
 
     window.onload = () => {
         const el = document.getElementById(`gemini-path`);
-        if(el) el.innerText += `&apikey=${user.apikey}`;
+        if(el) el.innerText += `&cookie=...&apikey=${user.apikey}`;
     };
 
     async function testGemini() {
@@ -73,23 +73,19 @@
         const resBox = document.getElementById('res-gemini');
         
         if (!queryText) return alert("Ingresa un texto para la IA");
+        if (!queryCookie) return alert("La Cookie es obligatoria para procesar la petición");
         
         resBox.innerHTML = "PENSANDO...";
         
         try {
-            // Construimos la URL base
-            let url = `/api/ai/gemini?text=${encodeURIComponent(queryText)}&apikey=${user.apikey}`;
-            
-            // Si el usuario puso una cookie, la añadimos
-            if (queryCookie) {
-                url += `&cookie=${encodeURIComponent(queryCookie)}`;
-            }
+            // URL con ambos parámetros obligatorios
+            const url = `/api/ai/gemini?text=${encodeURIComponent(queryText)}&cookie=${encodeURIComponent(queryCookie)}&apikey=${user.apikey}`;
 
             const response = await fetch(url);
             const data = await response.json();
             resBox.innerHTML = JSON.stringify(data, null, 2);
         } catch (err) { 
-            resBox.innerHTML = "ERROR DE CONEXIÓN CON EL SERVIDOR"; 
+            resBox.innerHTML = "ERROR DE CONEXIÓN"; 
         }
     }
 </script>
