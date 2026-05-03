@@ -256,21 +256,22 @@
 
         let uptimeInterval;
         async function showCategory(cat) {
-            const startTime = Date.now();
             clearInterval(uptimeInterval);
             const area = document.getElementById('content-area');
             const preloader = document.getElementById('preloader');
 
+            // Reset del loader antes de cargar
+            preloader.style.display = 'flex';
+            preloader.style.opacity = '1';
+
             const content = typeof categories[cat] === 'function' ? await categories[cat]() : categories[cat];
             area.innerHTML = content;
 
-            const elapsedTime = Date.now() - startTime;
-            const remainingTime = Math.max(0, 4000 - elapsedTime);
-
+            // Loader exactamente 1.3 segundos (1300ms)
             setTimeout(() => {
                 preloader.style.opacity = '0';
                 setTimeout(() => { preloader.style.display = 'none'; }, 500);
-            }, remainingTime);
+            }, 1300);
 
             if (cat === 'inicio') {
                 const res = await fetch('/api/stats/global');
