@@ -23,7 +23,6 @@ const { pinterestRoute } = require('./routes/pinterest');
 const { pinterestSearchRoute } = require('./routes/search/pinterest');
 
 const spotifyRoutes = require('./routes/download/spotify');
-const spotifyV2Routes = require('./routes/download/spotifyv2');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -79,7 +78,6 @@ app.use('/api/download/instagram', instagramRoutes);
 app.use('/api/download/facebook', facebookRoutes);
 app.use('/api/download/twitter', twitterRoutes);
 app.use('/api/download/spotify', spotifyRoutes);
-app.use('/api/download/spotifyv2', spotifyV2Routes);
 app.use('/api/tools/qr', qrcodeRoutes);
 
 const geminiGet = geminiRoutes.find(r => r.metode === "GET");
@@ -115,7 +113,6 @@ app.get('/api', (req, res) => {
             facebook: '/api/download/facebook?url=URL&apikey=TU_KEY',
             twitter: '/api/download/twitter?url=URL&apikey=TU_KEY',
             spotify: '/api/download/spotify?url=URL&apikey=TU_KEY',
-            spotifyv2: '/api/download/spotifyv2?url=URL&apikey=TU_KEY',
             pinterest_dl: '/api/download/pinterest?url=URL&apikey=TU_KEY',
             pinterest_search: '/api/search/pinterest?query=QUERY&type=image&apikey=TU_KEY',
             youtube: '/api/download/youtube?query=URL_O_TEXTO&apikey=TU_KEY',
