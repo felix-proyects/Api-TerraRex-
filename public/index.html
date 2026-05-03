@@ -87,7 +87,6 @@
         .stat-box i { position: absolute; right: -5px; bottom: -5px; font-size: 2.5rem; opacity: 0.05; color: var(--neon-blue); }
         .stat-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
         .stat-value { font-size: 1.1rem; font-weight: 900; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
-        .stat-percent { font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 5px; }
         .top-users-container { display: flex; flex-direction: column; gap: 12px; }
         .user-card {
             display: flex; align-items: center; justify-content: space-between;
@@ -194,11 +193,6 @@
         const categories = {
             inicio: async (stats) => {
                 const serverStart = stats.serverStart || Date.now(); 
-                
-                // Calculo de porcentajes
-                const total = stats.totalRequests || 1; 
-                const percSuccess = ((stats.totalSuccess / total) * 100).toFixed(1);
-                const percErrors = ((stats.totalErrors / total) * 100).toFixed(1);
 
                 const topList = stats.topUsers.length > 0 
                     ? stats.topUsers.map((u, i) => `
@@ -236,16 +230,6 @@
                             <i class="fas fa-clock"></i>
                             <div class="stat-label">Uptime Servidor</div>
                             <div id="server-uptime" class="stat-value" style="color: var(--neon-pink);">${formatUptime(serverStart)}</div>
-                        </div>
-                        <div class="stat-box" style="border-left-color: #00ff88;">
-                            <i class="fas fa-check-circle"></i>
-                            <div class="stat-label">Éxitos</div>
-                            <div class="stat-value" style="color: #00ff88;">${stats.totalSuccess.toLocaleString()} <span class="stat-percent">(${percSuccess}%)</span></div>
-                        </div>
-                        <div class="stat-box" style="border-left-color: #ff9500;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div class="stat-label">Errores</div>
-                            <div class="stat-value" style="color: #ff9500;">${stats.totalErrors.toLocaleString()} <span class="stat-percent">(${percErrors}%)</span></div>
                         </div>
                     </div>
                 </div>
