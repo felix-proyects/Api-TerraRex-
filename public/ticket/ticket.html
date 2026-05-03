@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kazuma | Soporte</title>
+    <script>if (!localStorage.getItem('userSession')) window.location.href = '/login';</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
+        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+        .glass { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .chat-container { height: calc(100vh - 190px); overflow-y: auto; scroll-behavior: smooth; }
+        .msg-user { background: var(--neon-pink); border-radius: 18px 18px 0 18px; align-self: flex-end; }
+        .msg-admin { background: #252540; border: 1px solid var(--neon-blue); border-radius: 18px 18px 18px 0; align-self: flex-start; }
+        #safety-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-pink); }
+    </style>
+</head>
+<body class="p-4 flex flex-col h-screen">
+    <div id="safety-overlay"></div>
+
+    <div class="max-w-2xl mx-auto w-full flex flex-col h-full">
+        <header class="glass p-5 rounded-t-3xl flex justify-between items-center border-b border-white/5">
+            <div>
+                <h1 class="font-black text-xl tracking-tighter">SOPORTE <span style="color: var(--neon-pink);">KAZUMA</span></h1>
+                <span id="statusLabel" class="text-[9px] font-bold px-2 py-1 rounded bg-white/5 text-slate-500 uppercase">Verificando...</span>
+            </div>
+            <a href="/dash" class="text-[10px] font-bold bg-white/5 px-4 py-2 rounded-xl border border-white/10">DASHBOARD</a>
+        </header>
+
+        <main id="chatBox" class="glass chat-container p-6 flex flex-col gap-4">
+            </main>
+
+        <footer class="glass p-4 rounded-b-3xl border-t border-white/5">
+            <form id="ticketForm" class="flex gap-2">
+                <input type="text" id="userMsg" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-pink-500 transition text-sm" placeholder="Escribe tu problema..." required>
+                <button type="submit" class="bg-[#ff2d55] w-14 rounded-xl flex items-center justify-center hover:scale-95 transition">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <script>
+        const session = JSON.parse(localStorage.getItem('userSession'));
+        const chatBox = document.getElementById('chatBox');
+
+        window.onload = () => {
+            document.getElementById('safety-overlay').style.display = 'none';
+            syncMessages();
+            setInterval(syncMessages, 3000);
+        };
+
+        async function syncMessages() {
+            try {
+                const res = await fetch(`/api/tickets/my-ticket?email=${session.email}`);
+                const data = await res.json();
+                const label = document.getElementById('statusLabel');
+
+                if (data.status && data.ticket) {
+                    label.innerText = data.ticket.open ? 'Estado: Abierto' : 'Estado: Cerrado';
+                    label.style.color = data.ticket.open ? '#00f3ff' : '#ff2d55';
+
+                    if (!data.ticket.open) {
+                        document.getElementById('userMsg').disabled = true;
+                        document.getElementById('userMsg').placeholder = "Ticket cerrado.";
+                    }
+
+                    chatBox.innerHTML = data.messages.map(m => `
+                        <div class="max-w-[85%] p-4 text-sm ${m.role === 'admin' ? 'msg-admin' : 'msg-user'}">
+                            <p class="text-[10px] mb-1 font-black opacity-40 uppercase">${m.role}</p>
+                            ${m.text}
+                        </div>
+                    `).join('');
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } catch (e) { console.log("Reconectando..."); }
+        }
+
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('userMsg').value;
+            await fetch('/api/tickets/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: session.email, text, username: session.username, role: 'user' })
+            });
+            document.getElementById('userMsg').value = '';
+            syncMessages();
+        });
+    </script>
+</body>
+</html>
