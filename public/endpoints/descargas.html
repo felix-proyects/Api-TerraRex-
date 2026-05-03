@@ -78,6 +78,22 @@
         <div id="res-pin" class="result-box">...</div>
     </div>
 
+    <div class="api-card">
+        <div class="endpoint-title"><i class="fab fa-spotify"></i> SPOTIFY</div>
+        <div class="code-box" id="sp-path">GET /api/download/spotify?url=</div>
+        <input id="in-sp" class="input-test" placeholder="URL de Spotify...">
+        <button class="btn-test" onclick="testApi('sp', '/api/download/spotify')">Probar Spotify</button>
+        <div id="res-sp" class="result-box">...</div>
+    </div>
+
+    <div class="api-card">
+        <div class="endpoint-title"><i class="fab fa-spotify"></i> SPOTIFY V2</div>
+        <div class="code-box" id="sp2-path">GET /api/download/spotifyv2?url=</div>
+        <input id="in-sp2" class="input-test" placeholder="URL de Spotify (V2)...">
+        <button class="btn-test" onclick="testApi('sp2', '/api/download/spotifyv2')">Probar Spotify V2</button>
+        <div id="res-sp2" class="result-box">...</div>
+    </div>
+
 </div>
 
 <script>
@@ -85,7 +101,7 @@
     if (!user) window.location.href = '/login';
 
     window.onload = () => {
-        const ids = ['tt', 'ig', 'fb', 'tw', 'pin'];
+        const ids = ['tt', 'ig', 'fb', 'tw', 'pin', 'sp', 'sp2'];
         ids.forEach(id => {
             const el = document.getElementById(`${id}-path`);
             if(el) el.innerText += `&apikey=${user.apikey}`;
