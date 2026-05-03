@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs-extra');
 const app = express();
 
+const serverStartTime = Date.now();
+
 const PORT = process.env.PORT || 3032;
 const dbPath = path.join(process.cwd(), 'data', 'database.json');
 
@@ -99,6 +101,7 @@ app.get('/api', (req, res) => {
         status: true,
         message: 'Api Kazuma activa',
         creator: 'Félix Ofc',
+        serverStart: serverStartTime, // ENVIAMOS EL TIEMPO AL DASHBOARD
         endpoints: {
             gemini: '/api/ai/gemini?text=QUERY&cookie=COOKIE&apikey=TU_KEY',
             tiktok: '/api/download/tiktok?url=URL&apikey=TU_KEY',
