@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Registro</title>
     
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <script>
         if (localStorage.getItem('userSession')) {
             window.location.href = '/dash';
@@ -22,6 +24,13 @@
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         .btn-pink:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* Ajuste para centrar el CAPTCHA */
+        .g-recaptcha {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -60,6 +69,8 @@
                 </label>
             </div>
 
+            <div class="g-recaptcha" data-sitekey="6LdXGtksAAAAALKBc6v456iXHe6Kki5EkaYwrFEu" data-theme="dark"></div>
+
             <button type="submit" class="btn-pink w-full font-black py-4 rounded-xl shadow-lg mt-2">Crear Cuenta</button>
         </form>
 
@@ -74,11 +85,9 @@
 
     <script>
         window.onload = () => {
-            // Si ya está logueado, redirigir a dash
             if (localStorage.getItem('userSession')) {
                 window.location.href = '/dash';
             } 
-            // Si ya tiene cuenta pero no sesión, avisar y mandar a login
             else if (localStorage.getItem('hasAccount')) {
                 alert('Ya tienes una cuenta registrada. Por favor, inicia sesión.');
                 window.location.href = '/login.html';
@@ -97,6 +106,14 @@
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Validación del reCAPTCHA
+            const captchaResponse = grecaptcha.getResponse();
+            if (!captchaResponse) {
+                alert('Por favor, completa el CAPTCHA para continuar.');
+                return;
+            }
+
             const pass = document.getElementById('password').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
@@ -105,7 +122,8 @@
             const userData = {
                 username: document.getElementById('username').value,
                 email: document.getElementById('email').value,
-                password: pass
+                password: pass,
+                captchaToken: captchaResponse // Enviamos el token al servidor
             };
 
             try {
@@ -121,6 +139,7 @@
                     alert('Registro exitoso.');
                     window.location.href = '/login.html';
                 } else {
+                    grecaptcha.reset(); // Reinicia el captcha si hay error (ej: usuario ya existe)
                     alert(data.message || 'Error al registrar.');
                 }
             } catch (error) { 
