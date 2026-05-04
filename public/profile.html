@@ -6,6 +6,7 @@
     <title>Kazuma | Mi Perfil</title>
 
     <script src="https://www.google.com/recaptcha/api.js?render=6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +17,6 @@
             --dark-bg: #0d0d0d;
         }
 
-        /* DISEÑO DE LA BOLITA (IGUAL AL DASH) */
         .grecaptcha-badge { 
             width: 70px !important; 
             right: 0px !important; 
@@ -73,7 +73,7 @@
 <body class="min-h-screen flex flex-col">
 
     <header class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
-        <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span>PROFILER</span></div>
+        <div class="font-bold text-xl uppercase tracking-tighter" onclick="location.href='/dash'" style="cursor:pointer">KAZUMA <span>PROFILER</span></div>
         <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
             <i class="fas fa-arrow-left mr-2"></i> INICIO
         </button>
@@ -156,7 +156,6 @@
         const session = JSON.parse(localStorage.getItem('userSession'));
         if (!session) window.location.href = '/login.html';
 
-        // INICIALIZAR PROTECCIÓN RECAPTCHA V3
         grecaptcha.ready(function() {
             grecaptcha.execute('6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa', {action: 'profile_load'}).then(function(token) {
                 console.log("Security Active");
@@ -167,8 +166,22 @@
             try {
                 const res = await fetch(`/api/auth/user/${session.id}`);
                 const data = await res.json();
+                
                 if (data.status) {
                     const u = data.user;
+
+                    // VERIFICACIÓN DE SEGURIDAD
+                    if (u.verified === false) {
+                        localStorage.setItem('pending_id', session.id);
+                        await fetch('/api/auth/resend', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: session.id })
+                        });
+                        window.location.href = `/verify.html?id=${session.id}`;
+                        return;
+                    }
+
                     document.getElementById('view-username').innerText = u.username.toUpperCase();
                     document.getElementById('view-id').innerText = `ID: ${u.id}`;
                     document.getElementById('view-apikey').value = u.apikey;
@@ -186,19 +199,28 @@
         async function updateData(type) {
             const inputId = type === 'username' ? 'new-username' : (type === 'email' ? 'new-email' : 'new-pass');
             const val = document.getElementById(inputId).value;
-            if (!val) return alert("Completa el campo");
+            if (!val) return Swal.fire('Atención', 'Por favor, completa el campo.', 'warning');
             
-            const res = await fetch(`/api/auth/update`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: session.id, type, value: val })
-            });
-            if ((await res.json()).status) {
-                if(type === 'username') {
-                    session.username = val;
-                    localStorage.setItem('userSession', JSON.stringify(session));
+            try {
+                const res = await fetch(`/api/auth/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: session.id, type, value: val })
+                });
+                const data = await res.json();
+                if (data.status) {
+                    if(type === 'username') {
+                        session.username = val;
+                        localStorage.setItem('userSession', JSON.stringify(session));
+                    }
+                    Swal.fire('Éxito', 'Información actualizada correctamente.', 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo actualizar.', 'error');
                 }
-                location.reload();
+            } catch (error) {
+                Swal.fire('Error', 'Fallo de conexión.', 'error');
             }
         }
 
@@ -206,19 +228,43 @@
             const keyInput = document.getElementById('view-apikey');
             keyInput.select();
             document.execCommand('copy');
-            alert("API KEY COPIADA");
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'API KEY Copiada',
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#161625',
+                color: '#fff'
+            });
         }
 
         function logout() { localStorage.clear(); window.location.href = '/login.html'; }
 
         async function deleteAccount() {
-            if (!confirm("¿ESTÁS SEGURO DE ELIMINAR TU CUENTA?")) return;
-            const res = await fetch(`/api/auth/delete`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: session.id })
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción eliminará tu cuenta permanentemente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff2d55',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
             });
-            if ((await res.json()).status) { localStorage.clear(); window.location.href = '/register.html'; }
+
+            if (result.isConfirmed) {
+                const res = await fetch(`/api/auth/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: session.id })
+                });
+                if ((await res.json()).status) { 
+                    localStorage.clear(); 
+                    window.location.href = '/register.html'; 
+                }
+            }
         }
 
         window.onload = loadProfile;
