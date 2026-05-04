@@ -14,6 +14,7 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
@@ -25,7 +26,6 @@
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         .btn-pink:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* Ajuste para centrar el CAPTCHA */
         .g-recaptcha {
             display: flex;
             justify-content: center;
@@ -87,12 +87,7 @@
         window.onload = () => {
             if (localStorage.getItem('userSession')) {
                 window.location.href = '/dash';
-            } 
-            else if (localStorage.getItem('hasAccount')) {
-                alert('Ya tienes una cuenta registrada. Por favor, inicia sesión.');
-                window.location.href = '/login.html';
-            } 
-            else {
+            } else {
                 document.getElementById('safety-overlay').style.display = 'none';
             }
         };
@@ -107,23 +102,25 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Validación del reCAPTCHA
             const captchaResponse = grecaptcha.getResponse();
             if (!captchaResponse) {
-                alert('Por favor, completa el CAPTCHA para continuar.');
+                Swal.fire('Atención', 'Por favor, completa el CAPTCHA.', 'warning');
                 return;
             }
 
             const pass = document.getElementById('password').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
-            if (pass !== confirmPass) return alert('Las contraseñas no coinciden.');
+            if (pass !== confirmPass) {
+                Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
+                return;
+            }
 
             const userData = {
                 username: document.getElementById('username').value,
                 email: document.getElementById('email').value,
                 password: pass,
-                captchaToken: captchaResponse // Enviamos el token al servidor
+                captchaToken: captchaResponse
             };
 
             try {
@@ -135,15 +132,21 @@
                 const data = await response.json();
                 
                 if (data.status) {
-                    localStorage.setItem('hasAccount', 'true');
-                    alert('Registro exitoso.');
-                    window.location.href = '/login.html';
+                    localStorage.setItem('pending_id', data.id);
+                    Swal.fire({
+                        title: '¡Casi listo!',
+                        text: 'Se ha enviado un código de verificación a tu correo.',
+                        icon: 'success',
+                        confirmButtonColor: '#ff2d55'
+                    }).then(() => {
+                        window.location.href = `/verify.html?id=${data.id}`;
+                    });
                 } else {
-                    grecaptcha.reset(); // Reinicia el captcha si hay error (ej: usuario ya existe)
-                    alert(data.message || 'Error al registrar.');
+                    grecaptcha.reset();
+                    Swal.fire('Error', data.message || 'Error al registrar.', 'error');
                 }
             } catch (error) { 
-                alert('Error de conexión con el servidor.'); 
+                Swal.fire('Error', 'Fallo en la conexión con el servidor.', 'error');
             }
         });
     </script>
