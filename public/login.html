@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Login</title>
-    
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <script>
         if (localStorage.getItem('userSession')) {
             window.location.href = '/dash';
@@ -24,6 +26,13 @@
         .glass { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; }
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Ajuste para que el reCAPTCHA se vea bien en el modo oscuro */
+        .g-recaptcha {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -36,13 +45,13 @@
             <h2 class="text-3xl font-black tracking-tighter">KAZUMA <span style="color: var(--neon-pink);">LOGIN</span></h2>
             <p class="text-slate-500 text-sm mt-1">Ingresa a tu panel de control</p>
         </div>
-        
+
         <form id="loginForm" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Correo Electrónico</label>
                 <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="correo@ejemplo.com" required>
             </div>
-            
+
             <div class="relative">
                 <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Contraseña</label>
                 <input type="password" id="password" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
@@ -55,6 +64,8 @@
                     Acepto los <a href="/tos/terms" class="font-bold" style="color: var(--neon-blue);">términos y condiciones</a>
                 </label>
             </div>
+
+            <div class="g-recaptcha" data-sitekey="6LdXGtksAAAAALKBc6v456iXHe6Kki5EkaYwrFEu" data-theme="dark"></div>
 
             <button type="submit" class="btn-pink w-full font-black py-4 rounded-xl shadow-lg mt-2">Iniciar Sesión</button>
         </form>
@@ -86,13 +97,23 @@
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Obtenemos el token del reCAPTCHA
+            const captchaResponse = grecaptcha.getResponse();
+
+            if (!captchaResponse) {
+                alert('Por favor, completa el CAPTCHA.');
+                return;
+            }
+
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: document.getElementById('email').value,
-                        password: document.getElementById('password').value
+                        password: document.getElementById('password').value,
+                        captchaToken: captchaResponse // Enviamos el token al servidor
                     })
                 });
                 const data = await response.json();
@@ -100,6 +121,7 @@
                     localStorage.setItem('userSession', JSON.stringify(data.user));
                     window.location.href = '/dash';
                 } else {
+                    grecaptcha.reset(); // Reinicia el captcha si el login falla
                     alert(data.message || 'Error.');
                 }
             } catch (error) {
