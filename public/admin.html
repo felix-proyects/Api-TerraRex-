@@ -6,7 +6,9 @@
     <title>Kazuma | Staff Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // BLOQUEO DE ENTRADA INICIAL
         (function() {
             const session = JSON.parse(localStorage.getItem('userSession'));
             if (!session || session.role !== 'admin') {
@@ -34,6 +36,9 @@
         tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         tr:hover { background: rgba(255,255,255,0.02); }
         
+        .badge-verified { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2); }
+        .badge-pending { background: rgba(255, 171, 0, 0.1); color: #ffab00; border: 1px solid rgba(255, 171, 0, 0.2); }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0d0d0d; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
@@ -44,7 +49,7 @@
 
     <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
         <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span class="text-[#ff2d55]">STAFF</span></div>
-        <button onclick="location.href='/index.html'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
+        <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
             <i class="fas fa-arrow-left mr-2"></i> Dashboard
         </button>
     </header>
@@ -69,10 +74,6 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            <div class="flex gap-2">
-                <button onclick="loadUsers('all')" class="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600/30 transition">Todos</button>
-                <button onclick="loadUsers('admins')" class="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-600/30 transition">Admins</button>
-            </div>
         </div>
 
         <div class="glass rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
@@ -81,8 +82,8 @@
                     <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-400">
                         <tr>
                             <th class="p-5 font-black">Usuario / Email</th>
-                            <th class="p-5 font-black">Rango</th>
-                            <th class="p-5 font-black">Consumo Diario</th>
+                            <th class="p-5 font-black">Estado</th>
+                            <th class="p-5 font-black">Consumo</th>
                             <th class="p-5 text-center font-black">Acción</th>
                         </tr>
                     </thead>
@@ -98,27 +99,18 @@
             <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition">
                 <i class="fas fa-times text-xl"></i>
             </button>
-            <h2 class="text-2xl font-black mb-2 text-[#ff2d55] tracking-tighter">SOPORTE TÉCNICO</h2>
-            <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest font-bold">Gestión de Perfil</p>
+            <h2 class="text-2xl font-black mb-2 text-[#ff2d55] tracking-tighter uppercase">Gestión Staff</h2>
+            <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest font-bold">Modificar Privilegios</p>
 
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="edit-id">
-                <div class="grid grid-cols-1 gap-4">
-                    <div>
-                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Nombre de Usuario</label>
-                        <input type="text" id="edit-username" class="input-dark w-full p-3 rounded-xl outline-none focus:border-[#ff2d55]">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Correo Electrónico</label>
-                        <input type="email" id="edit-email" class="input-dark w-full p-3 rounded-xl outline-none focus:border-[#ff2d55]">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-yellow-500 uppercase font-black block mb-1">Contraseña</label>
-                        <div class="relative">
-                            <input type="text" id="edit-password" class="input-dark w-full p-3 rounded-xl outline-none border-yellow-500/20 focus:border-yellow-500">
-                            <i class="fas fa-key absolute right-4 top-4 text-yellow-500/30"></i>
-                        </div>
-                    </div>
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Nombre de Usuario</label>
+                    <input type="text" id="edit-username" class="input-dark w-full p-3 rounded-xl outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Correo Electrónico</label>
+                    <input type="email" id="edit-email" class="input-dark w-full p-3 rounded-xl outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -129,23 +121,13 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Plan</label>
-                        <select id="edit-plan" class="input-dark w-full p-3 rounded-xl outline-none" onchange="toggleLimitInput()">
-                            <option value="100">FREE (100)</option>
-                            <option value="1000">PLAN 1 (1k)</option>
-                            <option value="4000">PLAN 2 (4k)</option>
-                            <option value="custom">CUSTOM</option>
-                        </select>
+                        <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">Límite Diario</label>
+                        <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none">
                     </div>
                 </div>
-                <div id="custom-limit-div" class="hidden">
-                    <label class="text-[10px] text-pink-500 uppercase font-black block mb-1">Límite Manual</label>
-                    <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none border-pink-500/30">
-                </div>
-                <div class="bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5">
-                    <span class="text-[10px] font-black text-gray-400 uppercase">Solicitudes Totales:</span>
-                    <span id="edit-total-requests" class="text-lg font-black text-[#ff2d55]">0</span>
-                </div>
+
+                <div id="delete-zone" class="pt-2"></div>
+
                 <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-black shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest mt-2">
                     Guardar Cambios
                 </button>
@@ -155,69 +137,66 @@
 
     <script>
         const session = JSON.parse(localStorage.getItem('userSession'));
-        
-        if (session && session.role === 'admin') {
-            document.documentElement.classList.add('authorized');
-            document.body.style.visibility = 'visible';
-        }
+        const SUPER_ADMIN_EMAIL = "frasesbebor@gmail.com";
 
-        async function loadUsers(filter = 'all') {
-            const body = document.getElementById('user-table-body');
-            const counter = document.getElementById('total-users-count');
-            body.innerHTML = '<tr><td colspan="4" class="p-16 text-center text-gray-500 animate-pulse font-black tracking-widest uppercase">Cargando Usuarios...</td></tr>';
+        // BLINDAJE DE VERIFICACIÓN PARA ADMINS
+        async function checkAdminStatus() {
             try {
-                const res = await fetch(`/api/admin/users?filter=${filter}`);
+                const res = await fetch(`/api/auth/user/${session.id}`);
                 const data = await res.json();
-                const users = data.users || [];
-                counter.innerText = data.total || users.length;
-                renderTable(users);
-            } catch (e) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500 font-bold uppercase">Error de DB</td></tr>';
+                
+                if (data.user && data.user.verified === false) {
+                    window.location.href = `/verify.html?id=${session.id}`;
+                } else {
+                    document.documentElement.classList.add('authorized');
+                    document.body.style.visibility = 'visible';
+                    loadUsers();
+                }
+            } catch (e) { 
+                window.location.replace('/404.html'); 
             }
         }
 
-        async function searchUser() {
-            const q = document.getElementById('searchQuery').value;
-            if(!q) return loadUsers();
+        async function loadUsers() {
+            const body = document.getElementById('user-table-body');
+            body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-500 animate-pulse uppercase font-black">Cargando DB...</td></tr>';
             try {
-                const res = await fetch(`/api/admin/search?q=${q}`);
+                const res = await fetch(`/api/admin/users`);
                 const data = await res.json();
+                document.getElementById('total-users-count').innerText = data.total || 0;
                 renderTable(data.users || []);
             } catch (e) { console.error(e); }
         }
 
         function renderTable(users) {
             const body = document.getElementById('user-table-body');
-            if (!users || users.length === 0) {
+            if (!users.length) {
                 body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold uppercase">Sin Resultados</td></tr>';
                 return;
             }
             body.innerHTML = users.map(u => {
-                const progress = Math.min(((u.requests_today || 0) / (u.limit || 1)) * 100, 100);
-                const userId = String(u.id);
+                const isSuperAdmin = u.email === SUPER_ADMIN_EMAIL;
+                const canEdit = session.email === SUPER_ADMIN_EMAIL || !isSuperAdmin;
+
                 return `
                 <tr class="hover:bg-white/[0.03] transition-all">
                     <td class="p-5">
-                        <div class="font-black text-white text-base">${u.username}</div>
+                        <div class="font-black ${isSuperAdmin ? 'text-yellow-500' : 'text-white'} text-base">${u.username}</div>
                         <div class="text-[10px] text-gray-500 font-mono tracking-tighter uppercase">${u.email}</div>
                     </td>
                     <td class="p-5">
-                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.role === 'admin' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                            ${u.role.toUpperCase()}
+                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.verified ? 'badge-verified' : 'badge-pending'}">
+                            ${u.verified ? 'VERIFICADO' : 'PENDIENTE'}
                         </span>
                     </td>
-                    <td class="p-5">
-                        <div class="flex items-center gap-3">
-                            <div class="text-xs font-black text-pink-500 whitespace-nowrap">${u.requests_today} / ${u.limit}</div>
-                            <div class="hidden md:block w-full max-w-[80px] h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-pink-500" style="width: ${progress}%"></div>
-                            </div>
-                        </div>
-                    </td>
+                    <td class="p-5 text-xs font-black text-pink-500">${u.requests_today} / ${u.limit}</td>
                     <td class="p-5 text-center">
-                        <button onclick="openEdit('${userId}')" class="bg-white/5 hover:bg-white/10 hover:text-[#ff2d55] w-11 h-11 rounded-2xl transition-all border border-white/5">
-                            <i class="fas fa-user-cog text-xs"></i>
-                        </button>
+                        ${canEdit ? 
+                            `<button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-white/10 hover:text-[#ff2d55] w-11 h-11 rounded-2xl transition-all border border-white/5">
+                                <i class="fas fa-user-cog text-xs"></i>
+                            </button>` : 
+                            `<i class="fas fa-lock text-gray-600"></i>`
+                        }
                     </td>
                 </tr>`;
             }).join('');
@@ -228,34 +207,62 @@
                 const res = await fetch(`/api/admin/search?q=${id}`);
                 const data = await res.json();
                 const u = data.users.find(user => String(user.id) === id);
-                if(!u) return alert("Usuario no encontrado");
+                
+                if (u.email === SUPER_ADMIN_EMAIL && session.email !== SUPER_ADMIN_EMAIL) {
+                    return Swal.fire('Acceso Denegado', 'No puedes gestionar al Super Admin.', 'error');
+                }
+
                 document.getElementById('edit-id').value = u.id;
                 document.getElementById('edit-username').value = u.username;
-                document.getElementById('edit-email').value = u.email || '';
-                document.getElementById('edit-password').value = u.password || '';
+                document.getElementById('edit-email').value = u.email;
                 document.getElementById('edit-role').value = u.role;
-                document.getElementById('edit-total-requests').innerText = u.total_requests || 0;
-                const select = document.getElementById('edit-plan');
-                if([100, 1000, 4000].includes(u.limit)) {
-                    select.value = u.limit;
+                document.getElementById('edit-limit').value = u.limit;
+
+                // LOGICA DEL BOTÓN ELIMINAR
+                const deleteZone = document.getElementById('delete-zone');
+                if (u.email === SUPER_ADMIN_EMAIL) {
+                    deleteZone.innerHTML = ''; 
                 } else {
-                    select.value = 'custom';
-                    document.getElementById('edit-limit').value = u.limit;
+                    deleteZone.innerHTML = `
+                        <button type="button" onclick="deleteUserByAdmin('${u.id}')" class="w-full border border-red-500/30 text-red-500 p-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all mb-2">
+                            <i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta
+                        </button>
+                    `;
                 }
-                toggleLimitInput();
+
                 document.getElementById('editModal').classList.replace('hidden', 'flex');
-            } catch (e) { alert("Error al cargar datos"); }
+            } catch (e) { Swal.fire('Error', 'No se pudo cargar el usuario', 'error'); }
         }
 
-        function toggleLimitInput() {
-            const val = document.getElementById('edit-plan').value;
-            document.getElementById('custom-limit-div').classList.toggle('hidden', val !== 'custom');
+        async function deleteUserByAdmin(targetId) {
+            const result = await Swal.fire({
+                title: '¿CONFIRMAR ELIMINACIÓN?',
+                text: "Esta cuenta será borrada permanentemente de la base de datos.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff2d55',
+                confirmButtonText: 'SÍ, BORRAR',
+                cancelButtonText: 'CANCELAR',
+                background: '#161625',
+                color: '#fff'
+            });
+
+            if (result.isConfirmed) {
+                const res = await fetch('/api/admin/delete-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId: session.id, targetId: targetId })
+                });
+                if ((await res.json()).status) {
+                    Swal.fire('Éxito', 'Usuario eliminado.', 'success');
+                    closeModal();
+                    loadUsers();
+                }
+            }
         }
 
         document.getElementById('editForm').onsubmit = async (e) => {
             e.preventDefault();
-            const planVal = document.getElementById('edit-plan').value;
-            const limit = planVal === 'custom' ? parseInt(document.getElementById('edit-limit').value) : parseInt(planVal);
             try {
                 const res = await fetch('/api/admin/update-user', {
                     method: 'POST',
@@ -265,24 +272,29 @@
                         targetId: document.getElementById('edit-id').value,
                         username: document.getElementById('edit-username').value,
                         email: document.getElementById('edit-email').value,
-                        password: document.getElementById('edit-password').value,
                         role: document.getElementById('edit-role').value,
-                        limit: limit
+                        limit: parseInt(document.getElementById('edit-limit').value)
                     })
                 });
-                const data = await res.json();
-                if(data.status) { 
+                if ((await res.json()).status) { 
+                    Swal.fire('Actualizado', 'Cambios guardados.', 'success');
                     closeModal(); 
                     loadUsers(); 
-                } else { 
-                    alert(data.message); 
                 }
-            } catch (e) { alert("Error al conectar"); }
+            } catch (e) { Swal.fire('Error', 'Fallo al conectar', 'error'); }
         };
 
         function closeModal() { document.getElementById('editModal').classList.replace('flex', 'hidden'); }
 
-        window.onload = loadUsers;
+        async function searchUser() {
+            const q = document.getElementById('searchQuery').value;
+            if(!q) return loadUsers();
+            const res = await fetch(`/api/admin/search?q=${q}`);
+            const data = await res.json();
+            renderTable(data.users || []);
+        }
+
+        window.onload = checkAdminStatus;
     </script>
 </body>
 </html>
