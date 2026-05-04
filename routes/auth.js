@@ -31,6 +31,36 @@ const generateApiKey = () => {
     return `kzm-${p1}-${p2}`;
 };
 
+const sendVerificationMail = async (email, username, vCode, id) => {
+    const mailOptions = {
+        from: '"Api Kazuma" <frasesbebor@gmail.com>',
+        to: email,
+        subject: 'Verifica tu cuenta - Api Kazuma',
+        html: `
+            <div style="background-color: #0d1117; color: #ffffff; font-family: sans-serif; padding: 40px; border-radius: 15px; max-width: 600px; margin: auto; border: 1px solid #ff2d55;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #ff2d55; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Kazuma <span style="color: #ffffff;">Dash</span></h1>
+                </div>
+                <p style="font-size: 16px; line-height: 1.6;">¡Hola <b>${username}</b>!</p>
+                <p style="font-size: 16px; line-height: 1.6;">Este es tu código para verificar tu cuenta en la <b>API Kazuma</b>:</p>
+                <div style="background: rgba(255, 45, 85, 0.1); border: 2px dashed #ff2d55; padding: 20px; font-size: 32px; text-align: center; letter-spacing: 10px; font-weight: bold; color: #ff2d55; margin: 25px 0; border-radius: 10px;">
+                    ${vCode}
+                </div>
+                <p style="font-size: 16px; line-height: 1.6;">• También puedes hacerlo de manera más rápida tocando el siguiente botón:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="background-color: #ff2d55; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4); display: inline-block;">Verificar cuenta</a>
+                </div>
+                <p style="font-size: 14px; color: #8b949e; text-align: center; margin-top: 40px;">El código expira en 1 hora.</p>
+                <div style="border-top: 1px solid #30363d; margin-top: 30px; padding-top: 20px; text-align: center;">
+                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" style="color: #ff2d55; text-decoration: none; font-size: 14px; font-weight: bold;">Canal de WhatsApp</a>
+                    <p style="font-size: 12px; color: #8b949e; margin-top: 15px;">Copyright © 2026 Kazuma. All rights reserved.<br>Powered by <b>PixelCrew-Team</b></p>
+                </div>
+            </div>
+        `
+    };
+    return transporter.sendMail(mailOptions);
+};
+
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     const db = readDB();
@@ -64,49 +94,37 @@ router.post('/register', async (req, res) => {
         codeExpires: expires.toISOString()
     };
 
-    const mailOptions = {
-        from: '"Api Kazuma" <frasesbebor@gmail.com>',
-        to: email,
-        subject: 'Verifica tu cuenta - Api Kazuma',
-        html: `
-            <div style="background-color: #0d1117; color: #ffffff; font-family: sans-serif; padding: 40px; border-radius: 15px; max-width: 600px; margin: auto; border: 1px solid #ff2d55;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #ff2d55; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Kazuma <span style="color: #ffffff;">Dash</span></h1>
-                </div>
-                
-                <p style="font-size: 16px; line-height: 1.6;">¡Hola <b>${username}</b>!</p>
-                <p style="font-size: 16px; line-height: 1.6;">Este es tu código para verificar tu cuenta en la <b>API Kazuma</b>:</p>
-                
-                <div style="background: rgba(255, 45, 85, 0.1); border: 2px dashed #ff2d55; padding: 20px; font-size: 32px; text-align: center; letter-spacing: 10px; font-weight: bold; color: #ff2d55; margin: 25px 0; border-radius: 10px;">
-                    ${vCode}
-                </div>
-                
-                <p style="font-size: 16px; line-height: 1.6;">• También puedes hacerlo de manera más rápida tocando el siguiente botón:</p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${newId}" style="background-color: #ff2d55; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4); display: inline-block;">Verificar cuenta</a>
-                </div>
-                
-                <p style="font-size: 14px; color: #8b949e; text-align: center; margin-top: 40px;">El código expira en 1 hora. Si no solicitaste esto, puedes ignorar este mensaje.</p>
-                
-                <div style="border-top: 1px solid #30363d; margin-top: 30px; padding-top: 20px; text-align: center;">
-                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" style="color: #ff2d55; text-decoration: none; font-size: 14px; font-weight: bold;">Canal de WhatsApp</a>
-                    <p style="font-size: 12px; color: #8b949e; margin-top: 15px;">
-                        Copyright © 2026 Kazuma. All rights reserved.<br>
-                        Powered by <b>PixelCrew-Team</b>
-                    </p>
-                </div>
-            </div>
-        `
-    };
-
     try {
-        await transporter.sendMail(mailOptions);
+        await sendVerificationMail(email, username, vCode, newId);
         db.users.push(newUser);
         writeDB(db);
         res.json({ status: true, message: "Código enviado al correo.", id: newId });
     } catch (error) {
         res.status(500).json({ status: false, message: "Error al enviar el correo." });
+    }
+});
+
+router.post('/resend', async (req, res) => {
+    const { id } = req.body;
+    const db = readDB();
+    const user = db.users.find(u => u.id == id);
+
+    if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
+    if (user.verified) return res.json({ status: false, message: "Esta cuenta ya está verificada." });
+
+    const newVCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1);
+
+    user.verificationCode = newVCode;
+    user.codeExpires = expires.toISOString();
+
+    try {
+        await sendVerificationMail(user.email, user.username, newVCode, user.id);
+        writeDB(db);
+        res.json({ status: true, message: "Nuevo código enviado." });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Error al reenviar." });
     }
 });
 
@@ -122,7 +140,7 @@ router.post('/verify', async (req, res) => {
     const expiracion = new Date(user.codeExpires);
 
     if (user.verified) return res.json({ status: false, message: "Esta cuenta ya está verificada." });
-    if (user.verificationCode !== code) return res.json({ status: false, message: "Código incorrecto." });
+    if (!user.verificationCode || user.verificationCode !== code) return res.json({ status: false, message: "Código incorrecto." });
     if (ahora > expiracion) return res.json({ status: false, message: "El código ha expirado." });
 
     let newKey;
