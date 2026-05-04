@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PixelCrew-Team AI Chat</title>
+    <style>
+        /* CSS Integrado para que sea un solo archivo */
+        
+        :root {
+            /* Tus colores de marca */
+            --bg-color: #121212; /* Gris muy oscuro, casi negro */
+            --header-bg: #1A1A1A; /* Un gris ligeramente más claro para la cabecera */
+            --user-msg-bg: #4CAF50; /* El verde brillante de tu botón de Dynu */
+            --ai-msg-bg: #2A2A2A; /* Gris medio para las burbujas de la IA (vacías por ahora) */
+            --text-color-light: #FFFFFF;
+            --text-color-dark: #FFFFFF; /* Texto blanco sobre fondo verde */
+            --ai-text-color: #E65100; /* El naranja suave para cuando haya texto de IA */
+            --input-bg: #2A2A2A;
+            --send-btn-bg: #F57C00; /* Naranja brillante para el botón de enviar */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace; /* Toque pixelado/retro */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color-light);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Evita scrolls raros del body en móvil */
+        }
+
+        /* --- Cabecera --- */
+        .chat-header {
+            background-color: var(--header-bg);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .chat-header h1 {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        /* El punto LED verde */
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #00FF00;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+            box-shadow: 0 0 10px #00FF00;
+        }
+
+        /* --- Área de Mensajes (Vacía) --- */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            margin-top: 60px; /* Espacio para la cabecera fija */
+            margin-bottom: 70px; /* Espacio para la barra de entrada fija */
+            overflow-y: auto; /* Permitir scroll si hay muchos mensajes */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px; /* Un ancho máximo para que no se vea raro en tablets */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Placeholder para cuando esté vacío (opcional, puedes borrar esto) */
+        .chat-messages:empty::after {
+            content: "Nadie responde... El plan maestro está en silencio. 😈";
+            color: #555;
+            text-align: center;
+            font-style: italic;
+            margin-top: auto;
+            margin-bottom: auto;
+            font-size: 0.9rem;
+        }
+
+        /* --- Barra de Entrada --- */
+        .chat-input-bar {
+            background-color: var(--header-bg);
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            border-top: 2px solid #333;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            background-color: var(--input-bg);
+            border: 1px solid #444;
+            color: var(--text-color-light);
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .chat-input-bar input:focus {
+            outline: none;
+            border-color: var(--user-msg-bg);
+        }
+
+        .send-btn {
+            background-color: var(--send-btn-bg);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .send-btn:active {
+            background-color: #E65100; /* Naranja más oscuro al pulsar */
+        }
+
+        /* Icono de flecha simple (pixelado opcional con SVG o FontAwesome, aquí es texto simple) */
+        .send-btn::before {
+            content: "↑";
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="chat-header">
+        <h1>PixelCrew-Team AI</h1>
+        <span class="status-dot"></span>
+    </header>
+
+    <main class="chat-messages" id="chatMessages">
+        </main>
+
+    <footer class="chat-input-bar">
+        <input type="text" id="userInput" placeholder="Describe tu plan maestro...">
+        <button class="send-btn" id="sendBtn" aria-label="Enviar"></button>
+    </footer>
+
+    <script>
+        // Un script mínimo para que el botón de enviar haga algo visual, 
+        // pero que NADIE responda, tal como pediste.
+
+        const sendBtn = document.getElementById('sendBtn');
+        const userInput = document.getElementById('userInput');
+
+        sendBtn.addEventListener('click', () => {
+            const message = userInput.value;
+            if (message.trim() !== "") {
+                // (Opcional: aquí podrías añadir el código para 'mostrar' tu mensaje, 
+                // pero como pediste que no haya mensajes en el chat, lo dejamos así.)
+                userInput.value = ''; // Limpiar la entrada
+                console.log("Mensaje enviado (pero nadie responde...): " + message);
+            }
+        });
+
+        // Permitir enviar con Enter
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+
+</body>
+</html>
