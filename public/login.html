@@ -27,7 +27,6 @@
         .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; }
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         
-        /* Ajuste para que el reCAPTCHA se vea bien en el modo oscuro */
         .g-recaptcha {
             display: flex;
             justify-content: center;
@@ -35,6 +34,7 @@
         }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -98,11 +98,10 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Obtenemos el token del reCAPTCHA
             const captchaResponse = grecaptcha.getResponse();
 
             if (!captchaResponse) {
-                alert('Por favor, completa el CAPTCHA.');
+                Swal.fire('Atención', 'Por favor, completa el CAPTCHA.', 'warning');
                 return;
             }
 
@@ -113,19 +112,38 @@
                     body: JSON.stringify({
                         email: document.getElementById('email').value,
                         password: document.getElementById('password').value,
-                        captchaToken: captchaResponse // Enviamos el token al servidor
+                        captchaToken: captchaResponse
                     })
                 });
+
                 const data = await response.json();
-                if (data.status) {
+
+                if (data.status === true) {
                     localStorage.setItem('userSession', JSON.stringify(data.user));
                     window.location.href = '/dash';
+                } else if (data.status === "pending") {
+                    localStorage.setItem('pending_id', data.id);
+                    
+                    await fetch('/api/auth/resend', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: data.id })
+                    });
+
+                    Swal.fire({
+                        title: 'Cuenta no verificada',
+                        text: 'Te hemos enviado un nuevo código de acceso a tu correo.',
+                        icon: 'info',
+                        confirmButtonColor: '#ff2d55'
+                    }).then(() => {
+                        window.location.href = `/verify.html?id=${data.id}`;
+                    });
                 } else {
-                    grecaptcha.reset(); // Reinicia el captcha si el login falla
-                    alert(data.message || 'Error.');
+                    grecaptcha.reset();
+                    Swal.fire('Error', data.message || 'Credenciales incorrectas.', 'error');
                 }
             } catch (error) {
-                alert('Fallo en el servidor.');
+                Swal.fire('Error', 'Fallo en la conexión con el servidor.', 'error');
             }
         });
     </script>
