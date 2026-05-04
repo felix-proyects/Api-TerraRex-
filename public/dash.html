@@ -6,6 +6,7 @@
     <title>Api Kazuma | Dashboard</title>
 
     <script src="https://www.google.com/recaptcha/api.js?render=6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -20,17 +21,16 @@
             --code-bg: #212135;
         }
 
-        /* CONFIGURACIÓN PERSONALIZADA DEL CAPTCHA PARA EL DASH */
         .grecaptcha-badge { 
             width: 70px !important; 
             overflow: hidden !important; 
             transition: all 0.3s ease !important;
             left: auto !important;
-            right: 0px !important; /* Pegado a la derecha */
-            bottom: 0px !important; /* Pegado abajo */
-            transform: scale(0.75) !important; /* Más chiquito */
+            right: 0px !important; 
+            bottom: 0px !important; 
+            transform: scale(0.75) !important; 
             transform-origin: bottom right !important;
-            opacity: 0.8; /* Un poquito de transparencia para que no brille tanto */
+            opacity: 0.8; 
             z-index: 999;
         }
 
@@ -43,7 +43,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        /* ... (Mantenemos todo tu CSS igual) ... */
+
         #preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--dark-bg); display: flex; flex-direction: column;
@@ -197,7 +197,6 @@
 
         let officialKey = "";
 
-        // ACTIVACIÓN DE SEGURIDAD V3
         grecaptcha.ready(function() {
             grecaptcha.execute('6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa', {action: 'dashboard'}).then(function(token) {
                 console.log("Dash Protection Loaded");
@@ -216,7 +215,16 @@
 
         function copyKey() {
             navigator.clipboard.writeText(officialKey);
-            alert("API KEY COPIADA");
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'API KEY Copiada',
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#161625',
+                color: '#fff'
+            });
         }
 
         function toggleEye() {
@@ -321,6 +329,17 @@
             try {
                 const resU = await fetch(`/api/auth/user/${user.id}`);
                 const dataU = await resU.json();
+
+                if (dataU.user && dataU.user.verified === false) {
+                    localStorage.setItem('pending_id', user.id);
+                    await fetch('/api/auth/resend', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: user.id })
+                    });
+                    window.location.href = `/verify.html?id=${user.id}`;
+                    return;
+                }
 
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
