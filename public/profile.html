@@ -16,7 +16,7 @@
             --dark-bg: #0d0d0d;
         }
 
-        /* CONFIGURACIÓN DEL CAPTCHA PEQUEÑO ABAJO */
+        /* DISEÑO DE LA BOLITA (IGUAL AL DASH) */
         .grecaptcha-badge { 
             width: 70px !important; 
             right: 0px !important; 
@@ -27,35 +27,54 @@
             z-index: 999;
         }
 
-        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: #161625; border: 1px solid rgba(255,255,255,0.1); }
+        body { 
+            background-color: var(--dark-bg); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+        }
 
-        .profile-container { position: relative; width: 130px; margin: 0 auto; }
+        .glass { 
+            background: #161625; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        .profile-container { 
+            position: relative; 
+            width: 120px; 
+            margin: 0 auto; 
+        }
 
         #view-img { 
-            width: 120px; height: 120px; border-radius: 50%; object-fit: cover; 
-            border: 2px solid var(--neon-pink); background: #1a1a2e; 
-            box-shadow: 0 0 15px rgba(255, 45, 85, 0.2); display: block;
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--neon-pink); 
+            background: #1a1a2e; 
+            box-shadow: 0 0 15px rgba(255, 45, 85, 0.2);
+            display: block;
         }
 
-        .camera-btn {
-            position: absolute; right: 5px; bottom: 5px; background: var(--neon-blue);
-            color: black; width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 3px solid #161625; transition: 0.3s;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+        .input-dark { 
+            background: rgba(0,0,0,0.5); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; 
         }
-        .camera-btn:hover { transform: scale(1.1); background: white; }
 
-        .input-dark { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; }
-        .label-clear { color: #ffffff; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        .label-clear {
+            color: #ffffff;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <header class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
         <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span>PROFILER</span></div>
-        <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl">
+        <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
             <i class="fas fa-arrow-left mr-2"></i> INICIO
         </button>
     </header>
@@ -64,19 +83,38 @@
         <div class="glass rounded-3xl p-8 mt-6 text-center">
             <div class="profile-container mb-6">
                 <img id="view-img" src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" alt="Foto de perfil">
-                <label for="file-input" class="camera-btn">
-                    <i class="fas fa-camera text-sm"></i>
-                </label>
-                <input type="file" id="file-input" accept="image/*" class="hidden" onchange="uploadToYotsuba(this)">
             </div>
+
             <h2 id="view-username" class="text-2xl font-black">...</h2>
             <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
+        </div>
+
+        <div class="glass p-6 rounded-2xl mt-6 border-l-4 border-[#00f3ff]">
+            <p class="label-clear mb-3">Tu Llave Maestra (API KEY)</p>
+            <div class="flex gap-2">
+                <input type="text" id="view-apikey" class="input-dark w-full p-4 rounded-xl outline-none font-mono text-sm" readonly>
+                <button onclick="copyKey()" class="bg-[#00f3ff] text-black px-5 rounded-xl font-bold hover:bg-white transition">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="glass p-5 rounded-2xl">
+                <p class="label-clear mb-1" style="font-size: 0.6rem;">Plan Actual</p>
+                <p id="view-plan" class="text-lg font-bold text-yellow-400">...</p>
+            </div>
+            <div class="glass p-5 rounded-2xl">
+                <p class="label-clear mb-1" style="font-size: 0.6rem;">Consumo Hoy</p>
+                <p id="view-requests" class="text-lg font-bold text-pink-500">0 / 0</p>
+            </div>
         </div>
 
         <div class="glass rounded-3xl p-8 mt-8">
             <h3 class="text-xl font-bold mb-6 flex items-center uppercase tracking-tighter">
                 <i class="fas fa-cog mr-3 text-pink-500"></i> Ajustes de Cuenta
             </h3>
+
             <div class="space-y-6">
                 <div>
                     <label class="block label-clear mb-2">Nombre de Usuario</label>
@@ -85,7 +123,32 @@
                         <button onclick="updateData('username')" class="bg-pink-600 px-5 rounded-xl font-bold text-xs uppercase">Cambiar</button>
                     </div>
                 </div>
+
+                <div>
+                    <label class="block label-clear mb-2">Correo Electrónico</label>
+                    <div class="flex gap-2">
+                        <input type="email" id="new-email" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="nuevo@correo.com">
+                        <button onclick="updateData('email')" class="bg-blue-600 px-5 rounded-xl font-bold text-xs uppercase">Actualizar</button>
+                    </div>
                 </div>
+
+                <div>
+                    <label class="block label-clear mb-2">Nueva Contraseña</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="new-pass" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="••••••••">
+                        <button onclick="updateData('password')" class="bg-blue-600 px-5 rounded-xl font-bold text-xs uppercase">Update</button>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-white/10 space-y-4">
+                    <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
+                        <i class="fas fa-sign-out-alt mr-2 text-yellow-500"></i> Cerrar Sesión
+                    </button>
+                    <button onclick="deleteAccount()" class="w-full border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white p-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
+                        <i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta
+                    </button>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -93,68 +156,71 @@
         const session = JSON.parse(localStorage.getItem('userSession'));
         if (!session) window.location.href = '/login.html';
 
+        // INICIALIZAR PROTECCIÓN RECAPTCHA V3
         grecaptcha.ready(function() {
-            grecaptcha.execute('6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa', {action: 'profile'});
+            grecaptcha.execute('6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa', {action: 'profile_load'}).then(function(token) {
+                console.log("Security Active");
+            });
         });
 
         async function loadProfile() {
-            const res = await fetch(`/api/auth/user/${session.id}`);
-            const data = await res.json();
-            if (data.status) {
-                const u = data.user;
-                document.getElementById('view-username').innerText = u.username.toUpperCase();
-                document.getElementById('view-id').innerText = `ID: ${u.id}`;
-                if (u.profile_img) document.getElementById('view-img').src = u.profile_img;
-            }
-        }
-
-        // --- LÓGICA DE SUBIDA A YOTSUBA ---
-        async function uploadToYotsuba(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('file', file);
-
             try {
-                // 1. Subir a tu servicio de hosting
-                const resUpload = await fetch('https://upload.yotsuba.giize.com/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const dataUpload = await resUpload.json();
+                const res = await fetch(`/api/auth/user/${session.id}`);
+                const data = await res.json();
+                if (data.status) {
+                    const u = data.user;
+                    document.getElementById('view-username').innerText = u.username.toUpperCase();
+                    document.getElementById('view-id').innerText = `ID: ${u.id}`;
+                    document.getElementById('view-apikey').value = u.apikey;
+                    document.getElementById('view-requests').innerText = `${u.requests_today} / ${u.limit}`;
 
-                // Aquí asumo que tu API devuelve { url: 'https://...' } o { fileUrl: '...' }
-                // Ajusta 'dataUpload.url' según lo que responda tu web de Yotsuba
-                const finalUrl = dataUpload.url || dataUpload.fileUrl || dataUpload.link;
-
-                if (finalUrl) {
-                    // 2. Guardar el enlace en tu base de datos de Kazuma
-                    const resUpdate = await fetch(`/api/auth/update`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            id: session.id, 
-                            type: 'profile_img', 
-                            value: finalUrl 
-                        })
-                    });
-
-                    if ((await resUpdate.json()).status) {
-                        document.getElementById('view-img').src = finalUrl;
-                        alert("Perfil actualizado con éxito.");
+                    if (u.profile_img) {
+                        document.getElementById('view-img').src = u.profile_img;
                     }
-                } else {
-                    alert("Error: No se recibió enlace de Yotsuba.");
+
+                    document.getElementById('view-plan').innerText = u.role === 'admin' ? 'VIP ADMIN' : (u.limit > 100 ? 'PREMIUM' : 'FREE');
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Error al conectar con el servidor de imágenes.");
+            } catch (e) { console.error("Error profile load"); }
+        }
+
+        async function updateData(type) {
+            const inputId = type === 'username' ? 'new-username' : (type === 'email' ? 'new-email' : 'new-pass');
+            const val = document.getElementById(inputId).value;
+            if (!val) return alert("Completa el campo");
+            
+            const res = await fetch(`/api/auth/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: session.id, type, value: val })
+            });
+            if ((await res.json()).status) {
+                if(type === 'username') {
+                    session.username = val;
+                    localStorage.setItem('userSession', JSON.stringify(session));
+                }
+                location.reload();
             }
         }
 
-        // Resto de funciones (updateData, logout, etc.) idénticas a las anteriores.
+        function copyKey() {
+            const keyInput = document.getElementById('view-apikey');
+            keyInput.select();
+            document.execCommand('copy');
+            alert("API KEY COPIADA");
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+        async function deleteAccount() {
+            if (!confirm("¿ESTÁS SEGURO DE ELIMINAR TU CUENTA?")) return;
+            const res = await fetch(`/api/auth/delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: session.id })
+            });
+            if ((await res.json()).status) { localStorage.clear(); window.location.href = '/register.html'; }
+        }
+
         window.onload = loadProfile;
     </script>
 </body>
