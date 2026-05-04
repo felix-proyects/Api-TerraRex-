@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Cuenta - Api Kazuma</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --neon-pink: #ff2d55;
+            --bg-dark: #0d1117;
+            --card-bg: #161b22;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .verify-container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 span {
+            color: var(--neon-pink);
+        }
+
+        p {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--neon-pink);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 10px;
+        }
+
+        button:disabled {
+            background-color: #30363d;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .resend-link {
+            display: block;
+            color: var(--neon-pink);
+            text-decoration: none;
+            font-size: 13px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .resend-link.disabled {
+            color: #484f58;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 11px;
+            color: #484f58;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="verify-container">
+        <h1>Kazuma <span>Verify</span></h1>
+        <p>Introduce el código de 6 dígitos enviado a tu correo.</p>
+        
+        <input type="text" id="vCode" placeholder="000000" maxlength="6">
+        <button id="btnVerify" onclick="verificar()">Verificar Cuenta</button>
+        
+        <span id="resendCode" class="resend-link" onclick="reenviar()">¿No te llegó el código? Reenviar</span>
+
+        <div class="footer">
+            Copyright © 2026 Kazuma. All rights reserved.<br>
+            Powered by PixelCrew-Team
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            if (localStorage.getItem('apikey') && localStorage.getItem('apikey') !== 'kzm-PENDING-VERIFICATION') {
+                window.location.href = '/dash';
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                document.getElementById('vCode').value = code;
+            }
+
+            checkCooldown();
+        };
+
+        function checkCooldown() {
+            const lastResend = localStorage.getItem('last_resend');
+            if (lastResend) {
+                const now = Date.now();
+                const diff = now - lastResend;
+                const wait = 5 * 60 * 1000;
+
+                if (diff < wait) {
+                    const remaining = Math.ceil((wait - diff) / 1000);
+                    startTimer(remaining);
+                }
+            }
+        }
+
+        function startTimer(seconds) {
+            const link = document.getElementById('resendCode');
+            link.classList.add('disabled');
+            link.onclick = null;
+
+            const timer = setInterval(() => {
+                seconds--;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                link.innerText = `Reenviar en ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    link.innerText = "¿No te llegó el código? Reenviar";
+                    link.classList.remove('disabled');
+                    link.onclick = reenviar;
+                }
+            }, 1000);
+        }
+
+        async function verificar() {
+            const code = document.getElementById('vCode').value;
+            const params = new URLSearchParams(window.location.search);
+            const userId = params.get('id') || localStorage.getItem('pending_id');
+
+            if (!code || code.length < 6) return Swal.fire('Error', 'Código inválido', 'error');
+            if (!userId) return Swal.fire('Error', 'ID de usuario no encontrado', 'error');
+
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: userId, code: code })
+                });
+                const data = await res.json();
+
+                if (data.status) {
+                    Swal.fire('¡Éxito!', 'Cuenta verificada', 'success').then(() => {
+                        localStorage.setItem('apikey', data.apikey);
+                        localStorage.removeItem('pending_id');
+                        window.location.href = '/login';
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Fallo de conexión', 'error');
+            }
+        }
+
+        async function reenviar() {
+            const params = new URLSearchParams(window.location.search);
+            const userId = params.get('id') || localStorage.getItem('pending_id');
+
+            if (!userId) return Swal.fire('Error', 'ID no encontrado', 'error');
+
+            try {
+                const res = await fetch('/api/auth/resend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: userId })
+                });
+                const data = await res.json();
+
+                if (data.status) {
+                    Swal.fire('Enviado', 'Se ha enviado un nuevo código', 'success');
+                    localStorage.setItem('last_resend', Date.now());
+                    startTimer(5 * 60);
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Error al reenviar', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
