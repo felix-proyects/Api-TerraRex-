@@ -25,6 +25,27 @@ const { sswebRoute } = require('./routes/tools/ssweb');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+setInterval(async () => {
+    try {
+        const db = await fs.readJson(dbPath);
+        const ahora = new Date();
+        const inicial = db.users.length;
+
+        db.users = db.users.filter(user => {
+            if (user.verified) return true;
+            if (!user.codeExpires) return true; 
+            return ahora < new Date(user.codeExpires);
+        });
+
+        if (db.users.length !== inicial) {
+            await fs.writeJson(dbPath, db, { spaces: 4 });
+            console.log(`Barrendero: Se eliminaron ${inicial - db.users.length} cuentas.`);
+        }
+    } catch (error) {
+        console.error("Error Barrendero:", error.message);
+    }
+}, 10 * 60 * 1000);
+
 const securityMiddleware = async (req, res, next) => {
     const isApiRoute = req.path.startsWith('/api/');
     const isPublicApi = req.path.includes('/auth') || req.path.includes('/stats') || req.path.includes('/admin') || req.path === '/api' || req.path.startsWith('/temp/');
@@ -36,7 +57,13 @@ const securityMiddleware = async (req, res, next) => {
             const db = await fs.readJson(dbPath);
             const userIndex = db.users.findIndex(u => u.apikey === apikey);
             if (userIndex === -1) return res.status(403).json({ status: false, message: "API Key inválida" });
+            
             const user = db.users[userIndex];
+
+            if (user.verified === false) {
+                return res.status(403).json({ status: false, message: "Cuenta no verificada. Revisa tu correo." });
+            }
+
             const today = new Date().toISOString().split('T')[0];
             if (user.last_reset !== today) {
                 user.requests_today = 0;
@@ -106,7 +133,7 @@ app.get('/api', (req, res) => {
     });
 });
 
-app.get(['/login', '/register', '/profile', '/admin', '/search'], (req, res) => {
+app.get(['/login', '/register', '/profile', '/admin', '/search', '/verify'], (req, res) => {
     const page = req.path.split('/')[1];
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
 });
