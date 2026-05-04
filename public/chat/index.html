@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KAZUMA AI | Neural Interface</title>
+    <title>KAZUMA | Global Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #050505; }
+        :root { 
+            --neon-pink: #ff2d55; 
+            --neon-blue: #00f3ff; 
+            --dark-bg: #050505;
+            --card-bg: #161625;
+        }
 
         body { 
             background-color: #000000 !important; 
@@ -20,126 +25,183 @@
             margin: 0;
         }
 
-        .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 243, 255, 0.8); }
-        .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 85, 0.8); }
-
+        /* --- ESTILOS DE TU DASH --- */
+        .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 85, 0.5); }
         .hero-gradient {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.08) 0%, transparent 60%),
-                        radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.05) 0%, transparent 40%);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 45, 85, 0.05) 0%, transparent 60%);
             z-index: -1;
         }
 
-        /* Scanline igual a tu web principal */
-        .scanline {
-            width: 100%; height: 2px; background: var(--neon-blue); opacity: 0.05;
-            position: absolute; animation: scan 4s linear infinite; z-index: 10;
-            pointer-events: none;
-        }
-        @keyframes scan { from { top: 0; } to { top: 100%; } }
+        /* --- LÓGICA DE MENSAJES --- */
+        #chat-screen { display: none; flex-direction: column; height: 100vh; }
+        #main-hub { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
 
-        /* Contenedor de mensajes vacío */
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            margin-top: 70px;
-            margin-bottom: 80px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .chat-container {
+            flex: 1; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 15px;
+            background: rgba(255, 255, 255, 0.02);
         }
 
-        /* Barra de navegación estilo KAZUMA */
-        nav {
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-blur: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* Mensaje MÍO (Derecha) */
+        .msg-me {
+            align-self: flex-end; max-width: 80%;
         }
-
-        /* Input de texto */
-        .input-area {
-            background: rgba(10, 10, 10, 0.95);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .custom-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .custom-input:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-        }
-
-        .btn-send {
+        .msg-me .bubble {
             background: var(--neon-pink);
-            box-shadow: 0 0 15px rgba(255, 45, 85, 0.4);
-            transition: transform 0.2s;
+            color: #000; font-weight: 700;
+            padding: 12px 18px; border-radius: 20px 20px 0 20px;
+            box-shadow: 0 4px 15px rgba(255, 45, 85, 0.3);
+            font-size: 0.9rem;
         }
 
-        .btn-send:active { transform: scale(0.9); }
+        /* Mensaje OTROS (Izquierda) */
+        .msg-others {
+            align-self: flex-start; max-width: 80%;
+            display: flex; gap: 10px;
+        }
+        .msg-others .bubble {
+            background: var(--card-bg);
+            color: white; border: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 12px 18px; border-radius: 20px 20px 20px 0;
+            font-size: 0.9rem;
+        }
+        .user-tag { font-size: 0.7rem; font-weight: 900; color: var(--neon-blue); margin-bottom: 4px; text-transform: uppercase; }
 
-        /* Estilo para cuando añadas mensajes (opcional) */
-        .msg-empty-state {
-            margin: auto;
-            text-align: center;
-            opacity: 0.3;
+        .avatar {
+            width: 35px; height: 35px; border-radius: 10px;
+            background: var(--neon-blue); color: black;
+            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem;
+        }
+
+        /* Input Area */
+        .input-area {
+            background: #0a0a0a; border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; display: flex; gap: 10px;
+        }
+        .input-area input {
+            flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; padding: 12px 20px; color: white; outline: none;
+        }
+        .input-area input:focus { border-color: var(--neon-blue); }
+        
+        .btn-send {
+            background: var(--neon-pink); width: 50px; height: 50px;
+            border-radius: 15px; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Hub Card */
+        .hub-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px; border-radius: 30px; text-align: center; width: 100%; max-width: 350px;
         }
     </style>
 </head>
 <body>
     <div class="hero-gradient"></div>
-    <div class="scanline"></div>
 
-    <nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="text-xl font-black tracking-tighter">KAZUMA <span class="neon-text-pink">AI</span></div>
-        <div class="flex items-center gap-2">
-            <span class="text-[9px] font-black uppercase tracking-widest text-blue-400">Neural Link</span>
-            <div class="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_8px_#60a5fa]"></div>
+    <div id="main-hub">
+        <div class="hub-card">
+            <div class="w-20 h-20 bg-pink-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-pink-500/30">
+                <i class="fas fa-globe neon-text-pink text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-black mb-2">KAZUMA GLOBAL</h2>
+            <p class="text-gray-400 text-xs mb-8 font-medium">Conéctate con la infraestructura y otros desarrolladores.</p>
+            <button onclick="enterChat()" class="w-full py-4 bg-[#ff2d55] rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-pink-500/20">
+                Entrar al Chat
+            </button>
         </div>
-    </nav>
+        <a href="/dash" class="mt-8 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Volver al Dashboard</a>
+    </div>
 
-    <main id="chat-container">
-        <div class="msg-empty-state">
-            <i class="fas fa-robot text-4xl mb-4 block neon-text-blue"></i>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em]">Esperando Directivas...</p>
-        </div>
-    </main>
+    <div id="chat-screen">
+        <nav class="px-6 py-4 flex items-center gap-4 bg-black/80 border-b border-white/10">
+            <button onclick="exitChat()"><i class="fas fa-chevron-left"></i></button>
+            <div class="text-lg font-black tracking-tighter">GLOBAL <span class="neon-text-pink">CHAT</span></div>
+        </nav>
 
-    <div class="input-area fixed bottom-0 w-full p-4 z-50">
-        <div class="max-w-2xl mx-auto flex gap-3">
-            <input type="text" 
-                   id="user-input" 
-                   placeholder="Escribe al núcleo de la IA..." 
-                   class="custom-input flex-1 py-4 px-6 rounded-2xl text-sm font-medium">
-            
-            <button id="send-btn" class="btn-send w-14 h-14 rounded-2xl flex items-center justify-center text-white">
+        <div class="chat-container" id="messages">
+            </div>
+
+        <div class="input-area">
+            <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
+            <button class="btn-send" onclick="sendMessage()">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
 
     <script>
-        const input = document.getElementById('user-input');
-        const btn = document.getElementById('send-btn');
+        // 1. LÓGICA DE SESIÓN (TOMADA DE TU DASH)
+        const user = JSON.parse(localStorage.getItem('userSession'));
+        if (!user) window.location.href = '/login';
 
-        btn.onclick = () => {
-            if(input.value.trim() !== "") {
-                console.log("Comando enviado al núcleo: " + input.value);
-                input.value = ""; // Limpia pero nadie responde
+        const chatScreen = document.getElementById('chat-screen');
+        const mainHub = document.getElementById('main-hub');
+        const messageContainer = document.getElementById('messages');
+        const chatInput = document.getElementById('chat-input');
+
+        function enterChat() {
+            mainHub.style.display = 'none';
+            chatScreen.style.display = 'flex';
+            // Scroll al fondo
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        function exitChat() {
+            chatScreen.style.display = 'none';
+            mainHub.style.display = 'flex';
+        }
+
+        // 2. LÓGICA DE MENSAJERÍA
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (text === "") return;
+
+            // Crear mensaje propio (Derecha, Rosado)
+            appendMessage({
+                username: user.username,
+                text: text,
+                isMe: true
+            });
+
+            chatInput.value = "";
+            
+            // SIMULACIÓN: Un bot responde para que veas cómo se ve el lado izquierdo
+            setTimeout(() => {
+                appendMessage({
+                    username: "Kazuma_System",
+                    text: "Mensaje global recibido. Protocolo activo. 😈",
+                    isMe: false
+                });
+            }, 1000);
+        }
+
+        function appendMessage(data) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = data.isMe ? 'msg-me' : 'msg-others';
+
+            if (data.isMe) {
+                msgDiv.innerHTML = `<div class="bubble">${data.text}</div>`;
+            } else {
+                const initial = data.username.charAt(0).toUpperCase();
+                msgDiv.innerHTML = `
+                    <div class="avatar">${initial}</div>
+                    <div>
+                        <div class="user-tag">${data.username}</div>
+                        <div class="bubble">${data.text}</div>
+                    </div>
+                `;
             }
+
+            messageContainer.appendChild(msgDiv);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
         }
 
-        input.onkeypress = (e) => {
-            if(e.key === 'Enter') btn.onclick();
-        }
+        // Enviar con Enter
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 </html>
