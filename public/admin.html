@@ -8,37 +8,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // BLOQUEO DE ENTRADA INICIAL
         (function() {
             const session = JSON.parse(localStorage.getItem('userSession'));
             if (!session || session.role !== 'admin') {
-                window.location.replace('/404.html');
+                window.location.replace('/404');
             }
         })();
     </script>
     <style>
-        :root {
-            --neon-pink: #ff2d55;
-            --neon-blue: #00f3ff;
-            --dark-bg: #0d0d0d;
-        }
-        body { 
-            background-color: #000000 !important; 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            visibility: hidden; 
-        }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; }
+        body { background-color: #000000 !important; color: white; font-family: 'Inter', sans-serif; visibility: hidden; }
         .authorized body { visibility: visible; background-color: var(--dark-bg) !important; }
-        
         .glass { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
         .table-container { overflow-x: auto; }
         tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         tr:hover { background: rgba(255,255,255,0.02); }
-        
         .badge-verified { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2); }
         .badge-pending { background: rgba(255, 171, 0, 0.1); color: #ffab00; border: 1px solid rgba(255, 171, 0, 0.2); }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0d0d0d; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
@@ -46,7 +33,6 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-
     <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
         <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span class="text-[#ff2d55]">STAFF</span></div>
         <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">
@@ -87,8 +73,7 @@
                             <th class="p-5 text-center font-black">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body" class="text-sm">
-                    </tbody>
+                    <tbody id="user-table-body" class="text-sm"></tbody>
                 </table>
             </div>
         </div>
@@ -101,7 +86,6 @@
             </button>
             <h2 class="text-2xl font-black mb-2 text-[#ff2d55] tracking-tighter uppercase">Gestión Staff</h2>
             <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest font-bold">Modificar Privilegios</p>
-
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="edit-id">
                 <div>
@@ -125,12 +109,8 @@
                         <input type="number" id="edit-limit" class="input-dark w-full p-3 rounded-xl outline-none">
                     </div>
                 </div>
-
                 <div id="delete-zone" class="pt-2"></div>
-
-                <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-black shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest mt-2">
-                    Guardar Cambios
-                </button>
+                <button type="submit" class="w-full bg-[#ff2d55] p-4 rounded-2xl font-black shadow-xl shadow-pink-500/20 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest mt-2">Guardar Cambios</button>
             </form>
         </div>
     </div>
@@ -139,22 +119,18 @@
         const session = JSON.parse(localStorage.getItem('userSession'));
         const SUPER_ADMIN_EMAIL = "frasesbebor@gmail.com";
 
-        // BLINDAJE DE VERIFICACIÓN PARA ADMINS
         async function checkAdminStatus() {
             try {
                 const res = await fetch(`/api/auth/user/${session.id}`);
                 const data = await res.json();
-                
-                if (data.user && data.user.verified === false) {
-                    window.location.href = `/verify.html?id=${session.id}`;
+                if (data.user && data.user.verified === 0) {
+                    window.location.href = `/verify?id=${session.id}`;
                 } else {
                     document.documentElement.classList.add('authorized');
                     document.body.style.visibility = 'visible';
                     loadUsers();
                 }
-            } catch (e) { 
-                window.location.replace('/404.html'); 
-            }
+            } catch (e) { window.location.replace('/404'); }
         }
 
         async function loadUsers() {
@@ -170,14 +146,10 @@
 
         function renderTable(users) {
             const body = document.getElementById('user-table-body');
-            if (!users.length) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold uppercase">Sin Resultados</td></tr>';
-                return;
-            }
+            if (!users.length) { body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold uppercase">Sin Resultados</td></tr>'; return; }
             body.innerHTML = users.map(u => {
                 const isSuperAdmin = u.email === SUPER_ADMIN_EMAIL;
                 const canEdit = session.email === SUPER_ADMIN_EMAIL || !isSuperAdmin;
-
                 return `
                 <tr class="hover:bg-white/[0.03] transition-all">
                     <td class="p-5">
@@ -185,18 +157,11 @@
                         <div class="text-[10px] text-gray-500 font-mono tracking-tighter uppercase">${u.email}</div>
                     </td>
                     <td class="p-5">
-                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.verified ? 'badge-verified' : 'badge-pending'}">
-                            ${u.verified ? 'VERIFICADO' : 'PENDIENTE'}
-                        </span>
+                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.verified ? 'badge-verified' : 'badge-pending'}">${u.verified ? 'VERIFICADO' : 'PENDIENTE'}</span>
                     </td>
                     <td class="p-5 text-xs font-black text-pink-500">${u.requests_today} / ${u.limit}</td>
                     <td class="p-5 text-center">
-                        ${canEdit ? 
-                            `<button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-white/10 hover:text-[#ff2d55] w-11 h-11 rounded-2xl transition-all border border-white/5">
-                                <i class="fas fa-user-cog text-xs"></i>
-                            </button>` : 
-                            `<i class="fas fa-lock text-gray-600"></i>`
-                        }
+                        ${canEdit ? `<button onclick="openEdit('${u.id}')" class="bg-white/5 hover:bg-white/10 hover:text-[#ff2d55] w-11 h-11 rounded-2xl transition-all border border-white/5"><i class="fas fa-user-cog text-xs"></i></button>` : `<i class="fas fa-lock text-gray-600"></i>`}
                     </td>
                 </tr>`;
             }).join('');
@@ -207,57 +172,25 @@
                 const res = await fetch(`/api/admin/search?q=${id}`);
                 const data = await res.json();
                 const u = data.users.find(user => String(user.id) === id);
-                
                 if (u.email === SUPER_ADMIN_EMAIL && session.email !== SUPER_ADMIN_EMAIL) {
-                    return Swal.fire('Acceso Denegado', 'No puedes gestionar al Super Admin.', 'error');
+                    return Swal.fire({ title: 'Acceso Denegado', text: 'No puedes gestionar al Super Admin.', icon: 'error', background: '#161625', color: '#fff' });
                 }
-
                 document.getElementById('edit-id').value = u.id;
                 document.getElementById('edit-username').value = u.username;
                 document.getElementById('edit-email').value = u.email;
                 document.getElementById('edit-role').value = u.role;
                 document.getElementById('edit-limit').value = u.limit;
-
-                // LOGICA DEL BOTÓN ELIMINAR
-                const deleteZone = document.getElementById('delete-zone');
-                if (u.email === SUPER_ADMIN_EMAIL) {
-                    deleteZone.innerHTML = ''; 
-                } else {
-                    deleteZone.innerHTML = `
-                        <button type="button" onclick="deleteUserByAdmin('${u.id}')" class="w-full border border-red-500/30 text-red-500 p-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all mb-2">
-                            <i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta
-                        </button>
-                    `;
-                }
-
+                const dz = document.getElementById('delete-zone');
+                dz.innerHTML = u.email === SUPER_ADMIN_EMAIL ? '' : `<button type="button" onclick="deleteUserByAdmin('${u.id}')" class="w-full border border-red-500/30 text-red-500 p-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all mb-2"><i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta</button>`;
                 document.getElementById('editModal').classList.replace('hidden', 'flex');
-            } catch (e) { Swal.fire('Error', 'No se pudo cargar el usuario', 'error'); }
+            } catch (e) { Swal.fire({ title: 'Error', text: 'No se pudo cargar el usuario', icon: 'error', background: '#161625', color: '#fff' }); }
         }
 
         async function deleteUserByAdmin(targetId) {
-            const result = await Swal.fire({
-                title: '¿CONFIRMAR ELIMINACIÓN?',
-                text: "Esta cuenta será borrada permanentemente de la base de datos.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff2d55',
-                confirmButtonText: 'SÍ, BORRAR',
-                cancelButtonText: 'CANCELAR',
-                background: '#161625',
-                color: '#fff'
-            });
-
+            const result = await Swal.fire({ title: '¿ELIMINAR?', text: "Esta cuenta será borrada permanentemente.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff2d55', confirmButtonText: 'BORRAR', background: '#161625', color: '#fff' });
             if (result.isConfirmed) {
-                const res = await fetch('/api/admin/delete-user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminId: session.id, targetId: targetId })
-                });
-                if ((await res.json()).status) {
-                    Swal.fire('Éxito', 'Usuario eliminado.', 'success');
-                    closeModal();
-                    loadUsers();
-                }
+                const res = await fetch('/api/admin/delete-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: session.id, targetId: targetId }) });
+                if ((await res.json()).status) { Swal.fire({ title: 'Éxito', text: 'Usuario eliminado.', icon: 'success', background: '#161625', color: '#fff' }); closeModal(); loadUsers(); }
             }
         }
 
@@ -267,21 +200,10 @@
                 const res = await fetch('/api/admin/update-user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        adminId: session.id,
-                        targetId: document.getElementById('edit-id').value,
-                        username: document.getElementById('edit-username').value,
-                        email: document.getElementById('edit-email').value,
-                        role: document.getElementById('edit-role').value,
-                        limit: parseInt(document.getElementById('edit-limit').value)
-                    })
+                    body: JSON.stringify({ adminId: session.id, targetId: document.getElementById('edit-id').value, username: document.getElementById('edit-username').value, email: document.getElementById('edit-email').value, role: document.getElementById('edit-role').value, limit: parseInt(document.getElementById('edit-limit').value) })
                 });
-                if ((await res.json()).status) { 
-                    Swal.fire('Actualizado', 'Cambios guardados.', 'success');
-                    closeModal(); 
-                    loadUsers(); 
-                }
-            } catch (e) { Swal.fire('Error', 'Fallo al conectar', 'error'); }
+                if ((await res.json()).status) { Swal.fire({ title: 'Éxito', text: 'Cambios guardados.', icon: 'success', background: '#161625', color: '#fff' }); closeModal(); loadUsers(); }
+            } catch (e) { Swal.fire({ title: 'Error', text: 'Fallo al conectar', icon: 'error', background: '#161625', color: '#fff' }); }
         };
 
         function closeModal() { document.getElementById('editModal').classList.replace('flex', 'hidden'); }
