@@ -7,7 +7,7 @@ const app = express();
 
 global.serverStart = Date.now();
 
-const PORT = process.env.PORT || 880;
+const PORT = 9090;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -101,5 +101,7 @@ initDB().then(() => {
         console.log(`Kazuma API activa en puerto: ${PORT}`);
     });
 }).catch(err => {
+    console.error("ERROR CRÍTICO AL INICIAR:");
+    console.error(err);
     process.exit(1);
 });
