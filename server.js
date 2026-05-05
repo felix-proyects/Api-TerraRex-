@@ -27,31 +27,7 @@ const { sswebRoute } = require('./routes/tools/ssweb');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- LÓGICA DEL BARRENDERO (Corregida para evitar bloqueos) ---
-setInterval(() => {
-    try {
-        if (!fs.existsSync(dbPath)) return;
-        const db = fs.readJsonSync(dbPath);
-        const ahora = new Date();
-        const inicial = db.users.length;
-
-        // Solo eliminar si realmente han expirado y no están verificados
-        db.users = db.users.filter(user => {
-            if (user.verified) return true;
-            if (!user.codeExpires) return true; 
-            return ahora < new Date(user.codeExpires);
-        });
-
-        if (db.users.length !== inicial) {
-            fs.writeJsonSync(dbPath, db, { spaces: 4 });
-            console.log(`[!] Barrendero: Se eliminaron ${inicial - db.users.length} cuentas.`);
-        }
-    } catch (error) {
-        console.error("Error Barrendero:", error.message);
-    }
-}, 30 * 60 * 1000); // Subido a 30 minutos para dar aire al server
-
-// --- MIDDLEWARE DE SEGURIDAD (Optimizado) ---
+// --- MIDDLEWARE DE SEGURIDAD (Sin chequeo de verificación) ---
 const securityMiddleware = (req, res, next) => {
     const isApiRoute = req.path.startsWith('/api/');
     const isPublicApi = 
@@ -66,11 +42,13 @@ const securityMiddleware = (req, res, next) => {
 
         try {
             const db = fs.readJsonSync(dbPath);
-            const user = db.users.find(u => u.apikey === apikey);
+            const userIndex = db.users.findIndex(u => u.apikey === apikey);
 
-            if (!user) return res.status(403).json({ status: false, message: "API Key inválida" });
-            if (!user.verified) return res.status(403).json({ status: false, message: "Cuenta no verificada." });
+            if (userIndex === -1) return res.status(403).json({ status: false, message: "API Key inválida" });
 
+            const user = db.users[userIndex];
+
+            // Reset diario de límites
             const today = new Date().toISOString().split('T')[0];
             if (user.last_reset !== today) {
                 user.requests_today = 0;
@@ -81,7 +59,6 @@ const securityMiddleware = (req, res, next) => {
                 return res.status(429).json({ status: false, message: "Límite alcanzado" });
             }
 
-            // Actualización
             user.requests_today += 1;
             user.total_requests += 1;
 
@@ -129,14 +106,13 @@ app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res
 app.use('/api/tools/ssweb', (req, res) => sswebRoute.run(req, res));
 
 // --- MANEJO DE RUTAS ---
-app.get(['/login', '/register', '/profile', '/dash', '/verify', '/admin'], (req, res) => {
+app.get(['/login', '/register', '/profile', '/dash', '/admin'], (req, res) => {
     const page = req.path.split('/')[1];
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
 });
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-// 404
 app.use((req, res) => res.status(404).sendFile(path.join(__dirname, 'public', '404.html')));
 
 app.listen(PORT, '0.0.0.0', () => {
