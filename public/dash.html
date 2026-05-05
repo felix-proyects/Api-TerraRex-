@@ -332,14 +332,16 @@
             preloader.style.opacity = '1';
 
             try {
-                // Obtenemos los datos del usuario sin importar la verificación
+                // Obtenemos los datos del usuario directamente de la sesión si es necesario, 
+                // o del endpoint simplificado
                 const resU = await fetch(`/api/auth/user/${user.id}`);
                 const dataU = await resU.json();
 
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
 
-                const content = (cat === 'inicio') ? await categories.inicio(stats, dataU.user) : categories[cat];
+                // Usamos los datos obtenidos para construir la UI
+                const content = (cat === 'inicio') ? await categories.inicio(stats, dataU.user) : `<p style='text-align:center;'>Sección en desarrollo.</p>`;
                 area.innerHTML = content;
 
                 if (cat === 'inicio') {
