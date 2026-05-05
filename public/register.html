@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Registro</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
-        if (localStorage.getItem('userSession')) {
-            window.location.href = '/dash';
-        }
+        if (localStorage.getItem('userSession')) { window.location.href = '/dash'; }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -18,51 +17,56 @@
         #safety-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
         .glass { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
-        .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
-        .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-pink:hover { opacity: 0.9; transform: translateY(-2px); }
+        .input-kazuma:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 45, 85, 0.2); }
+        .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+        .btn-pink:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .btn-pink:disabled { opacity: 0.5; cursor: not-allowed; }
+        .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; transform: scale(0.9); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div id="safety-overlay"></div>
+
     <div class="glass p-8 rounded-3xl w-full max-w-md">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-black tracking-tighter uppercase">KAZUMA <span style="color: var(--neon-pink);">REGISTRO</span></h2>
-            <p class="text-slate-500 text-xs mt-1 uppercase font-bold">Infraestructura Central</p>
+            <p class="text-slate-500 text-[10px] mt-1 uppercase font-bold tracking-widest">Crear Identidad de Acceso</p>
         </div>
+
         <form id="registerForm" class="space-y-4">
             <div>
-                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Username</label>
-                <input type="text" id="username" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="Usuario" required>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Username</label>
+                <input type="text" id="username" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="Tu usuario" required autocomplete="off">
             </div>
             <div>
-                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Email</label>
-                <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="correo@ejemplo.com" required>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Email</label>
+                <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="correo@kazuma.com" required autocomplete="off">
             </div>
             <div class="relative">
-                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Password</label>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Password</label>
                 <input type="password" id="password" minlength="8" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
                 <i class="fas fa-eye absolute right-4 top-9 cursor-pointer text-slate-600" onclick="togglePassword('password', this)"></i>
             </div>
             <div class="relative">
-                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Confirmar Password</label>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Confirm Password</label>
                 <input type="password" id="confirmPassword" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
                 <i class="fas fa-eye absolute right-4 top-9 cursor-pointer text-slate-600" onclick="togglePassword('confirmPassword', this)"></i>
             </div>
-            <div class="flex items-center gap-2 mt-2">
-                <input type="checkbox" id="tos" class="w-4 h-4 accent-[#ff2d55]" required>
-                <label for="tos" class="text-[10px] text-slate-400 font-bold uppercase">Acepto los términos</label>
-            </div>
-            <button type="submit" id="btnSubmit" class="btn-pink w-full font-black py-4 rounded-xl shadow-lg mt-2">Crear Cuenta</button>
+
+            <div class="g-recaptcha" data-sitekey="6LdXGtksAAAAALKBc6v456iXHe6Kki5EkaYwrFEu" data-theme="dark"></div>
+
+            <button type="submit" id="btnSubmit" class="btn-pink w-full py-4 rounded-xl shadow-lg mt-2">
+                Crear Cuenta
+            </button>
         </form>
-        <div class="mt-6 text-center">
+
+        <div class="mt-6 text-center border-t border-white/5 pt-4">
             <p class="text-slate-500 text-sm">¿Ya tienes cuenta? <a href="/login.html" class="font-bold" style="color: var(--neon-blue);">Inicia sesión</a></p>
         </div>
     </div>
+
     <script>
-        window.onload = () => {
-            document.getElementById('safety-overlay').style.display = 'none';
-        };
+        window.onload = () => { document.getElementById('safety-overlay').style.display = 'none'; };
 
         function togglePassword(id, el) {
             const input = document.getElementById(id);
@@ -74,44 +78,56 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
-            const pass = document.getElementById('password').value;
-            const confirmPass = document.getElementById('confirmPassword').value;
+            const captcha = grecaptcha.getResponse();
 
-            if (pass !== confirmPass) {
-                Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
-                return;
+            if (!captcha) {
+                return Swal.fire('Error', 'Completa el CAPTCHA.', 'warning');
+            }
+
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (pass !== confirm) {
+                return Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
             }
 
             btn.disabled = true;
-            btn.innerText = 'Procesando...';
-
-            const userData = {
-                username: document.getElementById('username').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                password: pass
-            };
+            btn.innerText = 'PROCESANDO...';
 
             try {
-                const response = await fetch('/api/auth/register', {
+                const res = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value.trim(),
+                        email: document.getElementById('email').value.trim(),
+                        password: pass
+                    })
                 });
-                const data = await response.json();
+
+                const data = await res.json();
 
                 if (data.status) {
-                    Swal.fire('¡Éxito!', 'Revisa tu correo.', 'success').then(() => {
+                    Swal.fire({
+                        title: '¡REGISTRO EXITOSO!',
+                        text: 'Te hemos enviado el código a tu correo.',
+                        icon: 'success',
+                        background: '#161625',
+                        color: '#fff',
+                        confirmButtonColor: '#ff2d55'
+                    }).then(() => {
                         window.location.href = `/verify.html?id=${data.id}`;
                     });
                 } else {
+                    grecaptcha.reset();
                     btn.disabled = false;
                     btn.innerText = 'Crear Cuenta';
-                    Swal.fire('Error', data.message, 'error');
+                    Swal.fire('Error', data.message || 'No se pudo registrar.', 'error');
                 }
-            } catch (error) {
+            } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Crear Cuenta';
-                Swal.fire('Error', 'Servidor no responde.', 'error');
+                Swal.fire('Error', 'Fallo de conexión con el núcleo.', 'error');
             }
         });
     </script>
