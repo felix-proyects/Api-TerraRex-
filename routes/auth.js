@@ -6,43 +6,36 @@ const nodemailer = require('nodemailer');
 
 const dbPath = path.join(__dirname, '../data/database.json');
 
-// Utilidades de base de datos con manejo de errores síncrono
-const readDB = () => {
-    try {
-        return fs.readJsonSync(dbPath);
-    } catch (e) {
-        console.error("Error leyendo DB:", e);
-        return { users: [] };
-    }
-};
-
-const writeDB = (data) => {
-    try {
-        fs.writeJsonSync(dbPath, data, { spaces: 4 });
-    } catch (e) {
-        console.error("Error escribiendo DB:", e);
-    }
-};
-
+// --- CONFIGURACIÓN DE GMAIL (SMTP DIRECTO) ---
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, 
     auth: {
         user: 'frasesbebor@gmail.com',
-        pass: 'kafvotvrxkignsrl' // Contraseña de aplicación
+        pass: 'kafvotvrxkignsrl' // Contraseña de aplicación sin espacios
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
+// Verificar conexión al iniciar para ver errores en consola
+transporter.verify((error) => {
+    if (error) console.log("[!] Error SMTP:", error.message);
+    else console.log("[+] Gmail conectado y listo.");
+});
+
+// --- UTILIDADES ---
+const readDB = () => fs.readJsonSync(dbPath);
+const writeDB = (data) => fs.writeJsonSync(dbPath, data, { spaces: 4 });
+
 const generateApiKey = () => {
-    const chars1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const chars2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let p1 = '';
-    for (let i = 0; i < 5; i++) {
-        p1 += chars1.charAt(Math.floor(Math.random() * chars1.length));
-    }
-    let p2 = '';
-    for (let i = 0; i < 8; i++) {
-        p2 += chars2.charAt(Math.floor(Math.random() * chars2.length));
-    }
+    const c1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const c2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let p1 = '', p2 = '';
+    for (let i = 0; i < 5; i++) p1 += c1.charAt(Math.floor(Math.random() * c1.length));
+    for (let i = 0; i < 8; i++) p2 += c2.charAt(Math.floor(Math.random() * c2.length));
     return `kzm-${p1}-${p2}`;
 };
 
@@ -50,20 +43,19 @@ const sendVerificationMail = async (email, username, vCode, id) => {
     const mailOptions = {
         from: '"Api Kazuma" <frasesbebor@gmail.com>',
         to: email,
-        subject: 'Verifica tu cuenta - Api Kazuma',
+        subject: `Código: ${vCode} - Verifica tu cuenta`,
         html: `
-            <div style="background-color: #0d1117; color: #ffffff; font-family: sans-serif; padding: 40px; border-radius: 15px; max-width: 600px; margin: auto; border: 1px solid #ff2d55;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #ff2d55; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Kazuma <span style="color: #ffffff;">Dash</span></h1>
-                </div>
-                <p style="font-size: 16px; line-height: 1.6;">¡Hola <b>${username}</b>!</p>
-                <div style="background: rgba(255, 45, 85, 0.1); border: 2px dashed #ff2d55; padding: 20px; font-size: 32px; text-align: center; letter-spacing: 10px; font-weight: bold; color: #ff2d55; margin: 25px 0; border-radius: 10px;">
+            <div style="background-color: #0d1117; color: #ffffff; font-family: sans-serif; padding: 40px; border-radius: 15px; border: 1px solid #ff2d55; max-width: 500px; margin: auto;">
+                <h1 style="color: #ff2d55; text-align: center; margin-bottom: 20px;">Kazuma Verify</h1>
+                <p>Hola <b>${username}</b>,</p>
+                <p>Usa el siguiente código para activar tu API Key:</p>
+                <div style="background: rgba(255, 45, 85, 0.1); border: 2px dashed #ff2d55; padding: 20px; font-size: 32px; text-align: center; color: #ff2d55; font-weight: bold; margin: 20px 0;">
                     ${vCode}
                 </div>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="background-color: #ff2d55; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">Verificar cuenta</a>
-                </div>
-                <p style="font-size: 12px; color: #8b949e; text-align: center;">Copyright © 2026 Kazuma. Powered by PixelCrew-Team</p>
+                <p style="text-align: center;">
+                    <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="color: #ff2d55; text-decoration: none; font-weight: bold;">[ Verificar Automáticamente ]</a>
+                </p>
+                <p style="font-size: 11px; color: #484f58; text-align: center; margin-top: 30px;">Copyright © 2026 Kazuma. Powered by PixelCrew-Team</p>
             </div>
         `
     };
@@ -78,18 +70,18 @@ router.post('/register', async (req, res) => {
         const db = readDB();
 
         if (db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim())) {
-            return res.json({ status: false, message: "El correo ya está registrado." });
+            return res.json({ status: false, message: "El correo ya existe." });
         }
 
         const newId = Math.floor(10000000 + Math.random() * 90000000);
         const vCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const expires = new Date(Date.now() + 3600000);
+        const expires = new Date(Date.now() + 3600000).toISOString();
 
         const newUser = {
             id: newId,
             username: username.trim(),
             email: email.toLowerCase().trim(),
-            password,
+            password: password,
             role: "user",
             limit: 100,
             requests_today: 0,
@@ -98,20 +90,20 @@ router.post('/register', async (req, res) => {
             last_reset: new Date().toISOString().split('T')[0],
             verified: false,
             verificationCode: vCode,
-            codeExpires: expires.toISOString()
+            codeExpires: expires
         };
 
-        // 1. Escritura inmediata para evitar pérdida de datos si el mail falla
         db.users.push(newUser);
         writeDB(db);
 
-        // 2. Correo en segundo plano
-        sendVerificationMail(email, username, vCode, newId).catch(e => console.log("Mail Error:", e.message));
+        // Envío asíncrono para no bloquear la respuesta
+        sendVerificationMail(newUser.email, newUser.username, vCode, newId)
+            .then(info => console.log("[MAIL]: Enviado a", newUser.email, info.messageId))
+            .catch(e => console.error("[MAIL ERROR]:", e.message));
 
         return res.json({ status: true, message: "Código enviado.", id: newId });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: false, message: "Error en el servidor." });
+        return res.status(500).json({ status: false, message: "Error interno." });
     }
 });
 
@@ -122,18 +114,21 @@ router.post('/resend', async (req, res) => {
         const user = db.users.find(u => String(u.id) === String(id));
 
         if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
-        if (user.verified) return res.json({ status: false, message: "Cuenta ya verificada." });
+        if (user.verified) return res.json({ status: false, message: "Ya estás verificado." });
 
         const newVCode = Math.floor(100000 + Math.random() * 900000).toString();
         user.verificationCode = newVCode;
         user.codeExpires = new Date(Date.now() + 3600000).toISOString();
 
         writeDB(db);
-        sendVerificationMail(user.email, user.username, newVCode, user.id).catch(e => console.log(e.message));
+
+        sendVerificationMail(user.email, user.username, newVCode, user.id)
+            .then(info => console.log("[RESEND]: Reenviado a", user.email))
+            .catch(e => console.error("[RESEND ERROR]:", e.message));
 
         return res.json({ status: true, message: "Nuevo código enviado." });
     } catch (error) {
-        return res.status(500).json({ status: false, message: "Error al reenviar." });
+        return res.status(500).json({ status: false });
     }
 });
 
@@ -141,12 +136,10 @@ router.post('/verify', async (req, res) => {
     try {
         const { id, code } = req.body;
         const db = readDB();
-        const userIndex = db.users.findIndex(u => String(u.id) === String(id));
+        const user = db.users.find(u => String(u.id) === String(id));
 
-        if (userIndex === -1) return res.json({ status: false, message: "Usuario no encontrado." });
-        
-        const user = db.users[userIndex];
-        if (user.verified) return res.json({ status: false, message: "Ya verificada." });
+        if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
+        if (user.verified) return res.json({ status: false, message: "Ya verificado." });
         if (user.verificationCode !== code) return res.json({ status: false, message: "Código incorrecto." });
         if (new Date() > new Date(user.codeExpires)) return res.json({ status: false, message: "Código expirado." });
 
@@ -156,9 +149,9 @@ router.post('/verify', async (req, res) => {
         user.apikey = generateApiKey();
 
         writeDB(db);
-        return res.json({ status: true, message: "Verificado con éxito.", apikey: user.apikey });
+        return res.json({ status: true, message: "Verificado.", apikey: user.apikey });
     } catch (error) {
-        return res.status(500).json({ status: false, message: "Error en verificación." });
+        return res.status(500).json({ status: false });
     }
 });
 
@@ -169,15 +162,12 @@ router.post('/login', async (req, res) => {
         const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim() && u.password === password);
 
         if (user) {
-            if (!user.verified) return res.json({ status: "pending", message: "Cuenta no verificada.", id: user.id });
-            return res.json({ 
-                status: true, 
-                user: { id: user.id, username: user.username, role: user.role, apikey: user.apikey } 
-            });
+            if (!user.verified) return res.json({ status: "pending", message: "Verifica tu cuenta.", id: user.id });
+            return res.json({ status: true, user: { id: user.id, username: user.username, role: user.role, apikey: user.apikey } });
         }
-        return res.json({ status: false, message: "Credenciales incorrectas." });
+        return res.json({ status: false, message: "Datos incorrectos." });
     } catch (error) {
-        return res.status(500).json({ status: false, message: "Error en login." });
+        return res.status(500).json({ status: false });
     }
 });
 
