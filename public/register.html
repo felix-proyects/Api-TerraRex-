@@ -109,14 +109,15 @@
 
                 if (data.status) {
                     Swal.fire({
-                        title: '¡REGISTRO EXITOSO!',
-                        text: 'Te hemos enviado el código a tu correo.',
+                        title: '¡ÉXITO!',
+                        text: 'Cuenta creada correctamente. Ya puedes iniciar sesión.',
                         icon: 'success',
                         background: '#161625',
                         color: '#fff',
                         confirmButtonColor: '#ff2d55'
                     }).then(() => {
-                        window.location.href = `/verify.html?id=${data.id}`;
+                        // Directo al login sin pasar por verificar
+                        window.location.href = '/login.html';
                     });
                 } else {
                     grecaptcha.reset();
@@ -127,7 +128,7 @@
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Crear Cuenta';
-                Swal.fire('Error', 'Fallo de conexión con el núcleo.', 'error');
+                Swal.fire('Error', 'Fallo de conexión.', 'error');
             }
         });
     </script>
