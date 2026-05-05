@@ -15,7 +15,7 @@
         body {
             background-color: var(--bg-dark);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,17 +25,17 @@
 
         .verify-container {
             background-color: var(--card-bg);
-            padding: 30px;
+            padding: 40px;
             border-radius: 15px;
             border: 1px solid var(--neon-pink);
-            box-shadow: 0 0 20px rgba(255, 45, 85, 0.2);
+            box-shadow: 0 0 25px rgba(255, 45, 85, 0.2);
             width: 90%;
             max-width: 400px;
             text-align: center;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 26px;
             margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -48,45 +48,52 @@
         p {
             color: #8b949e;
             font-size: 14px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 25px;
             background: #0d1117;
             border: 1px solid #30363d;
-            border-radius: 8px;
+            border-radius: 10px;
             color: white;
-            font-size: 22px;
+            font-size: 24px;
             text-align: center;
-            letter-spacing: 5px;
+            letter-spacing: 8px;
             box-sizing: border-box;
             outline: none;
+            transition: 0.3s;
         }
 
         input:focus {
             border-color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 45, 85, 0.3);
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background-color: var(--neon-pink);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             color: white;
             font-weight: bold;
             font-size: 16px;
             cursor: pointer;
             transition: 0.3s;
-            margin-bottom: 10px;
         }
 
         button:hover {
-            box-shadow: 0 0 15px rgba(255, 45, 85, 0.4);
+            opacity: 0.9;
             transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #30363d;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .resend-link {
@@ -94,20 +101,21 @@
             color: var(--neon-pink);
             text-decoration: none;
             font-size: 13px;
-            margin-top: 15px;
+            margin-top: 20px;
             cursor: pointer;
+            font-weight: 500;
         }
 
         .resend-link.disabled {
             color: #484f58;
             cursor: not-allowed;
-            text-decoration: none;
         }
 
         .footer {
-            margin-top: 25px;
+            margin-top: 35px;
             font-size: 11px;
             color: #484f58;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -129,26 +137,23 @@
     </div>
 
     <script>
-        // Al cargar la página, capturamos el ID
+        // Al cargar, capturamos el ID de la URL y lo guardamos
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
-            const idParam = params.get('id');
-            const codeParam = params.get('code');
+            const id = params.get('id');
+            const code = params.get('code');
 
-            // Guardar ID en localStorage para persistencia en reenvíos
-            if (idParam) {
-                localStorage.setItem('pending_id', idParam);
+            if (id) {
+                localStorage.setItem('pending_id', id);
             }
 
-            // Si ya tiene una API Key válida, mandarlo al dash
+            if (code) {
+                document.getElementById('vCode').value = code;
+            }
+
+            // Si ya está logueado, fuera
             if (localStorage.getItem('apikey') && localStorage.getItem('apikey') !== 'kzm-PENDING-VERIFICATION') {
                 window.location.href = '/dash';
-                return;
-            }
-
-            // Si el código viene en la URL, ponerlo automáticamente
-            if (codeParam) {
-                document.getElementById('vCode').value = codeParam;
             }
 
             checkCooldown();
@@ -157,13 +162,10 @@
         function checkCooldown() {
             const lastResend = localStorage.getItem('last_resend');
             if (lastResend) {
-                const now = Date.now();
-                const diff = now - lastResend;
-                const wait = 2 * 60 * 1000; // 2 minutos de espera (ajustable)
-
+                const diff = Date.now() - lastResend;
+                const wait = 60 * 1000; // 1 minuto de espera
                 if (diff < wait) {
-                    const remaining = Math.ceil((wait - diff) / 1000);
-                    startTimer(remaining);
+                    startTimer(Math.ceil((wait - diff) / 1000));
                 }
             }
         }
@@ -175,10 +177,7 @@
 
             const timer = setInterval(() => {
                 seconds--;
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                link.innerText = `Reenviar en ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-
+                link.innerText = `Reenviar disponible en ${seconds}s`;
                 if (seconds <= 0) {
                     clearInterval(timer);
                     link.innerText = "¿No te llegó el código? Reenviar";
@@ -189,16 +188,15 @@
         }
 
         async function verificar() {
-            const btn = document.getElementById('btnVerify');
             const code = document.getElementById('vCode').value;
-            const params = new URLSearchParams(window.location.search);
-            const userId = params.get('id') || localStorage.getItem('pending_id');
+            const userId = new URLSearchParams(window.location.search).get('id') || localStorage.getItem('pending_id');
+            const btn = document.getElementById('btnVerify');
 
-            if (!code || code.length < 6) return Swal.fire('Error', 'Ingresa el código de 6 dígitos.', 'error');
-            if (!userId) return Swal.fire('Error', 'No se encontró tu ID de sesión. Regístrate de nuevo.', 'error');
+            if (!code || code.length < 6) return Swal.fire('Error', 'Código incompleto', 'error');
+            if (!userId) return Swal.fire('Error', 'Falta el ID de usuario', 'error');
 
             btn.disabled = true;
-            btn.innerText = "Verificando...";
+            btn.innerText = "Procesando...";
 
             try {
                 const res = await fetch('/api/auth/verify', {
@@ -210,8 +208,8 @@
 
                 if (data.status) {
                     Swal.fire({
-                        title: '¡Verificado!',
-                        text: 'Tu cuenta ha sido activada correctamente.',
+                        title: '¡Éxito!',
+                        text: 'Cuenta verificada correctamente',
                         icon: 'success',
                         background: '#161b22',
                         color: '#fff',
@@ -227,17 +225,16 @@
                     btn.innerText = "Verificar Cuenta";
                 }
             } catch (e) {
-                Swal.fire('Error', 'Fallo de conexión con el servidor.', 'error');
+                Swal.fire('Error', 'Error de conexión', 'error');
                 btn.disabled = false;
                 btn.innerText = "Verificar Cuenta";
             }
         }
 
         async function reenviar() {
-            const params = new URLSearchParams(window.location.search);
-            const userId = params.get('id') || localStorage.getItem('pending_id');
+            const userId = new URLSearchParams(window.location.search).get('id') || localStorage.getItem('pending_id');
 
-            if (!userId) return Swal.fire('Error', 'ID de usuario no identificado.', 'error');
+            if (!userId) return Swal.fire('Error', 'No se encontró el ID', 'error');
 
             try {
                 const res = await fetch('/api/auth/resend', {
@@ -250,19 +247,19 @@
                 if (data.status) {
                     Swal.fire({
                         title: 'Enviado',
-                        text: 'Se ha enviado un nuevo código a tu correo.',
+                        text: 'Revisa tu bandeja de entrada o spam',
                         icon: 'success',
                         background: '#161b22',
                         color: '#fff',
                         confirmButtonColor: '#ff2d55'
                     });
                     localStorage.setItem('last_resend', Date.now());
-                    startTimer(2 * 60);
+                    startTimer(60);
                 } else {
                     Swal.fire('Error', data.message, 'error');
                 }
             } catch (e) {
-                Swal.fire('Error', 'Error al conectar con el servidor.', 'error');
+                Swal.fire('Error', 'Fallo al conectar con el servidor', 'error');
             }
         }
     </script>
