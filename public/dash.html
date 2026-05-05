@@ -62,6 +62,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        
         header {
             background-color: var(--sidebar-bg);
             padding: 15px 20px;
@@ -73,6 +74,7 @@
         }
         .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; }
         .brand span { color: var(--neon-pink); }
+        
         .sidebar {
             position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
             background: var(--sidebar-bg); transition: 0.3s ease-in-out; z-index: 2000;
@@ -85,6 +87,7 @@
             background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem; font-weight: 600;
         }
         .nav-category { color: var(--neon-blue); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 25px 0 10px 5px; letter-spacing: 1.5px; }
+        
         .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; flex-grow: 1; }
         .hero { text-align: center; padding: 30px 10px; }
         .hero-img { 
@@ -94,6 +97,7 @@
         }
         .hero h1 { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin: 0; }
         .hero h1 span { color: var(--neon-pink); }
+        
         .api-card {
             background: var(--card-bg); border-radius: 24px; padding: 25px; margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -140,6 +144,7 @@
         }
         .user-name { font-weight: 700; font-size: 0.9rem; }
         .user-reqs { font-weight: 800; color: var(--neon-blue); font-size: 0.75rem; background: rgba(0,243,255,0.1); padding: 5px 12px; border-radius: 10px; }
+        
         .footer { 
             text-align: center; padding: 25px 20px; color: var(--text-muted); font-size: 0.7rem; 
             font-weight: 600; line-height: 1.6; cursor: pointer; user-select: none; transition: 0.2s;
@@ -327,19 +332,9 @@
             preloader.style.opacity = '1';
 
             try {
+                // Obtenemos los datos del usuario sin importar la verificación
                 const resU = await fetch(`/api/auth/user/${user.id}`);
                 const dataU = await resU.json();
-
-                if (dataU.user && dataU.user.verified === false) {
-                    localStorage.setItem('pending_id', user.id);
-                    await fetch('/api/auth/resend', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: user.id })
-                    });
-                    window.location.href = `/verify.html?id=${user.id}`;
-                    return;
-                }
 
                 const res = await fetch('/api/stats/global');
                 const stats = await res.json();
