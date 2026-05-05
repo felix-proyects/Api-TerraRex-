@@ -1,27 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
-const path = require('path');
+const { User, sequelize } = require('../lib/db');
+const { Op } = require('sequelize');
 
-const dbPath = path.join(process.cwd(), 'data', 'database.json');
 const MAIN_ADMIN_EMAIL = "frasesbebor@gmail.com";
 
 router.get('/users', async (req, res) => {
     try {
-        if (!(await fs.pathExists(dbPath))) {
-            return res.json({ status: false, users: [], total: 0, message: "Base de datos no encontrada" });
-        }
-
-        const db = await fs.readJson(dbPath);
         const filter = req.query.filter;
-        let users = db.users || [];
-        const totalGlobal = users.length;
+        let whereClause = {};
 
         if (filter === 'admins') {
-            users = users.filter(u => u.role === 'admin');
+            whereClause.role = 'admin';
         } else if (filter === 'users') {
-            users = users.filter(u => u.role === 'user');
+            whereClause.role = 'user';
         }
+
+        const users = await User.findAll({ where: whereClause });
+        const totalGlobal = await User.count();
 
         res.json({ 
             status: true, 
@@ -29,22 +25,27 @@ router.get('/users', async (req, res) => {
             total: totalGlobal 
         });
     } catch (err) {
-        res.status(500).json({ status: false, users: [], total: 0, error: err.message });
+        res.status(500).json({ status: false, users: [], total: 0 });
     }
 });
 
 router.get('/search', async (req, res) => {
     try {
-        const db = await fs.readJson(dbPath);
         const q = req.query.q ? req.query.q.toLowerCase() : "";
 
-        const users = db.users.filter(u => 
-            u.username.toLowerCase().includes(q) || 
-            u.email.toLowerCase().includes(q) ||
-            String(u.id).includes(q)
-        );
+        const users = await User.findAll({
+            where: {
+                [Op.or]: [
+                    { username: { [Op.like]: `%${q}%` } },
+                    { email: { [Op.like]: `%${q}%` } },
+                    { id: { [Op.like]: `%${q}%` } }
+                ]
+            }
+        });
 
-        res.json({ status: true, users, total: db.users.length });
+        const totalGlobal = await User.count();
+
+        res.json({ status: true, users, total: totalGlobal });
     } catch (err) {
         res.status(500).json({ status: false, users: [] });
     }
@@ -53,10 +54,9 @@ router.get('/search', async (req, res) => {
 router.post('/update-user', async (req, res) => {
     try {
         const { adminId, targetId, username, role, limit, email, password } = req.body;
-        const db = await fs.readJson(dbPath);
 
-        const admin = db.users.find(u => u.id == adminId);
-        const target = db.users.find(u => u.id == targetId);
+        const admin = await User.findByPk(adminId);
+        const target = await User.findByPk(targetId);
 
         if (!admin || admin.role !== 'admin') {
             return res.json({ status: false, message: "No tienes permisos de administrador" });
@@ -70,13 +70,14 @@ router.post('/update-user', async (req, res) => {
             return res.json({ status: false, message: "Acceso denegado: No puedes editar al Dueño" });
         }
 
-        target.username = username;
-        target.email = email;
-        target.password = password;
-        target.role = role;
-        target.limit = parseInt(limit);
+        await target.update({
+            username: username,
+            email: email,
+            password: password,
+            role: role,
+            limit: parseInt(limit)
+        });
 
-        await fs.writeJson(dbPath, db, { spaces: 4 });
         res.json({ status: true, message: "Usuario actualizado correctamente" });
     } catch (err) {
         res.json({ status: false, message: "Error interno al guardar cambios" });
