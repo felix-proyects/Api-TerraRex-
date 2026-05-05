@@ -61,7 +61,7 @@
         </form>
 
         <div class="mt-6 text-center border-t border-white/5 pt-4">
-            <p class="text-slate-500 text-sm">¿Ya tienes cuenta? <a href="/login.html" class="font-bold" style="color: var(--neon-blue);">Inicia sesión</a></p>
+            <p class="text-slate-500 text-sm">¿Ya tienes cuenta? <a href="/login" class="font-bold" style="color: var(--neon-blue);">Inicia sesión</a></p>
         </div>
     </div>
 
@@ -110,14 +110,13 @@
                 if (data.status) {
                     Swal.fire({
                         title: '¡ÉXITO!',
-                        text: 'Cuenta creada correctamente. Ya puedes iniciar sesión.',
+                        text: 'Cuenta creada correctamente.',
                         icon: 'success',
                         background: '#161625',
                         color: '#fff',
                         confirmButtonColor: '#ff2d55'
                     }).then(() => {
-                        // Directo al login sin pasar por verificar
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                     });
                 } else {
                     grecaptcha.reset();
