@@ -5,7 +5,6 @@ const path = require('path');
 
 const dbPath = path.join(__dirname, '../data/database.json');
 
-// --- UTILIDADES ---
 const readDB = () => fs.readJsonSync(dbPath);
 const writeDB = (data) => fs.writeJsonSync(dbPath, data, { spaces: 4 });
 
@@ -15,8 +14,6 @@ const generateApiKey = () => {
     for (let i = 0; i < 12; i++) key += c.charAt(Math.floor(Math.random() * c.length));
     return key;
 };
-
-// --- RUTAS ---
 
 router.post('/register', async (req, res) => {
     try {
@@ -40,17 +37,19 @@ router.post('/register', async (req, res) => {
             requests_today: 0,
             total_requests: 0,
             apikey: newApiKey,
-            last_reset: new Date().toISOString().split('T')[0],
-            verified: true // Se registra como verificado de una vez
+            last_reset: new Date().toISOString().split('T')[0]
         };
 
         db.users.push(newUser);
         writeDB(db);
 
-        // Respuesta inmediata con la API Key
-        return res.json({ status: true, message: "Registro exitoso.", id: newId, apikey: newApiKey });
+        return res.json({ 
+            status: true, 
+            message: "Registro exitoso.", 
+            id: newId, 
+            apikey: newApiKey 
+        });
     } catch (e) {
-        console.error("Error en Registro:", e);
         return res.status(500).json({ status: false, message: "Error interno." });
     }
 });
@@ -59,10 +58,12 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const db = readDB();
-        const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim() && u.password === password);
+        const user = db.users.find(u => 
+            u.email.toLowerCase() === email.toLowerCase().trim() && 
+            u.password === password
+        );
 
         if (user) {
-            // Ya no verificamos si está verificado, simplemente logueamos
             return res.json({ 
                 status: true, 
                 user: { 
