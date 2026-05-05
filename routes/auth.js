@@ -6,61 +6,49 @@ const nodemailer = require('nodemailer');
 
 const dbPath = path.join(__dirname, '../data/database.json');
 
-// --- CONFIGURACIÓN DE GMAIL (PUERTO 587 - MÁS ESTABLE) ---
+// --- CONFIGURACIÓN DE GMAIL (PUERTO 465 SSL - MÁS RÁPIDO) ---
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Debe ser false para puerto 587
+    port: 465,
+    secure: true, 
     auth: {
         user: 'frasesbebor@gmail.com',
-        pass: 'kafvotvrxkignsrl' // Tu contraseña de aplicación (sin espacios)
+        pass: 'kafvotvrxkignsrl' // Contraseña de aplicación sin espacios
     },
     tls: {
-        ciphers: 'SSLv3',
         rejectUnauthorized: false
     }
 });
 
-// Verificación inmediata en consola
-transporter.verify((error) => {
-    if (error) {
-        console.error("--- ERROR CRÍTICO DE CORREO ---");
-        console.error(error.message);
-    } else {
-        console.log("--- GMAIL CONECTADO CORRECTAMENTE ---");
-    }
-});
-
-// --- UTILIDADES ---
+// --- UTILIDADES SÍNCRONAS ---
 const readDB = () => fs.readJsonSync(dbPath);
 const writeDB = (data) => fs.writeJsonSync(dbPath, data, { spaces: 4 });
 
 const generateApiKey = () => {
-    const c1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const c2 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let p1 = '', p2 = '';
-    for (let i = 0; i < 5; i++) p1 += c1.charAt(Math.floor(Math.random() * c1.length));
-    for (let i = 0; i < 8; i++) p2 += c2.charAt(Math.floor(Math.random() * c2.length));
-    return `kzm-${p1}-${p2}`;
+    const c = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = 'kzm-';
+    for (let i = 0; i < 12; i++) key += c.charAt(Math.floor(Math.random() * c.length));
+    return key;
 };
 
-async function sendVerificationMail(email, username, vCode, id) {
+// Función de envío aislada para que NO mate el proceso si falla
+async function sendMail(email, username, vCode, id) {
     const mailOptions = {
         from: '"Api Kazuma" <frasesbebor@gmail.com>',
         to: email,
-        subject: `Tu código: ${vCode}`,
-        html: `
-            <div style="background-color: #0d1117; color: #ffffff; padding: 40px; border: 1px solid #ff2d55; font-family: sans-serif;">
-                <h2 style="color: #ff2d55;">Verifica tu cuenta</h2>
-                <p>Hola ${username}, tu código de activación es:</p>
-                <div style="font-size: 32px; font-weight: bold; color: #ff2d55; border: 1px dashed #ff2d55; padding: 20px; text-align: center;">
-                    ${vCode}
-                </div>
-                <p><a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="color: #ff2d55;">Haz clic aquí para verificar</a></p>
-            </div>
-        `
+        subject: `Código ${vCode}`,
+        html: `<div style="background:#0d1117;color:#fff;padding:20px;border:1px solid #ff2d55;">
+                <h2>Tu código es: ${vCode}</h2>
+                <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="color:#ff2d55;">Click aquí para verificar</a>
+               </div>`
     };
-    return transporter.sendMail(mailOptions);
+    
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`[MAIL OK] Enviado a ${email}`);
+    } catch (err) {
+        console.log(`[MAIL ERROR] No se pudo enviar a ${email}: ${err.message}`);
+    }
 }
 
 // --- RUTAS ---
@@ -71,18 +59,17 @@ router.post('/register', async (req, res) => {
         const db = readDB();
 
         if (db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim())) {
-            return res.json({ status: false, message: "El correo ya existe." });
+            return res.json({ status: false, message: "Correo ya existe" });
         }
 
         const newId = Math.floor(10000000 + Math.random() * 90000000);
         const vCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const expires = new Date(Date.now() + 3600000).toISOString();
 
         const newUser = {
             id: newId,
             username: username.trim(),
             email: email.toLowerCase().trim(),
-            password: password,
+            password,
             role: "user",
             limit: 100,
             requests_today: 0,
@@ -91,23 +78,18 @@ router.post('/register', async (req, res) => {
             last_reset: new Date().toISOString().split('T')[0],
             verified: false,
             verificationCode: vCode,
-            codeExpires: expires
+            codeExpires: new Date(Date.now() + 3600000).toISOString()
         };
 
         db.users.push(newUser);
         writeDB(db);
 
-        // Envío directo sin .then para evitar cortes de proceso
-        try {
-            await sendVerificationMail(newUser.email, newUser.username, vCode, newId);
-            console.log(`[OK] Mail enviado a ${newUser.email}`);
-        } catch (e) {
-            console.error(`[FAIL] Error enviando a ${newUser.email}:`, e.message);
-        }
+        // Disparamos el correo sin "await" para que la respuesta al cliente sea instantánea
+        sendMail(newUser.email, newUser.username, vCode, newId);
 
-        return res.json({ status: true, message: "Código enviado.", id: newId });
-    } catch (error) {
-        return res.status(500).json({ status: false });
+        return res.json({ status: true, message: "Código enviado", id: newId });
+    } catch (e) {
+        res.status(500).json({ status: false });
     }
 });
 
@@ -117,24 +99,17 @@ router.post('/resend', async (req, res) => {
         const db = readDB();
         const user = db.users.find(u => String(u.id) === String(id));
 
-        if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
+        if (!user) return res.json({ status: false, message: "No encontrado" });
 
         const newVCode = Math.floor(100000 + Math.random() * 900000).toString();
         user.verificationCode = newVCode;
-        user.codeExpires = new Date(Date.now() + 3600000).toISOString();
-
         writeDB(db);
 
-        try {
-            await sendVerificationMail(user.email, user.username, newVCode, user.id);
-            console.log(`[OK] Reenvío exitoso a ${user.email}`);
-        } catch (e) {
-            console.error(`[FAIL] Error en reenvío:`, e.message);
-        }
+        sendMail(user.email, user.username, newVCode, user.id);
 
-        return res.json({ status: true, message: "Código reenviado." });
-    } catch (error) {
-        return res.status(500).json({ status: false });
+        return res.json({ status: true, message: "Reenviado" });
+    } catch (e) {
+        res.status(500).json({ status: false });
     }
 });
 
@@ -145,7 +120,7 @@ router.post('/verify', async (req, res) => {
         const user = db.users.find(u => String(u.id) === String(id));
 
         if (!user || user.verificationCode !== code) {
-            return res.json({ status: false, message: "Código o ID inválido." });
+            return res.json({ status: false, message: "Código inválido" });
         }
 
         user.verified = true;
@@ -153,9 +128,9 @@ router.post('/verify', async (req, res) => {
         user.apikey = generateApiKey();
 
         writeDB(db);
-        return res.json({ status: true, message: "Verificado.", apikey: user.apikey });
-    } catch (error) {
-        return res.status(500).json({ status: false });
+        return res.json({ status: true, message: "Verificado", apikey: user.apikey });
+    } catch (e) {
+        res.status(500).json({ status: false });
     }
 });
 
@@ -169,9 +144,9 @@ router.post('/login', async (req, res) => {
             if (!user.verified) return res.json({ status: "pending", id: user.id });
             return res.json({ status: true, user });
         }
-        return res.json({ status: false, message: "Datos incorrectos." });
-    } catch (error) {
-        return res.status(500).json({ status: false });
+        return res.json({ status: false, message: "Datos incorrectos" });
+    } catch (e) {
+        res.status(500).json({ status: false });
     }
 });
 
