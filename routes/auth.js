@@ -6,21 +6,21 @@ const nodemailer = require('nodemailer');
 
 const dbPath = path.join(__dirname, '../data/database.json');
 
-// --- CONFIGURACIÓN DE GMAIL (PUERTO 465 SSL - MÁS RÁPIDO) ---
+// --- CONFIGURACIÓN DE GMAIL (NUEVA CONTRASEÑA) ---
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
     secure: true, 
     auth: {
         user: 'frasesbebor@gmail.com',
-        pass: 'kafvotvrxkignsrl' // Contraseña de aplicación sin espacios
+        pass: 'spjvyaigaxmwcoya' // Tu nueva contraseña de aplicación
     },
     tls: {
         rejectUnauthorized: false
     }
 });
 
-// --- UTILIDADES SÍNCRONAS ---
+// --- UTILIDADES ---
 const readDB = () => fs.readJsonSync(dbPath);
 const writeDB = (data) => fs.writeJsonSync(dbPath, data, { spaces: 4 });
 
@@ -31,23 +31,32 @@ const generateApiKey = () => {
     return key;
 };
 
-// Función de envío aislada para que NO mate el proceso si falla
+// Función de envío blindada: si falla, NO mata el proceso
 async function sendMail(email, username, vCode, id) {
     const mailOptions = {
         from: '"Api Kazuma" <frasesbebor@gmail.com>',
         to: email,
-        subject: `Código ${vCode}`,
-        html: `<div style="background:#0d1117;color:#fff;padding:20px;border:1px solid #ff2d55;">
-                <h2>Tu código es: ${vCode}</h2>
-                <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="color:#ff2d55;">Click aquí para verificar</a>
-               </div>`
+        subject: `Verifica tu cuenta - Código ${vCode}`,
+        html: `
+            <div style="background-color: #0d1117; color: #ffffff; padding: 30px; border: 1px solid #ff2d55; font-family: sans-serif; border-radius: 10px;">
+                <h1 style="color: #ff2d55; text-align: center;">Kazuma Dash</h1>
+                <p>Hola <b>${username}</b>,</p>
+                <p>Tu código de verificación es:</p>
+                <div style="background: rgba(255, 45, 85, 0.1); border: 2px dashed #ff2d55; padding: 20px; font-size: 30px; text-align: center; color: #ff2d55; font-weight: bold; margin: 20px 0;">
+                    ${vCode}
+                </div>
+                <p style="text-align: center;">
+                    <a href="https://api.kazuma.giize.com/verify?code=${vCode}&id=${id}" style="color: #ff2d55; text-decoration: none;">O haz clic aquí para verificar automáticamente</a>
+                </p>
+            </div>
+        `
     };
     
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`[MAIL OK] Enviado a ${email}`);
+        console.log(`[MAIL SUCCESS] Enviado a ${email}`);
     } catch (err) {
-        console.log(`[MAIL ERROR] No se pudo enviar a ${email}: ${err.message}`);
+        console.error(`[MAIL ERROR] Falló el envío a ${email}: ${err.message}`);
     }
 }
 
@@ -59,7 +68,7 @@ router.post('/register', async (req, res) => {
         const db = readDB();
 
         if (db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim())) {
-            return res.json({ status: false, message: "Correo ya existe" });
+            return res.json({ status: false, message: "El correo ya existe." });
         }
 
         const newId = Math.floor(10000000 + Math.random() * 90000000);
@@ -69,7 +78,7 @@ router.post('/register', async (req, res) => {
             id: newId,
             username: username.trim(),
             email: email.toLowerCase().trim(),
-            password,
+            password: password,
             role: "user",
             limit: 100,
             requests_today: 0,
@@ -84,12 +93,13 @@ router.post('/register', async (req, res) => {
         db.users.push(newUser);
         writeDB(db);
 
-        // Disparamos el correo sin "await" para que la respuesta al cliente sea instantánea
+        // Se envía sin await para que el usuario reciba la respuesta "true" rápido
         sendMail(newUser.email, newUser.username, vCode, newId);
 
-        return res.json({ status: true, message: "Código enviado", id: newId });
+        return res.json({ status: true, message: "Código enviado correctamente.", id: newId });
     } catch (e) {
-        res.status(500).json({ status: false });
+        console.error("Error en Registro:", e);
+        return res.status(500).json({ status: false, message: "Error interno en el servidor." });
     }
 });
 
@@ -99,7 +109,7 @@ router.post('/resend', async (req, res) => {
         const db = readDB();
         const user = db.users.find(u => String(u.id) === String(id));
 
-        if (!user) return res.json({ status: false, message: "No encontrado" });
+        if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
 
         const newVCode = Math.floor(100000 + Math.random() * 900000).toString();
         user.verificationCode = newVCode;
@@ -107,9 +117,9 @@ router.post('/resend', async (req, res) => {
 
         sendMail(user.email, user.username, newVCode, user.id);
 
-        return res.json({ status: true, message: "Reenviado" });
+        return res.json({ status: true, message: "Nuevo código enviado." });
     } catch (e) {
-        res.status(500).json({ status: false });
+        return res.status(500).json({ status: false });
     }
 });
 
@@ -120,7 +130,7 @@ router.post('/verify', async (req, res) => {
         const user = db.users.find(u => String(u.id) === String(id));
 
         if (!user || user.verificationCode !== code) {
-            return res.json({ status: false, message: "Código inválido" });
+            return res.json({ status: false, message: "Código o ID incorrecto." });
         }
 
         user.verified = true;
@@ -128,9 +138,9 @@ router.post('/verify', async (req, res) => {
         user.apikey = generateApiKey();
 
         writeDB(db);
-        return res.json({ status: true, message: "Verificado", apikey: user.apikey });
+        return res.json({ status: true, message: "Cuenta verificada.", apikey: user.apikey });
     } catch (e) {
-        res.status(500).json({ status: false });
+        return res.status(500).json({ status: false });
     }
 });
 
@@ -144,9 +154,9 @@ router.post('/login', async (req, res) => {
             if (!user.verified) return res.json({ status: "pending", id: user.id });
             return res.json({ status: true, user });
         }
-        return res.json({ status: false, message: "Datos incorrectos" });
+        return res.json({ status: false, message: "Credenciales inválidas." });
     } catch (e) {
-        res.status(500).json({ status: false });
+        return res.status(500).json({ status: false });
     }
 });
 
