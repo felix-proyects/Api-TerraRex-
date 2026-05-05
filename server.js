@@ -7,7 +7,7 @@ const app = express();
 global.serverStart = Date.now();
 
 // PUERTO: Ajustado al 880 para tu VPS
-const PORT = process.env.PORT || 880;
+const PORT = process.env.PORT || 3000;
 const dbPath = path.join(process.cwd(), 'data', 'database.json');
 
 // --- IMPORTACIÓN DE RUTAS ---
