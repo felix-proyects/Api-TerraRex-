@@ -58,7 +58,6 @@ const securityMiddleware = async (req, res, next) => {
 
 app.use(securityMiddleware);
 
-// Rutas de API
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/admin', require('./routes/admin'));
@@ -77,42 +76,30 @@ app.use('/api/download/pinterest', (req, res) => pinterestRoute.run(req, res));
 app.use('/api/search/pinterest', (req, res) => pinterestSearchRoute.run(req, res));
 app.use('/api/tools/ssweb', (req, res) => sswebRoute.run(req, res));
 
-// Configuración de archivos estáticos y carpetas temporales
 app.use('/temp', express.static(path.join(process.cwd(), 'public', 'temp')));
-
-// Servir archivos estáticos con opción de extensiones automáticas
 app.use(express.static(path.join(process.cwd(), 'public'), { extensions: ['html'] }));
 
-/**
- * GESTOR DE RUTAS LIMPIAS
- * Permite que /dash cargue dash.html sin mostrar la extensión en la URL
- */
 app.get('/:page', (req, res, next) => {
     const page = req.params.page;
     const filePath = path.join(process.cwd(), 'public', `${page}.html`);
 
-    // Evitar procesar rutas que empiecen por /api como archivos HTML
     if (page === 'api') return next();
 
     if (fs.existsSync(filePath)) {
         res.sendFile(filePath);
     } else {
-        next(); // Si el archivo no existe, pasa al manejador de 404
+        next();
     }
 });
 
-// Ruta raíz
 app.get('/', (req, res) => res.sendFile(path.join(process.cwd(), 'public', 'index.html')));
 
-// Manejador de errores 404
 app.use((req, res) => res.status(404).sendFile(path.join(process.cwd(), 'public', '404.html')));
 
-// Inicialización del sistema
 initDB().then(() => {
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`Kazuma API activa en puerto: ${PORT}`);
     });
 }).catch(err => {
-    console.error("Error al iniciar DB:", err);
     process.exit(1);
 });
