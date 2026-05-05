@@ -4,98 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Mi Perfil</title>
-
     <script src="https://www.google.com/recaptcha/api.js?render=6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --neon-pink: #ff2d55;
-            --neon-blue: #00f3ff;
-            --dark-bg: #0d0d0d;
-        }
-
-        .grecaptcha-badge { 
-            width: 70px !important; 
-            right: 0px !important; 
-            bottom: 0px !important; 
-            transform: scale(0.75) !important; 
-            transform-origin: bottom right !important;
-            opacity: 0.8;
-            z-index: 999;
-        }
-
-        body { 
-            background-color: var(--dark-bg); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-        }
-
-        .glass { 
-            background: #161625; 
-            border: 1px solid rgba(255,255,255,0.1); 
-        }
-
-        .profile-container { 
-            position: relative; 
-            width: 120px; 
-            margin: 0 auto; 
-        }
-
-        #view-img { 
-            width: 120px; 
-            height: 120px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--neon-pink); 
-            background: #1a1a2e; 
-            box-shadow: 0 0 15px rgba(255, 45, 85, 0.2);
-            display: block;
-        }
-
-        .input-dark { 
-            background: rgba(0,0,0,0.5); 
-            border: 1px solid rgba(255,255,255,0.2); 
-            color: white; 
-        }
-
-        .label-clear {
-            color: #ffffff;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-        }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; }
+        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: #161625; border: 1px solid rgba(255,255,255,0.1); }
+        #view-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-pink); background: #1a1a2e; margin: 0 auto; }
+        .input-dark { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; transition: 0.3s; }
+        .input-dark:focus { border-color: var(--neon-blue); }
+        .label-clear { color: #ffffff; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        .btn-action { transition: 0.3s; text-transform: uppercase; font-weight: 900; font-size: 0.7rem; }
+        .btn-action:hover { filter: brightness(1.2); transform: scale(1.02); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-
     <header class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
         <div class="font-bold text-xl uppercase tracking-tighter" onclick="location.href='/dash'" style="cursor:pointer">KAZUMA <span>PROFILER</span></div>
-        <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
-            <i class="fas fa-arrow-left mr-2"></i> INICIO
-        </button>
+        <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition"><i class="fas fa-arrow-left mr-2"></i> INICIO</button>
     </header>
 
     <main class="container mx-auto p-4 flex-grow max-w-2xl">
         <div class="glass rounded-3xl p-8 mt-6 text-center">
-            <div class="profile-container mb-6">
-                <img id="view-img" src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" alt="Foto de perfil">
-            </div>
-
-            <h2 id="view-username" class="text-2xl font-black">...</h2>
-            <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 00000000</p>
+            <img id="view-img" src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" alt="Foto">
+            <h2 id="view-username" class="text-2xl font-black mt-4">...</h2>
+            <p id="view-id" class="text-blue-400 font-mono text-sm">ID: 0</p>
         </div>
 
         <div class="glass p-6 rounded-2xl mt-6 border-l-4 border-[#00f3ff]">
             <p class="label-clear mb-3">Tu Llave Maestra (API KEY)</p>
             <div class="flex gap-2">
                 <input type="text" id="view-apikey" class="input-dark w-full p-4 rounded-xl outline-none font-mono text-sm" readonly>
-                <button onclick="copyKey()" class="bg-[#00f3ff] text-black px-5 rounded-xl font-bold hover:bg-white transition">
-                    <i class="fas fa-copy"></i>
-                </button>
+                <button onclick="copyKey()" class="bg-[#00f3ff] text-black px-5 rounded-xl font-bold hover:bg-white transition"><i class="fas fa-copy"></i></button>
             </div>
         </div>
 
@@ -111,42 +53,32 @@
         </div>
 
         <div class="glass rounded-3xl p-8 mt-8">
-            <h3 class="text-xl font-bold mb-6 flex items-center uppercase tracking-tighter">
-                <i class="fas fa-cog mr-3 text-pink-500"></i> Ajustes de Cuenta
-            </h3>
-
+            <h3 class="text-xl font-bold mb-6 uppercase tracking-tighter"><i class="fas fa-cog mr-3 text-pink-500"></i> Ajustes</h3>
             <div class="space-y-6">
                 <div>
-                    <label class="block label-clear mb-2">Nombre de Usuario</label>
+                    <label class="block label-clear mb-2">Usuario</label>
                     <div class="flex gap-2">
                         <input type="text" id="new-username" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="Nuevo nombre...">
-                        <button onclick="updateData('username')" class="bg-pink-600 px-5 rounded-xl font-bold text-xs uppercase">Cambiar</button>
+                        <button onclick="updateData('username')" class="bg-pink-600 px-5 rounded-xl btn-action">Cambiar</button>
                     </div>
                 </div>
-
                 <div>
-                    <label class="block label-clear mb-2">Correo Electrónico</label>
+                    <label class="block label-clear mb-2">Email</label>
                     <div class="flex gap-2">
                         <input type="email" id="new-email" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="nuevo@correo.com">
-                        <button onclick="updateData('email')" class="bg-blue-600 px-5 rounded-xl font-bold text-xs uppercase">Actualizar</button>
+                        <button onclick="updateData('email')" class="bg-blue-600 px-5 rounded-xl btn-action">Update</button>
                     </div>
                 </div>
-
                 <div>
-                    <label class="block label-clear mb-2">Nueva Contraseña</label>
+                    <label class="block label-clear mb-2">Password</label>
                     <div class="flex gap-2">
                         <input type="password" id="new-pass" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="••••••••">
-                        <button onclick="updateData('password')" class="bg-blue-600 px-5 rounded-xl font-bold text-xs uppercase">Update</button>
+                        <button onclick="updateData('password')" class="bg-slate-700 px-5 rounded-xl btn-action">Update</button>
                     </div>
                 </div>
-
                 <div class="pt-6 border-t border-white/10 space-y-4">
-                    <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
-                        <i class="fas fa-sign-out-alt mr-2 text-yellow-500"></i> Cerrar Sesión
-                    </button>
-                    <button onclick="deleteAccount()" class="w-full border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white p-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
-                        <i class="fas fa-trash-alt mr-2"></i> Eliminar Cuenta
-                    </button>
+                    <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold uppercase text-xs transition">Cerrar Sesión</button>
+                    <button onclick="deleteAccount()" class="w-full border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white p-4 rounded-2xl font-bold uppercase text-xs transition">Eliminar Cuenta</button>
                 </div>
             </div>
         </div>
@@ -154,52 +86,29 @@
 
     <script>
         const session = JSON.parse(localStorage.getItem('userSession'));
-        if (!session) window.location.href = '/login.html';
-
-        grecaptcha.ready(function() {
-            grecaptcha.execute('6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa', {action: 'profile_load'}).then(function(token) {
-                console.log("Security Active");
-            });
-        });
+        if (!session) window.location.href = '/login';
 
         async function loadProfile() {
             try {
                 const res = await fetch(`/api/auth/user/${session.id}`);
                 const data = await res.json();
-                
                 if (data.status) {
                     const u = data.user;
-
-                    // VERIFICACIÓN DE SEGURIDAD
-                    if (u.verified === false) {
-                        localStorage.setItem('pending_id', session.id);
-                        await fetch('/api/auth/resend', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: session.id })
-                        });
-                        window.location.href = `/verify.html?id=${session.id}`;
-                        return;
-                    }
-
+                    if (u.verified === 0) { window.location.href = `/verify?id=${u.id}`; return; }
                     document.getElementById('view-username').innerText = u.username.toUpperCase();
                     document.getElementById('view-id').innerText = `ID: ${u.id}`;
                     document.getElementById('view-apikey').value = u.apikey;
                     document.getElementById('view-requests').innerText = `${u.requests_today} / ${u.limit}`;
-
-                    if (u.profile_img) {
-                        document.getElementById('view-img').src = u.profile_img;
-                    }
-
+                    if (u.profile_img) document.getElementById('view-img').src = u.profile_img;
                     document.getElementById('view-plan').innerText = u.role === 'admin' ? 'VIP ADMIN' : (u.limit > 100 ? 'PREMIUM' : 'FREE');
                 }
-            } catch (e) { console.error("Error profile load"); }
+            } catch (e) { console.error("Error load"); }
         }
 
         async function updateData(type) {
             const inputId = type === 'username' ? 'new-username' : (type === 'email' ? 'new-email' : 'new-pass');
-            const val = document.getElementById(inputId).value;
-            if (!val) return Swal.fire('Atención', 'Por favor, completa el campo.', 'warning');
+            const val = document.getElementById(inputId).value.trim();
+            if (!val) return Swal.fire({ title: 'Atención', text: 'Completa el campo.', icon: 'warning', background: '#161625', color: '#fff' });
             
             try {
                 const res = await fetch(`/api/auth/update`, {
@@ -209,64 +118,30 @@
                 });
                 const data = await res.json();
                 if (data.status) {
-                    if(type === 'username') {
-                        session.username = val;
-                        localStorage.setItem('userSession', JSON.stringify(session));
-                    }
-                    Swal.fire('Éxito', 'Información actualizada correctamente.', 'success').then(() => {
-                        location.reload();
-                    });
+                    if(type === 'username') { session.username = val; localStorage.setItem('userSession', JSON.stringify(session)); }
+                    Swal.fire({ title: 'Éxito', text: 'Perfil actualizado.', icon: 'success', background: '#161625', color: '#fff' }).then(() => location.reload());
                 } else {
-                    Swal.fire('Error', data.message || 'No se pudo actualizar.', 'error');
+                    Swal.fire({ title: 'Error', text: data.message || 'Error al actualizar.', icon: 'error', background: '#161625', color: '#fff' });
                 }
-            } catch (error) {
-                Swal.fire('Error', 'Fallo de conexión.', 'error');
-            }
+            } catch (e) { Swal.fire({ title: 'Error', text: 'Sin conexión.', icon: 'error', background: '#161625', color: '#fff' }); }
         }
 
         function copyKey() {
             const keyInput = document.getElementById('view-apikey');
             keyInput.select();
             document.execCommand('copy');
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'API KEY Copiada',
-                showConfirmButton: false,
-                timer: 2000,
-                background: '#161625',
-                color: '#fff'
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado', showConfirmButton: false, timer: 1500, background: '#161625', color: '#fff' });
         }
 
-        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+        function logout() { localStorage.clear(); window.location.href = '/login'; }
 
         async function deleteAccount() {
-            const result = await Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Esta acción eliminará tu cuenta permanentemente.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff2d55',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            });
-
+            const result = await Swal.fire({ title: '¿ELIMINAR CUENTA?', text: "Esta acción es irreversible.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff2d55', confirmButtonText: 'ELIMINAR', background: '#161625', color: '#fff' });
             if (result.isConfirmed) {
-                const res = await fetch(`/api/auth/delete`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: session.id })
-                });
-                if ((await res.json()).status) { 
-                    localStorage.clear(); 
-                    window.location.href = '/register.html'; 
-                }
+                const res = await fetch(`/api/auth/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: session.id }) });
+                if ((await res.json()).status) { localStorage.clear(); window.location.href = '/register'; }
             }
         }
-
         window.onload = loadProfile;
     </script>
 </body>
