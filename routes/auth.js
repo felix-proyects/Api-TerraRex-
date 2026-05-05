@@ -62,144 +62,164 @@ const sendVerificationMail = async (email, username, vCode, id) => {
 };
 
 router.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
-    const db = readDB();
-
-    if (db.users.find(u => u.email === email)) {
-        return res.json({ status: false, message: "El correo ya está registrado." });
-    }
-
-    let newId;
-    do {
-        newId = Math.floor(10000000 + Math.random() * 90000000);
-    } while (db.users.find(u => u.id === newId));
-
-    const vCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expires = new Date();
-    expires.setHours(expires.getHours() + 1);
-
-    const newUser = {
-        id: newId,
-        username,
-        email,
-        password,
-        role: "user",
-        limit: 100,
-        requests_today: 0,
-        total_requests: 0,
-        apikey: "kzm-PENDING-VERIFICATION",
-        last_reset: new Date().toISOString().split('T')[0],
-        verified: false,
-        verificationCode: vCode,
-        codeExpires: expires.toISOString()
-    };
-
     try {
+        const { username, email, password } = req.body;
+        const db = readDB();
+
+        if (db.users.find(u => u.email === email)) {
+            return res.json({ status: false, message: "El correo ya está registrado." });
+        }
+
+        let newId;
+        do {
+            newId = Math.floor(10000000 + Math.random() * 90000000);
+        } while (db.users.find(u => u.id === newId));
+
+        const vCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date();
+        expires.setHours(expires.getHours() + 1);
+
+        const newUser = {
+            id: newId,
+            username,
+            email,
+            password,
+            role: "user",
+            limit: 100,
+            requests_today: 0,
+            total_requests: 0,
+            apikey: "kzm-PENDING-VERIFICATION",
+            last_reset: new Date().toISOString().split('T')[0],
+            verified: false,
+            verificationCode: vCode,
+            codeExpires: expires.toISOString()
+        };
+
         await sendVerificationMail(email, username, vCode, newId);
         db.users.push(newUser);
         writeDB(db);
-        res.json({ status: true, message: "Código enviado al correo.", id: newId });
+        return res.json({ status: true, message: "Código enviado al correo.", id: newId });
     } catch (error) {
-        res.status(500).json({ status: false, message: "Error al enviar el correo." });
+        return res.status(500).json({ status: false, message: "Error en el servidor." });
     }
 });
 
 router.post('/resend', async (req, res) => {
-    const { id } = req.body;
-    const db = readDB();
-    const user = db.users.find(u => u.id == id);
-
-    if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
-    if (user.verified) return res.json({ status: false, message: "Esta cuenta ya está verificada." });
-
-    const newVCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expires = new Date();
-    expires.setHours(expires.getHours() + 1);
-
-    user.verificationCode = newVCode;
-    user.codeExpires = expires.toISOString();
-
     try {
+        const { id } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => String(u.id) === String(id));
+
+        if (!user) return res.json({ status: false, message: "Usuario no encontrado." });
+        if (user.verified) return res.json({ status: false, message: "Cuenta ya verificada." });
+
+        const newVCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date();
+        expires.setHours(expires.getHours() + 1);
+
+        user.verificationCode = newVCode;
+        user.codeExpires = expires.toISOString();
+
         await sendVerificationMail(user.email, user.username, newVCode, user.id);
         writeDB(db);
-        res.json({ status: true, message: "Nuevo código enviado." });
+        return res.json({ status: true, message: "Nuevo código enviado." });
     } catch (error) {
-        res.status(500).json({ status: false, message: "Error al reenviar." });
+        return res.status(500).json({ status: false, message: "Error al reenviar." });
     }
 });
 
 router.post('/verify', async (req, res) => {
-    const { id, code } = req.body;
-    const db = readDB();
-    const userIndex = db.users.findIndex(u => u.id == id);
+    try {
+        const { id, code } = req.body;
+        const db = readDB();
+        const userIndex = db.users.findIndex(u => String(u.id) === String(id));
 
-    if (userIndex === -1) return res.json({ status: false, message: "Usuario no encontrado." });
-    
-    const user = db.users[userIndex];
-    const ahora = new Date();
-    const expiracion = new Date(user.codeExpires);
+        if (userIndex === -1) return res.json({ status: false, message: "Usuario no encontrado." });
+        
+        const user = db.users[userIndex];
+        const ahora = new Date();
+        const expiracion = new Date(user.codeExpires);
 
-    if (user.verified) return res.json({ status: false, message: "Esta cuenta ya está verificada." });
-    if (!user.verificationCode || user.verificationCode !== code) return res.json({ status: false, message: "Código incorrecto." });
-    if (ahora > expiracion) return res.json({ status: false, message: "El código ha expirado." });
+        if (user.verified) return res.json({ status: false, message: "Cuenta ya verificada." });
+        if (!user.verificationCode || user.verificationCode !== code) return res.json({ status: false, message: "Código incorrecto." });
+        if (ahora > expiracion) return res.json({ status: false, message: "Código expirado." });
 
-    let newKey;
-    do {
-        newKey = generateApiKey();
-    } while (db.users.find(u => u.apikey === newKey));
+        let newKey;
+        do {
+            newKey = generateApiKey();
+        } while (db.users.find(u => u.apikey === newKey));
 
-    user.verified = true;
-    user.verificationCode = null;
-    user.codeExpires = null;
-    user.apikey = newKey;
+        user.verified = true;
+        user.verificationCode = null;
+        user.codeExpires = null;
+        user.apikey = newKey;
 
-    writeDB(db);
-    res.json({ status: true, message: "Cuenta verificada con éxito.", apikey: newKey });
+        writeDB(db);
+        return res.json({ status: true, message: "Verificado con éxito.", apikey: newKey });
+    } catch (error) {
+        return res.status(500).json({ status: false, message: "Error en verificación." });
+    }
 });
 
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    const db = readDB();
+    try {
+        const { email, password } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.email === email && u.password === password);
 
-    const user = db.users.find(u => u.email === email && u.password === password);
-
-    if (user) {
-        if (!user.verified) {
-            return res.json({ status: "pending", message: "Cuenta no verificada.", id: user.id });
+        if (user) {
+            if (!user.verified) {
+                return res.json({ status: "pending", message: "Cuenta no verificada.", id: user.id });
+            }
+            return res.json({ 
+                status: true, 
+                user: { id: user.id, username: user.username, role: user.role, apikey: user.apikey } 
+            });
+        } else {
+            return res.json({ status: false, message: "Credenciales incorrectas." });
         }
-        res.json({ 
-            status: true, 
-            user: { id: user.id, username: user.username, role: user.role, apikey: user.apikey } 
-        });
-    } else {
-        res.json({ status: false, message: "Correo o contraseña incorrectos." });
+    } catch (error) {
+        return res.status(500).json({ status: false, message: "Error en login." });
     }
 });
 
 router.get('/user/:id', (req, res) => {
-    const db = readDB();
-    const user = db.users.find(u => u.id == req.params.id);
-    if (user) res.json({ status: true, user });
-    else res.json({ status: false });
+    try {
+        const db = readDB();
+        const user = db.users.find(u => String(u.id) === String(req.params.id));
+        if (user) return res.json({ status: true, user });
+        return res.json({ status: false });
+    } catch (error) {
+        return res.status(500).json({ status: false });
+    }
 });
 
 router.post('/update', (req, res) => {
-    const { id, type, value } = req.body;
-    const db = readDB();
-    const index = db.users.findIndex(u => u.id == id);
-    if (index !== -1) {
-        db.users[index][type] = value;
-        writeDB(db);
-        res.json({ status: true });
-    } else res.json({ status: false });
+    try {
+        const { id, type, value } = req.body;
+        const db = readDB();
+        const index = db.users.findIndex(u => String(u.id) === String(id));
+        if (index !== -1) {
+            db.users[index][type] = value;
+            writeDB(db);
+            return res.json({ status: true });
+        }
+        return res.json({ status: false });
+    } catch (error) {
+        return res.status(500).json({ status: false });
+    }
 });
 
 router.post('/delete', (req, res) => {
-    const { id } = req.body;
-    const db = readDB();
-    db.users = db.users.filter(u => u.id != id);
-    writeDB(db);
-    res.json({ status: true });
+    try {
+        const { id } = req.body;
+        const db = readDB();
+        db.users = db.users.filter(u => String(u.id) !== String(id));
+        writeDB(db);
+        return res.json({ status: true });
+    } catch (error) {
+        return res.status(500).json({ status: false });
+    }
 });
 
 module.exports = router;
