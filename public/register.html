@@ -21,7 +21,15 @@
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
         .btn-pink:hover { filter: brightness(1.2); transform: translateY(-1px); }
         .btn-pink:disabled { opacity: 0.5; cursor: not-allowed; }
-        .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; transform: scale(0.9); }
+        .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; transform: scale(0.85); }
+        
+        /* Checkbox personalizado */
+        .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+        .checkbox-container input { display: none; }
+        .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
+        .checkbox-container input:checked ~ .checkmark { background-color: var(--neon-pink); border-color: var(--neon-pink); }
+        .checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        .checkbox-container input:checked ~ .checkmark:after { display: block; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -53,9 +61,17 @@
                 <i class="fas fa-eye absolute right-4 top-9 cursor-pointer text-slate-600" onclick="togglePassword('confirmPassword', this)"></i>
             </div>
 
-            <div class="g-recaptcha" data-sitekey="6LdXGtksAAAAALKBc6v456iXHe6Kki5EkaYwrFEu" data-theme="dark"></div>
+            <div class="pt-2">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="terms" required>
+                    <span class="checkmark"></span>
+                    <span class="text-slate-400 text-[11px] uppercase font-bold tracking-tight">Acepto los términos y condiciones</span>
+                </label>
+            </div>
 
-            <button type="submit" id="btnSubmit" class="btn-pink w-full py-4 rounded-xl shadow-lg mt-2">
+            <div class="g-recaptcha" data-sitekey="6LeYFNssAAAAAFQQJNfY4Og51qlF8zxSwLPmL1zr" data-theme="dark"></div>
+
+            <button type="submit" id="btnSubmit" class="btn-pink w-full py-4 rounded-xl shadow-lg mt-2 text-white">
                 Crear Cuenta
             </button>
         </form>
@@ -79,6 +95,11 @@
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
             const captcha = grecaptcha.getResponse();
+            const terms = document.getElementById('terms').checked;
+
+            if (!terms) {
+                return Swal.fire({ title: 'Error', text: 'Debes aceptar los términos.', icon: 'warning', background: '#161625', color: '#fff' });
+            }
 
             if (!captcha) {
                 return Swal.fire({ title: 'Error', text: 'Completa el CAPTCHA.', icon: 'warning', background: '#161625', color: '#fff' });
@@ -101,7 +122,8 @@
                     body: JSON.stringify({
                         username: document.getElementById('username').value.trim(),
                         email: document.getElementById('email').value.trim(),
-                        password: pass
+                        password: pass,
+                        captcha: captcha // Enviamos el token al backend
                     })
                 });
 
