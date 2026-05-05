@@ -81,14 +81,14 @@
             const captcha = grecaptcha.getResponse();
 
             if (!captcha) {
-                return Swal.fire('Error', 'Completa el CAPTCHA.', 'warning');
+                return Swal.fire({ title: 'Error', text: 'Completa el CAPTCHA.', icon: 'warning', background: '#161625', color: '#fff' });
             }
 
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
 
             if (pass !== confirm) {
-                return Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
+                return Swal.fire({ title: 'Error', text: 'Las contraseñas no coinciden.', icon: 'error', background: '#161625', color: '#fff' });
             }
 
             btn.disabled = true;
@@ -122,12 +122,12 @@
                     grecaptcha.reset();
                     btn.disabled = false;
                     btn.innerText = 'Crear Cuenta';
-                    Swal.fire('Error', data.message || 'No se pudo registrar.', 'error');
+                    Swal.fire({ title: 'Error', text: data.message || 'No se pudo registrar.', icon: 'error', background: '#161625', color: '#fff' });
                 }
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Crear Cuenta';
-                Swal.fire('Error', 'Fallo de conexión.', 'error');
+                Swal.fire({ title: 'Error', text: 'Fallo de conexión.', icon: 'error', background: '#161625', color: '#fff' });
             }
         });
     </script>
