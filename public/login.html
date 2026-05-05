@@ -26,7 +26,7 @@
         .glass { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; }
         .btn-pink { background: var(--neon-pink); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        
+
         .g-recaptcha {
             display: flex;
             justify-content: center;
@@ -118,26 +118,10 @@
 
                 const data = await response.json();
 
+                // Aquí ya solo nos importa si es true (exitoso)
                 if (data.status === true) {
                     localStorage.setItem('userSession', JSON.stringify(data.user));
                     window.location.href = '/dash';
-                } else if (data.status === "pending") {
-                    localStorage.setItem('pending_id', data.id);
-                    
-                    await fetch('/api/auth/resend', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: data.id })
-                    });
-
-                    Swal.fire({
-                        title: 'Cuenta no verificada',
-                        text: 'Te hemos enviado un nuevo código de acceso a tu correo.',
-                        icon: 'info',
-                        confirmButtonColor: '#ff2d55'
-                    }).then(() => {
-                        window.location.href = `/verify.html?id=${data.id}`;
-                    });
                 } else {
                     grecaptcha.reset();
                     Swal.fire('Error', data.message || 'Credenciales incorrectas.', 'error');
