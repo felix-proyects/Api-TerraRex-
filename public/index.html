@@ -41,14 +41,18 @@
             box-shadow: 0 0 20px rgba(255, 45, 85, 0.5);
             font-weight: 900;
             text-transform: uppercase;
+            transition: 0.3s;
         }
+        .btn-main:hover { filter: brightness(1.2); transform: scale(1.02); }
 
         .btn-sec {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #ffffff;
             backdrop-filter: blur(5px);
+            transition: 0.3s;
         }
+        .btn-sec:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--neon-blue); }
 
         .stat-box {
             background: #0a0a0a;
@@ -63,11 +67,11 @@
         .scanline {
             width: 100%; height: 2px; background: var(--neon-blue); opacity: 0.05;
             position: absolute; animation: scan 4s linear infinite; z-index: 10;
+            pointer-events: none;
         }
         @keyframes scan { from { top: 0; } to { top: 100%; } }
 
-        /* Estilo opcional para ajustar la posición del badge si te estorba algo */
-        .grecaptcha-badge { visibility: visible !important; }
+        .grecaptcha-badge { visibility: hidden; } /* Ocultamos el badge flotante para no arruinar el diseño */
     </style>
 </head>
 <body>
@@ -86,14 +90,14 @@
                 DOMINA EL <br> <span class="neon-text-blue">DESARROLLO.</span>
             </h1>
             <p class="text-gray-300 text-sm md:text-base max-w-lg mx-auto leading-relaxed font-medium">
-                Infraestructura de alto rendimiento para descarga de medios, Inteligencia Artificial y herramientas de automatización.
+                Infraestructura de alto rendimiento para descarga de medios, Inteligencia Artificial y herramientas de automatización. Acceso inmediato sin esperas.
             </p>
             
             <div class="mt-12 flex flex-col gap-4">
                 <a href="/dash" class="btn-main py-5 rounded-2xl text-sm text-white text-center">Entrar al Dashboard</a>
                 <div class="flex gap-3">
                     <a href="/register" class="btn-sec flex-1 py-4 rounded-2xl text-xs font-bold uppercase flex items-center justify-center">Registro</a>
-                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" target="_blank" class="btn-sec flex-1 py-4 rounded-2xl text-xs font-bold uppercase flex items-center justify-center gap-2 hover:border-blue-400">
+                    <a href="https://whatsapp.com/channel/0029Vb6sgWdJkK73qeLU0J0N" target="_blank" class="btn-sec flex-1 py-4 rounded-2xl text-xs font-bold uppercase flex items-center justify-center gap-2">
                         <i class="fab fa-whatsapp"></i> Soporte
                     </a>
                 </div>
@@ -118,7 +122,7 @@
                 </div>
                 <div>
                     <h4 class="text-sm font-black uppercase tracking-tight text-white">Multi-Downloader</h4>
-                    <p class="text-xs text-gray-400">TikTok, IG, FB, YT y más en un solo endpoint.</p>
+                    <p class="text-xs text-gray-400">TikTok, IG, FB y más en un solo núcleo.</p>
                 </div>
             </div>
 
@@ -128,7 +132,7 @@
                 </div>
                 <div>
                     <h4 class="text-sm font-black uppercase tracking-tight text-white">AI Integration</h4>
-                    <p class="text-xs text-gray-400">Modelos Gemini AI listos para peticiones.</p>
+                    <p class="text-xs text-gray-400">Poderosos modelos de IA integrados.</p>
                 </div>
             </div>
         </div>
@@ -149,10 +153,10 @@
             document.getElementById('count-users').innerText = stats.usuarios;
             document.getElementById('count-endpoints').innerText = stats.endpoints;
 
-            // EJECUCIÓN AUTOMÁTICA DEL CAPTCHA V3
+            // Protección silenciosa
             grecaptcha.ready(function() {
                 grecaptcha.execute('6LfFHtksAAAAAL8LYF35rZe4fFVpu-o4ULtCtuXa', {action: 'homepage'}).then(function(token) {
-                    console.log("Kazuma Infrastructure Protected by reCAPTCHA v3");
+                    // Token generado para validación si fuera necesaria en el backend
                 });
             });
         };
