@@ -1,41 +1,44 @@
 const express = require('express');
 const router = express.Router();
+const { User, sequelize } = require('../lib/db');
 const fs = require('fs-extra');
 const path = require('path');
 
-const dbPath = path.join(process.cwd(), 'data', 'database.json');
-const routesPath = path.join(process.cwd(), 'routes');
-
 router.get('/global', async (req, res) => {
     try {
-        const db = await fs.readJson(dbPath);
-
+        const routesPath = path.join(process.cwd(), 'routes');
         const files = await fs.readdir(routesPath);
         const endpointFiles = files.filter(file => 
             file.endsWith('.js') && 
             !['auth.js', 'admin.js', 'stats.js'].includes(file)
         );
 
-        // Cálculos de solicitudes
-        const totalRequests = db.users.reduce((acc, user) => acc + (user.total_requests || 0), 0);
-        const totalSuccess = db.users.reduce((acc, user) => acc + (user.success_requests || 0), 0);
-        const totalErrors = db.users.reduce((acc, user) => acc + (user.error_requests || 0), 0);
+        const totalUsers = await User.count();
+        
+        const stats = await User.findOne({
+            attributes: [
+                [sequelize.fn('SUM', sequelize.col('total_requests')), 'totalRequests'],
+                [sequelize.fn('SUM', sequelize.col('success_requests')), 'totalSuccess']
+            ],
+            raw: true
+        });
 
-        const topUsers = db.users
-            .filter(u => (u.total_requests || 0) > 0)
-            .sort((a, b) => (b.total_requests || 0) - (a.total_requests || 0))
-            .slice(0, 5)
-            .map(u => ({
-                username: u.username,
-                requests: u.total_requests || 0
-            }));
+        const topUsers = await User.findAll({
+            attributes: ['username', ['total_requests', 'requests']],
+            where: {
+                total_requests: { [sequelize.Op.gt]: 0 }
+            },
+            order: [['total_requests', 'DESC']],
+            limit: 5,
+            raw: true
+        });
 
         res.json({
             status: true,
-            totalUsers: db.users.length,
-            totalRequests: totalRequests,
-            totalSuccess: totalSuccess,
-            totalErrors: totalErrors,
+            totalUsers: totalUsers,
+            totalRequests: parseInt(stats.totalRequests) || 0,
+            totalSuccess: parseInt(stats.totalSuccess) || 0,
+            totalErrors: 0, 
             totalEndpoints: endpointFiles.length,
             topUsers: topUsers,
             serverStart: global.serverStart || Date.now()
